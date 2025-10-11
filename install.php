@@ -41,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$configExists) {
         if ($mysqli->connect_errno) {
             $errors[] = '无法连接数据库服务器：' . $mysqli->connect_error;
         } else {
+            $mysqli->set_charset('utf8mb4');
             $dbNameEscaped = '`' . $mysqli->real_escape_string($dbName) . '`';
             if (!$mysqli->query("CREATE DATABASE IF NOT EXISTS {$dbNameEscaped} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")) {
                 $errors[] = '创建数据库失败：' . $mysqli->error;
@@ -51,37 +52,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$configExists) {
                 if ($sql === false) {
                     $errors[] = '读取 database.sql 文件失败。';
                 } else {
+                    if (strncmp($sql, "\xEF\xBB\xBF", 3) === 0) {
+                        $sql = substr($sql, 3);
+                    }
                     if (!$mysqli->multi_query($sql)) {
                         $errors[] = '执行数据库初始化语句失败：' . $mysqli->error;
                     } else {
-                        while ($mysqli->more_results()) {
-                            $mysqli->next_result();
+                        do {
+                            if ($result = $mysqli->store_result()) {
+                                $result->free();
+                            }
+                            if ($mysqli->errno) {
+                                $errors[] = '执行数据库初始化语句失败：' . $mysqli->error;
+                                break;
+                            }
+                        } while ($mysqli->more_results() && $mysqli->next_result());
+
+                        if (!$errors) {
+                            $usersTableReady = false;
+                            if ($check = $mysqli->query("SHOW COLUMNS FROM `users` LIKE 'username'")) {
+                                $usersTableReady = $check->num_rows > 0;
+                                $check->free();
+                            } else {
+                                $errors[] = '检测 users 表结构时失败：' . $mysqli->error;
+                            }
+
+                            if (!$usersTableReady && !$errors) {
+                                $errors[] = '数据库初始化未成功：未找到 users 表或缺少 username 字段，请确认 database.sql 已正确执行。';
+                            }
                         }
 
-                        $stmt = $mysqli->prepare('SELECT id FROM users WHERE username = ? LIMIT 1');
-                        if (!$stmt) {
-                            $errors[] = '准备检查管理员用户时失败：' . $mysqli->error;
-                        } else {
-                            $stmt->bind_param('s', $adminUsername);
-                            $stmt->execute();
-                            $stmt->store_result();
-                            $exists = $stmt->num_rows > 0;
-                            $stmt->close();
-
-                            if ($exists) {
-                                $errors[] = '管理员用户名已存在，请选择其他用户名。';
+                        if (!$errors) {
+                            $stmt = $mysqli->prepare('SELECT id FROM users WHERE username = ? LIMIT 1');
+                            if (!$stmt) {
+                                $errors[] = '准备检查管理员用户时失败：' . $mysqli->error;
                             } else {
-                                $passwordHash = password_hash($adminPassword, PASSWORD_DEFAULT);
-                                $displayName = $adminDisplayName !== '' ? $adminDisplayName : $adminUsername;
-                                $stmt = $mysqli->prepare('INSERT INTO users (username, display_name, role, password_hash) VALUES (?, ?, "admin", ?)');
-                                if (!$stmt) {
-                                    $errors[] = '创建管理员用户失败：' . $mysqli->error;
+                                $stmt->bind_param('s', $adminUsername);
+                                $stmt->execute();
+                                $stmt->store_result();
+                                $exists = $stmt->num_rows > 0;
+                                $stmt->close();
+
+                                if ($exists) {
+                                    $errors[] = '管理员用户名已存在，请选择其他用户名。';
                                 } else {
-                                    $stmt->bind_param('sss', $adminUsername, $displayName, $passwordHash);
-                                    if (!$stmt->execute()) {
-                                        $errors[] = '插入管理员用户失败：' . $stmt->error;
+                                    $passwordHash = password_hash($adminPassword, PASSWORD_DEFAULT);
+                                    $displayName = $adminDisplayName !== '' ? $adminDisplayName : $adminUsername;
+                                    $stmt = $mysqli->prepare('INSERT INTO users (username, display_name, role, password_hash) VALUES (?, ?, "admin", ?)');
+                                    if (!$stmt) {
+                                        $errors[] = '创建管理员用户失败：' . $mysqli->error;
+                                    } else {
+                                        $stmt->bind_param('sss', $adminUsername, $displayName, $passwordHash);
+                                        if (!$stmt->execute()) {
+                                            $errors[] = '插入管理员用户失败：' . $stmt->error;
+                                        }
+                                        $stmt->close();
                                     }
-                                    $stmt->close();
                                 }
                             }
                         }
