@@ -33,10 +33,11 @@
             color: rgba(255, 255, 255, 0.85);
         }
         main {
-            display: flex;
+            display: grid;
             gap: 24px;
             padding: 24px;
-            flex-wrap: wrap;
+            grid-template-columns: minmax(260px, 320px) 1fr;
+            align-items: start;
         }
         .panel {
             background-color: #fff;
@@ -44,14 +45,17 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 16px 24px;
         }
-        .course-list {
-            flex: 1 1 280px;
-            max-width: 340px;
-        }
-        .course-list h2,
-        .course-content h2 {
+        .panel h2 {
             margin-top: 0;
             font-size: 18px;
+        }
+        #authPanel {
+            grid-column: 1 / -1;
+        }
+        .course-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         .course-list ul {
             list-style: none;
@@ -77,8 +81,18 @@
             font-size: 13px;
             color: #666;
         }
+        #courseSection {
+            display: none;
+            grid-column: span 2;
+            gap: 24px;
+        }
+        #courseSection.active {
+            display: grid;
+            grid-template-columns: minmax(240px, 320px) 1fr;
+            gap: 24px;
+        }
         .course-content {
-            flex: 2 1 480px;
+            min-height: 200px;
         }
         .lesson {
             margin-bottom: 24px;
@@ -135,14 +149,61 @@
             color: #2980b9;
             font-size: 14px;
         }
+        #adminPanel {
+            display: none;
+            grid-column: 1 / -1;
+        }
+        #adminPanel.active {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        button.primary {
+            background-color: #2980b9;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button.primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .panel + .panel {
+            margin-top: 0;
+        }
+        .list-small {
+            font-size: 13px;
+            color: #666;
+        }
         @media (max-width: 900px) {
             main {
+                display: flex;
                 flex-direction: column;
             }
-            .course-list,
-            .course-content {
-                max-width: none;
-                width: 100%;
+            #courseSection.active {
+                display: flex;
+                flex-direction: column;
             }
         }
     </style>
@@ -150,43 +211,159 @@
 <body>
 <header>
     <h1>录播课程中心</h1>
-    <p>该页面为前端界面，通过接口获取课程与课节信息。请确保后端提供相应 API。</p>
+    <p id="welcomeText">请先登录以查看您的专属课程。</p>
 </header>
 <main>
-    <section class="panel course-list" aria-label="课程列表">
-        <h2>全部课程</h2>
-        <div id="courseMessage" class="message" role="alert"></div>
-        <div id="courseLoading" class="loading" hidden>正在加载课程...</div>
-        <ul id="courseList"></ul>
+    <section id="authPanel" class="panel" aria-live="polite">
+        <h2>账号登录</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="primary">登录</button>
+            <button type="button" id="logoutBtn" class="primary" style="background-color:#7f8c8d; display:none;">退出登录</button>
+            <p id="authMessage" class="message" style="display:none;"></p>
+        </form>
+        <p class="list-small">管理员可通过后台管理用户、课程和课节。</p>
     </section>
-    <section class="panel course-content" aria-live="polite">
-        <h2 id="courseTitle">欢迎进入录播课程中心</h2>
-        <p id="courseDescription" class="empty-state">请选择左侧的课程查看详细内容。</p>
-        <div id="lessonContainer"></div>
+    <section id="courseSection">
+        <section class="panel course-list" aria-label="课程列表">
+            <h2>我的课程</h2>
+            <div id="courseMessage" class="message" role="alert"></div>
+            <div id="courseLoading" class="loading" hidden>正在加载课程...</div>
+            <ul id="courseList"></ul>
+        </section>
+        <section class="panel course-content" aria-live="polite">
+            <h2 id="courseTitle">欢迎进入录播课程中心</h2>
+            <p id="courseDescription" class="empty-state">请选择左侧的课程查看详细内容。</p>
+            <div id="lessonContainer"></div>
+        </section>
+    </section>
+    <section id="adminPanel" aria-label="后台管理">
+        <article class="panel">
+            <h2>创建用户</h2>
+            <form id="createUserForm">
+                <div class="form-group">
+                    <label for="newUsername">用户名</label>
+                    <input type="text" id="newUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="newDisplayName">显示名称</label>
+                    <input type="text" id="newDisplayName" name="display_name">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">密码</label>
+                    <input type="password" id="newPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="newRole">角色</label>
+                    <select id="newRole" name="role">
+                        <option value="student">学生</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+                <button type="submit" class="primary">创建用户</button>
+                <p class="list-small" id="createUserMessage"></p>
+            </form>
+        </article>
+        <article class="panel">
+            <h2>创建课程</h2>
+            <form id="createCourseForm">
+                <div class="form-group">
+                    <label for="courseTitleInput">课程名称</label>
+                    <input type="text" id="courseTitleInput" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="courseDescriptionInput">课程描述</label>
+                    <textarea id="courseDescriptionInput" name="description"></textarea>
+                </div>
+                <button type="submit" class="primary">创建课程</button>
+                <p class="list-small" id="createCourseMessage"></p>
+            </form>
+        </article>
+        <article class="panel">
+            <h2>分配课程</h2>
+            <form id="assignCourseForm">
+                <div class="form-group">
+                    <label for="assignUser">选择用户</label>
+                    <select id="assignUser" name="user_id" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="assignCourse">选择课程</label>
+                    <select id="assignCourse" name="course_id" required></select>
+                </div>
+                <button type="submit" class="primary">分配课程</button>
+                <p class="list-small" id="assignCourseMessage"></p>
+            </form>
+        </article>
+        <article class="panel">
+            <h2>添加课节</h2>
+            <form id="createLessonForm">
+                <div class="form-group">
+                    <label for="lessonCourse">所属课程</label>
+                    <select id="lessonCourse" name="course_id" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="lessonTitle">课节标题</label>
+                    <input type="text" id="lessonTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="lessonVideo">视频地址</label>
+                    <input type="text" id="lessonVideo" name="video_url" placeholder="支持外链或本地视频路径">
+                </div>
+                <button type="submit" class="primary">添加课节</button>
+                <p class="list-small" id="createLessonMessage"></p>
+            </form>
+        </article>
     </section>
 </main>
 <script>
 (function () {
     const API_BASE = 'api';
+    const welcomeTextEl = document.getElementById('welcomeText');
+    const authPanel = document.getElementById('authPanel');
+    const loginForm = document.getElementById('loginForm');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const authMessageEl = document.getElementById('authMessage');
+    const courseSection = document.getElementById('courseSection');
     const courseListEl = document.getElementById('courseList');
     const courseMessageEl = document.getElementById('courseMessage');
     const courseLoadingEl = document.getElementById('courseLoading');
     const courseTitleEl = document.getElementById('courseTitle');
     const courseDescriptionEl = document.getElementById('courseDescription');
     const lessonContainerEl = document.getElementById('lessonContainer');
+    const adminPanel = document.getElementById('adminPanel');
+    const createUserForm = document.getElementById('createUserForm');
+    const createUserMessage = document.getElementById('createUserMessage');
+    const createCourseForm = document.getElementById('createCourseForm');
+    const createCourseMessage = document.getElementById('createCourseMessage');
+    const assignCourseForm = document.getElementById('assignCourseForm');
+    const assignCourseMessage = document.getElementById('assignCourseMessage');
+    const assignUserSelect = document.getElementById('assignUser');
+    const assignCourseSelect = document.getElementById('assignCourse');
+    const lessonCourseSelect = document.getElementById('lessonCourse');
+    const createLessonForm = document.getElementById('createLessonForm');
+    const createLessonMessage = document.getElementById('createLessonMessage');
 
     let currentCourseId = null;
+    let currentUser = null;
 
-    function setMessage(message, type = 'info') {
+    function setMessage(el, message, type = 'info') {
+        if (!el) return;
         if (!message) {
-            courseMessageEl.style.display = 'none';
-            courseMessageEl.textContent = '';
-            courseMessageEl.classList.remove('error');
+            el.style.display = 'none';
+            el.textContent = '';
+            el.classList.remove('error');
             return;
         }
-        courseMessageEl.textContent = message;
-        courseMessageEl.classList.toggle('error', type === 'error');
-        courseMessageEl.style.display = 'block';
+        el.textContent = message;
+        el.classList.toggle('error', type === 'error');
+        el.style.display = 'block';
     }
 
     function setCourseContent(course) {
@@ -254,29 +431,78 @@
         });
     }
 
-    async function fetchJSON(url) {
-        const response = await fetch(url, {
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
-
+    async function fetchJSON(url, options = {}) {
+        const fetchOptions = Object.assign({ credentials: 'include' }, options || {});
+        const extraHeaders = (options && options.headers) ? options.headers : {};
+        fetchOptions.headers = Object.assign({ 'Accept': 'application/json' }, extraHeaders);
+        const response = await fetch(url, fetchOptions);
         if (!response.ok) {
-            throw new Error('接口请求失败，状态码：' + response.status);
+            let message = '接口请求失败，状态码：' + response.status;
+            try {
+                const err = await response.json();
+                if (err && err.error) {
+                    message = err.error;
+                }
+            } catch (e) {
+                // ignore
+            }
+            throw new Error(message);
         }
         return response.json();
     }
 
+    async function fetchSession() {
+        try {
+            const data = await fetchJSON(`${API_BASE}/session.php`);
+            currentUser = data?.user || null;
+            updateAuthUI();
+            if (currentUser) {
+                await Promise.all([loadCourses(), refreshAdminData()]);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function updateAuthUI() {
+        const loggedIn = Boolean(currentUser);
+        loginForm.querySelector('button[type="submit"]').style.display = loggedIn ? 'none' : 'inline-block';
+        logoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
+        loginForm.username.disabled = loggedIn;
+        loginForm.password.disabled = loggedIn;
+        setMessage(authMessageEl, '');
+        if (loggedIn) {
+            welcomeTextEl.textContent = `欢迎，${currentUser.display_name || currentUser.username}！`;
+            courseSection.classList.add('active');
+            adminPanel.classList.toggle('active', currentUser.role === 'admin');
+            authPanel.querySelector('h2').textContent = '账户信息';
+        } else {
+            welcomeTextEl.textContent = '请先登录以查看您的专属课程。';
+            courseSection.classList.remove('active');
+            adminPanel.classList.remove('active');
+            setCourseContent(null);
+            courseListEl.innerHTML = '';
+            lessonContainerEl.innerHTML = '';
+            currentCourseId = null;
+            authPanel.querySelector('h2').textContent = '账号登录';
+        }
+    }
+
     async function loadCourses() {
+        if (!currentUser) {
+            return;
+        }
         courseLoadingEl.hidden = false;
-        setMessage('');
+        setMessage(courseMessageEl, '');
 
         try {
             const data = await fetchJSON(`${API_BASE}/courses.php`);
             const courses = Array.isArray(data?.courses) ? data.courses : [];
 
             if (courses.length === 0) {
-                courseListEl.innerHTML = '<li class="empty-state">暂无课程，请在后台添加课程。</li>';
+                courseListEl.innerHTML = '<li class="empty-state">暂无课程，请联系管理员分配课程。</li>';
+                setCourseContent(null);
+                lessonContainerEl.innerHTML = '';
                 return;
             }
 
@@ -298,7 +524,7 @@
                 courseListEl.appendChild(li);
             });
         } catch (error) {
-            setMessage(error.message || '加载课程失败，请稍后重试。', 'error');
+            setMessage(courseMessageEl, error.message || '加载课程失败，请稍后重试。', 'error');
             courseListEl.innerHTML = '';
         } finally {
             courseLoadingEl.hidden = true;
@@ -322,11 +548,206 @@
         } catch (error) {
             setCourseContent(null);
             lessonContainerEl.innerHTML = '';
-            setMessage(error.message || '加载课节失败，请稍后重试。', 'error');
+            setMessage(courseMessageEl, error.message || '加载课节失败，请稍后重试。', 'error');
         }
     }
 
-    loadCourses();
+    async function refreshAdminData() {
+        if (!currentUser || currentUser.role !== 'admin') {
+            return;
+        }
+        try {
+            const [userRes, courseRes] = await Promise.all([
+                fetchJSON(`${API_BASE}/users.php`),
+                fetchJSON(`${API_BASE}/courses.php?all=1`)
+            ]);
+            const users = Array.isArray(userRes?.users) ? userRes.users : [];
+            const courses = Array.isArray(courseRes?.courses) ? courseRes.courses : [];
+            assignUserSelect.innerHTML = '<option value="">请选择</option>';
+            users.forEach((user) => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = `${user.display_name || user.username} (${user.role === 'admin' ? '管理员' : '学生'})`;
+                assignUserSelect.appendChild(option);
+            });
+            const courseOptions = courses.map((course) => {
+                const option = document.createElement('option');
+                option.value = course.id;
+                option.textContent = course.title || `课程${course.id}`;
+                return option;
+            });
+            assignCourseSelect.innerHTML = '<option value="">请选择</option>';
+            lessonCourseSelect.innerHTML = '<option value="">请选择</option>';
+            courseOptions.forEach((option) => {
+                assignCourseSelect.appendChild(option.cloneNode(true));
+                lessonCourseSelect.appendChild(option.cloneNode(true));
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (currentUser) {
+            return;
+        }
+        const formData = new FormData(loginForm);
+        const payload = {
+            username: formData.get('username')?.trim(),
+            password: formData.get('password'),
+        };
+        if (!payload.username || !payload.password) {
+            setMessage(authMessageEl, '请输入用户名和密码', 'error');
+            return;
+        }
+        setMessage(authMessageEl, '正在登录，请稍候...');
+        try {
+            const data = await fetchJSON(`${API_BASE}/login.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            currentUser = data?.user || null;
+            loginForm.reset();
+            updateAuthUI();
+            await Promise.all([loadCourses(), refreshAdminData()]);
+            setMessage(authMessageEl, '登录成功', 'info');
+        } catch (error) {
+            setMessage(authMessageEl, error.message || '登录失败，请重试', 'error');
+        }
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+        try {
+            await fetchJSON(`${API_BASE}/logout.php`, { method: 'POST' });
+        } catch (error) {
+            console.error(error);
+        }
+        currentUser = null;
+        updateAuthUI();
+    });
+
+    createUserForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!currentUser || currentUser.role !== 'admin') return;
+        createUserMessage.textContent = '正在创建用户...';
+        try {
+            const payload = {
+                username: document.getElementById('newUsername').value.trim(),
+                display_name: document.getElementById('newDisplayName').value.trim(),
+                password: document.getElementById('newPassword').value,
+                role: document.getElementById('newRole').value,
+            };
+            if (!payload.username || !payload.password) {
+                createUserMessage.textContent = '用户名和密码不能为空';
+                return;
+            }
+            await fetchJSON(`${API_BASE}/users.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            createUserForm.reset();
+            createUserMessage.textContent = '创建成功';
+            await refreshAdminData();
+        } catch (error) {
+            createUserMessage.textContent = error.message || '创建失败';
+        }
+    });
+
+    createCourseForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!currentUser || currentUser.role !== 'admin') return;
+        createCourseMessage.textContent = '正在创建课程...';
+        try {
+            const payload = {
+                title: document.getElementById('courseTitleInput').value.trim(),
+                description: document.getElementById('courseDescriptionInput').value.trim(),
+            };
+            if (!payload.title) {
+                createCourseMessage.textContent = '课程名称不能为空';
+                return;
+            }
+            await fetchJSON(`${API_BASE}/courses.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            createCourseForm.reset();
+            createCourseMessage.textContent = '创建成功';
+            await Promise.all([refreshAdminData(), loadCourses()]);
+        } catch (error) {
+            createCourseMessage.textContent = error.message || '创建失败';
+        }
+    });
+
+    assignCourseForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!currentUser || currentUser.role !== 'admin') return;
+        assignCourseMessage.textContent = '正在分配课程...';
+        try {
+            const payload = {
+                user_id: parseInt(assignUserSelect.value, 10),
+                course_id: parseInt(assignCourseSelect.value, 10),
+            };
+            if (!payload.user_id || !payload.course_id) {
+                assignCourseMessage.textContent = '请选择用户和课程';
+                return;
+            }
+            await fetchJSON(`${API_BASE}/course_assignments.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            assignCourseMessage.textContent = '分配成功';
+            await loadCourses();
+        } catch (error) {
+            assignCourseMessage.textContent = error.message || '分配失败';
+        }
+    });
+
+    createLessonForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!currentUser || currentUser.role !== 'admin') return;
+        createLessonMessage.textContent = '正在添加课节...';
+        try {
+            const payload = {
+                course_id: parseInt(lessonCourseSelect.value, 10),
+                title: document.getElementById('lessonTitle').value.trim(),
+                video_url: document.getElementById('lessonVideo').value.trim(),
+            };
+            if (!payload.course_id || !payload.title) {
+                createLessonMessage.textContent = '请选择课程并填写课节标题';
+                return;
+            }
+            await fetchJSON(`${API_BASE}/lessons.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            createLessonForm.reset();
+            createLessonMessage.textContent = '添加成功';
+            if (currentCourseId === payload.course_id) {
+                await selectCourse(payload.course_id);
+            }
+        } catch (error) {
+            createLessonMessage.textContent = error.message || '添加失败';
+        }
+    });
+
+    fetchSession();
 })();
 </script>
 </body>
