@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>网课系统 - 录播课程</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
     <style>
         :root {
             color-scheme: light;
@@ -314,7 +315,7 @@
                 </div>
                 <div class="form-group">
                     <label for="lessonVideo">视频地址</label>
-                    <input type="text" id="lessonVideo" name="video_url" placeholder="支持外链或本地视频路径">
+                    <input type="text" id="lessonVideo" name="video_url" placeholder="支持外链、本地文件或哔哩哔哩视频链接">
                 </div>
                 <button type="submit" class="primary">添加课节</button>
                 <p class="list-small" id="createLessonMessage"></p>
@@ -322,6 +323,7 @@
         </article>
     </section>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 <script>
 (function () {
     const API_BASE = 'api';
@@ -352,6 +354,7 @@
 
     let currentCourseId = null;
     let currentUser = null;
+    const plyrPlayers = [];
 
     function setMessage(el, message, type = 'info') {
         if (!el) return;
@@ -366,8 +369,130 @@
         el.style.display = 'block';
     }
 
+    function resetPlyrPlayers() {
+        while (plyrPlayers.length) {
+            const player = plyrPlayers.pop();
+            try {
+                if (player && typeof player.destroy === 'function') {
+                    player.destroy();
+                }
+            } catch (error) {
+                console.warn('销毁播放器实例失败', error);
+            }
+        }
+    }
+
+    function initPlyrPlayers() {
+        if (!window.Plyr) {
+            return;
+        }
+        const videos = document.querySelectorAll('.js-plyr');
+        videos.forEach((videoEl) => {
+            try {
+                const player = new Plyr(videoEl, {
+                    controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
+                    ratio: '16:9'
+                });
+                plyrPlayers.push(player);
+            } catch (error) {
+                console.error('初始化播放器失败', error);
+            }
+        });
+    }
+
+    function guessVideoMimeType(url) {
+        if (!url) return '';
+        const cleanUrl = url.split('?')[0].split('#')[0];
+        const ext = cleanUrl.substring(cleanUrl.lastIndexOf('.') + 1).toLowerCase();
+        switch (ext) {
+            case 'mp4':
+                return 'video/mp4';
+            case 'webm':
+                return 'video/webm';
+            case 'ogg':
+            case 'ogv':
+                return 'video/ogg';
+            case 'm3u8':
+                return 'application/x-mpegURL';
+            default:
+                return '';
+        }
+    }
+
+    function buildVideoPlayer(videoUrl) {
+        const videoWrapper = document.createElement('div');
+        videoWrapper.className = 'video';
+
+        if (!videoUrl) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'placeholder';
+            placeholder.textContent = '尚未上传视频链接';
+            videoWrapper.appendChild(placeholder);
+            return videoWrapper;
+        }
+
+        const trimmedUrl = videoUrl.trim();
+        if (!trimmedUrl) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'placeholder';
+            placeholder.textContent = '尚未上传视频链接';
+            videoWrapper.appendChild(placeholder);
+            return videoWrapper;
+        }
+
+        const bilibiliEmbedRegex = /player\.bilibili\.com/i;
+        const bilibiliBvMatch = trimmedUrl.match(/bilibili\.com\/video\/(BV[\w]+)/i);
+        const bilibiliAvMatch = trimmedUrl.match(/bilibili\.com\/video\/av(\d+)/i);
+
+        if (bilibiliEmbedRegex.test(trimmedUrl) || bilibiliBvMatch || bilibiliAvMatch) {
+            let embedUrl = trimmedUrl;
+            let page = 1;
+            try {
+                const urlObj = new URL(trimmedUrl, window.location.href);
+                const pageParam = parseInt(urlObj.searchParams.get('p'), 10);
+                if (!Number.isNaN(pageParam) && pageParam > 0) {
+                    page = pageParam;
+                }
+            } catch (error) {
+                // ignore parse errors
+            }
+            if (bilibiliBvMatch) {
+                const bvid = bilibiliBvMatch[1];
+                embedUrl = `https://player.bilibili.com/player.html?bvid=${encodeURIComponent(bvid)}&page=${page}&high_quality=1&autoplay=0`;
+            } else if (bilibiliAvMatch) {
+                const aid = bilibiliAvMatch[1];
+                embedUrl = `https://player.bilibili.com/player.html?aid=${encodeURIComponent(aid)}&page=${page}&high_quality=1&autoplay=0`;
+            }
+            const iframe = document.createElement('iframe');
+            iframe.src = embedUrl;
+            iframe.allowFullscreen = true;
+            iframe.referrerPolicy = 'no-referrer';
+            iframe.setAttribute('allow', 'fullscreen; picture-in-picture');
+            videoWrapper.appendChild(iframe);
+            return videoWrapper;
+        }
+
+        const video = document.createElement('video');
+        video.className = 'js-plyr';
+        video.setAttribute('controls', '');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('preload', 'metadata');
+        video.setAttribute('controlsList', 'nodownload');
+
+        const source = document.createElement('source');
+        source.src = trimmedUrl;
+        const mimeType = guessVideoMimeType(trimmedUrl);
+        if (mimeType) {
+            source.type = mimeType;
+        }
+        video.appendChild(source);
+        videoWrapper.appendChild(video);
+        return videoWrapper;
+    }
+
     function setCourseContent(course) {
         if (!course) {
+            resetPlyrPlayers();
             courseTitleEl.textContent = '欢迎进入录播课程中心';
             courseDescriptionEl.textContent = '请选择左侧的课程查看详细内容。';
             courseDescriptionEl.classList.add('empty-state');
@@ -386,6 +511,7 @@
     }
 
     function renderLessons(lessons) {
+        resetPlyrPlayers();
         lessonContainerEl.innerHTML = '';
         if (!lessons || lessons.length === 0) {
             const empty = document.createElement('p');
@@ -403,32 +529,12 @@
             title.textContent = lesson.title || '未命名课节';
             wrapper.appendChild(title);
 
-            const videoWrapper = document.createElement('div');
-            videoWrapper.className = 'video';
-
-            if (lesson.video_url) {
-                if (/^https?:\/\//i.test(lesson.video_url)) {
-                    const iframe = document.createElement('iframe');
-                    iframe.src = lesson.video_url;
-                    iframe.allowFullscreen = true;
-                    iframe.referrerPolicy = 'no-referrer';
-                    videoWrapper.appendChild(iframe);
-                } else {
-                    const video = document.createElement('video');
-                    video.controls = true;
-                    video.src = lesson.video_url;
-                    videoWrapper.appendChild(video);
-                }
-            } else {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'placeholder';
-                placeholder.textContent = '尚未上传视频链接';
-                videoWrapper.appendChild(placeholder);
-            }
-
+            const videoWrapper = buildVideoPlayer(lesson.video_url);
             wrapper.appendChild(videoWrapper);
             lessonContainerEl.appendChild(wrapper);
         });
+
+        initPlyrPlayers();
     }
 
     async function fetchJSON(url, options = {}) {
