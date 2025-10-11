@@ -1,0 +1,99 @@
+<?php
+$rootDir = dirname(__DIR__);
+$configFile = $rootDir . '/config.php';
+if (!file_exists($configFile)) {
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => 'Missing config.php. Copy config.example.php and update credentials.']);
+    exit;
+}
+$config = require $configFile;
+
+if (!headers_sent()) {
+    header('Content-Type: application/json; charset=utf-8');
+}
+
+if (!empty($config['session_name'])) {
+    session_name($config['session_name']);
+}
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$mysqli = @new mysqli(
+    $config['db']['host'] ?? '127.0.0.1',
+    $config['db']['user'] ?? 'root',
+    $config['db']['password'] ?? '',
+    $config['db']['database'] ?? '',
+    $config['db']['port'] ?? 3306
+);
+
+if ($mysqli->connect_errno) {
+    http_response_code(500);
+    echo json_encode(['error' => '数据库连接失败: ' . $mysqli->connect_error]);
+    exit;
+}
+
+if (!empty($config['db']['charset'])) {
+    $mysqli->set_charset($config['db']['charset']);
+}
+
+function json_response($data, int $status = 200): void
+{
+    http_response_code($status);
+    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+function error_response(string $message, int $status = 400): void
+{
+    json_response(['error' => $message], $status);
+}
+
+function get_json_input(): array
+{
+    $raw = file_get_contents('php://input');
+    if ($raw === false || $raw === '') {
+        return [];
+    }
+    $data = json_decode($raw, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return [];
+    }
+    return $data;
+}
+
+function current_user(mysqli $mysqli): ?array
+{
+    if (empty($_SESSION['user_id'])) {
+        return null;
+    }
+    $stmt = $mysqli->prepare('SELECT id, username, display_name, role FROM users WHERE id = ? LIMIT 1');
+    if (!$stmt) {
+        error_response('无法准备查询用户信息');
+    }
+    $stmt->bind_param('i', $_SESSION['user_id']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc() ?: null;
+    $stmt->close();
+    return $user;
+}
+
+function require_login(mysqli $mysqli): array
+{
+    $user = current_user($mysqli);
+    if (!$user) {
+        error_response('请先登录', 401);
+    }
+    return $user;
+}
+
+function require_admin(mysqli $mysqli): array
+{
+    $user = require_login($mysqli);
+    if (($user['role'] ?? '') !== 'admin') {
+        error_response('仅管理员可执行此操作', 403);
+    }
+    return $user;
+}
