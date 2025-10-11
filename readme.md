@@ -8,10 +8,14 @@
 
 ## 快速开始
 
-1. 将 `config.example.php` 复制为 `config.php` 并填写数据库连接信息。
-2. 在数据库中执行 `database.sql` 中的建表语句，初始化所需数据表。
-3. 手动向 `users` 表插入至少一位管理员账号（`role` 为 `admin`，`password_hash` 可通过 PHP 的 `password_hash` 函数生成）。
-4. 将项目放置在支持 PHP 的服务器上，使 `index.php` 和 `api/` 目录可访问。
+1. 将项目放置在支持 PHP 的服务器上，使 `index.php`、`install.php` 和 `api/` 目录可访问。
+2. 首次部署后访问 `install.php`，按照页面提示填写数据库与管理员信息，脚本会自动：
+   - 创建（如不存在）并初始化数据库表结构；
+   - 生成 `config.php` 配置文件；
+   - 创建首位管理员账号。
+3. 安装完成后删除 `install.php` 并使用管理员账号登录系统。
+
+如需手动部署或二次配置，可参考 `config.example.php` 与 `database.sql` 获取所需配置和建表语句。
 
 前端页面默认从 `api/` 目录下的接口获取数据，确保服务器允许跨请求携带 Cookie（同源部署时默认即可）。
 
