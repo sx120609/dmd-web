@@ -9,21 +9,256 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
+    <style>
+        .admin-header {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            padding: 0.35rem 0.35rem 0.6rem;
+        }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            inset: -1.2rem -1.4rem -1.35rem;
+            background: radial-gradient(circle at 18% 0%, rgba(99, 102, 241, 0.18), transparent 60%),
+                linear-gradient(160deg, rgba(236, 72, 153, 0.18), transparent 65%);
+            border-radius: 26px;
+            opacity: 0.9;
+            pointer-events: none;
+        }
+
+        .admin-header > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .admin-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(120deg, #0f172a 0%, #312e81 48%, #4338ca 100%);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .admin-header p {
+            margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+
+        .section-grid {
+            display: grid;
+            gap: 1.75rem;
+        }
+
+        @media (min-width: 1024px) {
+            .section-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .list-card {
+            padding: 1.85rem;
+        }
+
+        .list-card h3 {
+            margin-top: 0;
+            margin-bottom: 1.1rem;
+        }
+
+        .hint {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.35rem;
+            line-height: 1.5;
+        }
+
+        .empty-hint {
+            padding: 1.35rem;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px dashed rgba(148, 163, 184, 0.28);
+            color: var(--text-secondary);
+            text-align: center;
+            font-size: 0.95rem;
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .user-management {
+            display: grid;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1120px) {
+            .user-management {
+                grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.2fr);
+                align-items: flex-start;
+            }
+        }
+
+        .user-management-primary {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .user-list-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .user-table {
+            margin-top: 0.5rem;
+        }
+
+        .user-table li {
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            padding: 0.95rem 0.85rem;
+            border-radius: var(--radius-md);
+            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+        }
+
+        .user-table li + li {
+            margin-top: 0.4rem;
+        }
+
+        .user-table li:hover {
+            background: linear-gradient(150deg, rgba(99, 102, 241, 0.12), rgba(236, 72, 153, 0.12));
+            border-color: rgba(99, 102, 241, 0.26);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .user-table li.active {
+            background: linear-gradient(150deg, rgba(99, 102, 241, 0.22), rgba(236, 72, 153, 0.2));
+            box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.35), 0 16px 32px rgba(99, 102, 241, 0.18);
+            color: var(--text-primary);
+        }
+
+        .user-table li .user-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .user-table li .user-meta span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .user-role-tag {
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.16);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            border: 1px solid rgba(148, 163, 184, 0.24);
+        }
+
+        .user-role-tag.is-admin {
+            background: linear-gradient(120deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.22));
+            color: var(--brand-color-strong);
+            border-color: rgba(99, 102, 241, 0.32);
+        }
+
+        .user-detail-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1.35rem;
+        }
+
+        .user-detail-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .user-detail-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            letter-spacing: -0.01em;
+        }
+
+        .user-detail-header p {
+            margin: 0.35rem 0 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .user-detail-chip {
+            background: rgba(148, 163, 184, 0.16);
+            color: var(--text-secondary);
+            border: 1px solid rgba(148, 163, 184, 0.24);
+        }
+
+        .user-detail-chip.is-admin {
+            background: linear-gradient(120deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.24));
+            color: var(--brand-color-strong);
+            border-color: rgba(99, 102, 241, 0.28);
+        }
+
+        .user-detail-empty {
+            padding: 1.35rem 1.5rem;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px dashed rgba(148, 163, 184, 0.24);
+            color: var(--text-secondary);
+            line-height: 1.65;
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .password-inline {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .password-inline input {
+            flex: 1;
+        }
+
+        .password-inline button {
+            flex-shrink: 0;
+        }
+
+        .danger-zone {
+            border-top: 1px solid rgba(148, 163, 184, 0.16);
+            padding-top: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .danger-zone strong {
+            font-size: 1rem;
+        }
+
+        .danger-zone p {
+            margin: 0.4rem 0 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+    </style>
 </head>
 <body class="app-shell">
-<nav class="navbar navbar-expand-lg app-navbar">
-    <div class="container-xxl py-3 px-3 px-lg-4">
-        <div class="d-flex align-items-center gap-3">
-            <div class="brand-glow">CL</div>
-            <div class="d-flex flex-column">
-                <span class="brand-eyebrow text-uppercase">智能录播课堂</span>
-                <span class="navbar-brand p-0 m-0 fw-semibold">管理中心</span>
-            </div>
-        </div>
-        <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
-            <div class="user-chip" id="adminChip" style="display:none;"></div>
-            <button class="btn btn-outline-secondary btn-sm" id="backButton">返回课堂</button>
-            <button class="btn btn-outline-danger btn-sm" id="logoutButton">退出登录</button>
+<header class="app-header">
+    <div class="inner">
+        <div class="brand">管理后台</div>
+        <div class="topbar-actions">
+            <div class="user-chip" id="adminChip"></div>
+            <button class="ghost-button" id="backButton">返回课堂</button>
+            <button class="ghost-button" id="logoutButton">退出登录</button>
         </div>
     </div>
 </nav>

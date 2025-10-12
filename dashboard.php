@@ -10,6 +10,40 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
+    <style>
+        .course-empty,
+        .lesson-empty {
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            color: var(--text-secondary);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.78));
+            border: 1px dashed rgba(99, 102, 241, 0.22);
+            line-height: 1.65;
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.1);
+        }
+
+        .lesson-empty {
+            text-align: center;
+        }
+
+        .skeleton {
+            border-radius: 18px;
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.18), rgba(148, 163, 184, 0.12), rgba(99, 102, 241, 0.18));
+            background-size: 320% 320%;
+            animation: shimmer 1.4s ease infinite;
+            height: 52px;
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.12);
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: 0 0;
+            }
+        }
+    </style>
 </head>
 <body class="app-shell">
 <nav class="navbar navbar-expand-lg app-navbar">
