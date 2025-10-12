@@ -16,7 +16,7 @@
     --body-background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.12), transparent 55%),
         radial-gradient(circle at 80% 10%, rgba(14, 165, 233, 0.12), transparent 45%),
         linear-gradient(180deg, #f8f9ff 0%, #f4f6fb 45%, #f1f3f8 100%);
-    --canvas-width: 1260px;
+    --canvas-width: 1520px;
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft YaHei', sans-serif;
 }
 
@@ -49,7 +49,7 @@ body {
 }
 
 .dashboard-navbar-inner {
-    max-width: 1240px;
+    max-width: 1440px;
     margin: 0 auto;
 }
 
@@ -84,7 +84,7 @@ body {
 }
 
 .dashboard-container {
-    max-width: 1240px;
+    max-width: 1440px;
     margin: 0 auto;
 }
 
@@ -604,12 +604,12 @@ label {
 .lesson-columns {
     display: grid;
     gap: 1.75rem;
-    grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+    grid-template-columns: clamp(340px, 32%, 540px) minmax(0, 1fr);
     align-items: start;
 }
 
 .lesson-columns.lesson-deck {
-    grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+    grid-template-columns: clamp(360px, 34%, 580px) minmax(0, 1fr);
 }
 
 .lesson-deck .lesson-panel {
@@ -624,6 +624,92 @@ label {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+}
+
+.dashboard-split {
+    display: grid;
+    grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
+    gap: clamp(1.5rem, 2.5vw, 2.75rem);
+    align-items: start;
+    padding: clamp(1.5rem, 2.6vw, 2.5rem);
+}
+
+.split-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 2.4vw, 2.5rem);
+    border-right: 1px solid rgba(148, 163, 184, 0.16);
+    padding-right: clamp(1rem, 2.5vw, 2.2rem);
+}
+
+.split-stage {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 2.4vw, 2.4rem);
+    min-width: 0;
+}
+
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.sidebar-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.sidebar-heading h2,
+.sidebar-heading h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+}
+
+.sidebar-heading p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.sidebar-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.stage-content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.35rem, 2.1vw, 2rem);
+    flex: 1 1 auto;
+    min-height: clamp(18rem, 36vw, 32rem);
+}
+
+@media (max-width: 992px) {
+    .dashboard-split {
+        grid-template-columns: 1fr;
+        padding: clamp(1.25rem, 4vw, 2rem);
+    }
+
+    .split-sidebar {
+        border-right: none;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+        padding-right: 0;
+        padding-bottom: clamp(1.25rem, 3vw, 1.75rem);
+        margin-bottom: clamp(1.25rem, 3vw, 1.75rem);
+    }
+
+    .split-stage {
+        padding-top: 0;
+    }
+
+    .stage-content {
+        min-height: auto;
+    }
 }
 
 .panel-header {
@@ -933,6 +1019,7 @@ label {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    flex: 1 1 auto;
 }
 
 .player-stage .empty-state {
@@ -1632,6 +1719,10 @@ body.lesson-drawer-open .drawer-backdrop {
     margin-top: -2.5rem;
 }
 
+.dashboard-shell .container-xxl {
+    max-width: min(100%, 1560px);
+}
+
 .floating-card {
     border: none;
     background: rgba(255, 255, 255, 0.92);
@@ -1659,7 +1750,7 @@ body.lesson-drawer-open .drawer-backdrop {
 }
 
 .dashboard-shell .floating-card .card-body {
-    padding: clamp(1.5rem, 3vw, 2.75rem);
+    padding: 0;
 }
 
 .dashboard-shell .lesson-panel {
