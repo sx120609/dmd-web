@@ -11,52 +11,24 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
 </head>
-<body class="app-shell">
-<nav class="navbar navbar-expand-lg app-navbar">
-    <div class="container-xxl py-3 px-3 px-lg-4">
-        <div class="d-flex align-items-center gap-3">
-            <div class="brand-glow">CL</div>
-            <div class="d-flex flex-column">
-                <span class="brand-eyebrow text-uppercase">智能录播课堂</span>
-                <span class="navbar-brand p-0 m-0 fw-semibold">掌握知识的现代方式</span>
-            </div>
+<body class="bg-body-tertiary">
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+    <div class="container-fluid py-2 px-3 px-lg-4">
+        <div class="d-flex flex-column">
+            <span class="navbar-brand p-0 m-0 fw-semibold">智能录播课堂</span>
+            <small class="text-secondary" id="welcomeText">正在加载...</small>
         </div>
         <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
-            <div class="user-chip" id="userChip" style="display:none;"></div>
+            <div class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="userChip"></div>
             <button class="btn btn-outline-primary btn-sm" id="adminButton" style="display:none;">进入管理后台</button>
             <button class="btn btn-outline-secondary btn-sm" id="logoutButton">退出登录</button>
         </div>
     </div>
 </nav>
-
-<section class="dashboard-hero py-4 py-lg-5">
-    <div class="container-xxl px-3 px-lg-4">
-        <div class="hero-panel">
-            <div class="hero-eyebrow">你好，<span id="welcomeText">正在加载...</span></div>
-            <div class="hero-main">
-                <div class="hero-copy">
-                    <h1 class="hero-title" id="workspaceHeading">我的课堂</h1>
-                    <p class="hero-subtitle" id="workspaceIntro">从左侧选择课程，即可在右侧查看课节详情。</p>
-                </div>
-                <div class="hero-meta">
-                    <span class="hero-pill" id="courseLessonCount">0 个课节</span>
-                    <span class="hero-pill soft" id="courseStatusChip" hidden>待选课</span>
-                </div>
-            </div>
-            <div class="hero-summary">
-                <div>
-                    <h2 class="hero-summary-title" id="courseSummaryTitle">尚未选择课程</h2>
-                    <p class="hero-summary-desc" id="courseSummaryDescription">从左侧课程列表中选择一个课程开始学习。</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<main class="dashboard-main container-xxl pb-5 px-3 px-lg-4">
+<main class="container-fluid py-4 px-3 px-lg-4">
     <div class="row g-4 align-items-start">
         <div class="col-12 col-xl-4 col-xxl-3">
-            <div class="card floating-card mb-4">
+            <div class="card shadow-sm mb-4">
                 <div class="card-body pb-0">
                     <h2 class="h5 mb-1">我的课程</h2>
                     <p class="text-secondary small">挑选一个课程继续学习。</p>
@@ -79,7 +51,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card floating-card">
+            <div class="card shadow-sm">
                 <div class="card-body pb-0">
                     <div class="d-flex align-items-start justify-content-between">
                         <div>
@@ -94,9 +66,25 @@
             </div>
         </div>
         <div class="col-12 col-xl-8 col-xxl-9">
-            <div class="card floating-card">
+            <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <div class="small text-secondary mb-3 breadcrumbs" id="breadcrumbs"><span>网课</span></div>
+                    <h1 class="h4 mb-2" id="workspaceHeading">我的课堂</h1>
+                    <p class="text-secondary mb-4" id="workspaceIntro">从左侧选择课程，即可在右侧查看课节详情。</p>
+                    <div class="d-flex flex-column flex-lg-row gap-3 align-items-start align-items-lg-center justify-content-between">
+                        <div>
+                            <h2 class="h5 mb-1" id="courseSummaryTitle">尚未选择课程</h2>
+                            <p class="text-secondary mb-0" id="courseSummaryDescription">从左侧课程列表中选择一个课程开始学习。</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="courseLessonCount">0 个课节</span>
+                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis" id="courseStatusChip" hidden>待选课</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-body">
                     <header class="mb-3">
                         <h2 class="h4 mb-2" id="lessonTitle">欢迎来到课堂</h2>
                         <p class="text-secondary mb-3" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
@@ -201,13 +189,7 @@
     function showWelcome(user) {
         welcomeTextEl.textContent = user ? `欢迎回来，${user.display_name || user.username}` : '欢迎来到课堂';
         if (userChipEl) {
-            if (user) {
-                userChipEl.textContent = `${user.display_name || user.username} · ${user.role === 'admin' ? '管理员' : '学员'}`;
-                userChipEl.style.display = 'inline-flex';
-            } else {
-                userChipEl.textContent = '';
-                userChipEl.style.display = 'none';
-            }
+            userChipEl.textContent = user ? `${user.display_name || user.username} · ${user.role === 'admin' ? '管理员' : '学员'}` : '';
         }
     }
 
