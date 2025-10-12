@@ -10,6 +10,19 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
+
+    <!-- 修改处：为下方主内容加宽并解除播放器潜在限宽 -->
+    <style>
+      /* 仅在超大屏生效，避免小屏撑满影响阅读 */
+      @media (min-width: 1400px) {
+        /* 如果有自定义样式给播放器设置过最大宽度，这里统一解除 */
+        .dashboard-main .player-stage .player,
+        .dashboard-main .player-stage .player-frame {
+          max-width: none;
+          width: 100%;
+        }
+      }
+    </style>
 </head>
 <body class="app-shell">
 <nav class="navbar navbar-expand-lg app-navbar">
@@ -30,6 +43,7 @@
 </nav>
 
 <section class="dashboard-hero py-4 py-lg-5">
+    <!-- 保持上方横幅为 container-xxl，视觉更集中；若想上方也全宽，把下行改为 container-fluid -->
     <div class="container-xxl px-3 px-lg-4">
         <div class="hero-panel">
             <div class="hero-eyebrow">你好，<span id="welcomeText">正在加载...</span></div>
@@ -53,9 +67,11 @@
     </div>
 </section>
 
-<main class="dashboard-main container-xxl pb-5 px-3 px-lg-4">
+<!-- 修改处：主内容区由 container-xxl 改为 container-fluid，让下方更宽 -->
+<main class="dashboard-main container-fluid pb-5 px-3 px-lg-4">
     <div class="row g-4 align-items-start">
-        <div class="col-12 col-xl-4 col-xxl-3">
+        <!-- 修改处：xxl 尺寸下把左列从 3 → 2，右列从 9 → 10，仅影响超大屏 -->
+        <div class="col-12 col-xl-4 col-xxl-2">
             <div class="card floating-card mb-4">
                 <div class="card-body pb-0">
                     <h2 class="h5 mb-1">我的课程</h2>
@@ -93,7 +109,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-xl-8 col-xxl-9">
+
+        <div class="col-12 col-xl-8 col-xxl-10">
             <div class="card floating-card">
                 <div class="card-body">
                     <div class="small text-secondary mb-3 breadcrumbs" id="breadcrumbs"><span>网课</span></div>
@@ -114,6 +131,7 @@
         </div>
     </div>
 </main>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 <script>
