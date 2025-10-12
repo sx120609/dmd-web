@@ -110,7 +110,7 @@
                         </select>
                     </div>
                     <button type="submit" class="primary-button">创建用户</button>
-                    <div class="message inline" id="createUserMessage"></div>
+                    <div class="message inline" id="createUserMessage" hidden></div>
                 </form>
                 <div class="card list-card">
                     <h3>现有用户</h3>
@@ -130,7 +130,7 @@
                         <textarea id="courseDescriptionInput" name="description" rows="4" placeholder="补充课程概述与亮点"></textarea>
                     </div>
                     <button type="submit" class="primary-button">创建课程</button>
-                    <div class="message inline" id="createCourseMessage"></div>
+                    <div class="message inline" id="createCourseMessage" hidden></div>
                 </form>
                 <div class="card list-card">
                     <h3>课程列表</h3>
@@ -155,7 +155,7 @@
                         <p class="hint">示例：<code>https://example.com/video.mp4</code> 或 <code>https://www.bilibili.com/video/BVxxxx</code></p>
                     </div>
                     <button type="submit" class="primary-button">添加课节</button>
-                    <div class="message inline" id="createLessonMessage"></div>
+                    <div class="message inline" id="createLessonMessage" hidden></div>
                 </form>
                 <div class="card list-card">
                     <h3>课节小贴士</h3>
@@ -176,12 +176,21 @@
                         <select id="assignCourseSelect" required></select>
                     </div>
                     <button type="submit" class="primary-button">分配课程</button>
-                    <div class="message inline" id="assignCourseMessage"></div>
+                    <div class="message inline" id="assignCourseMessage" hidden></div>
                 </form>
-                <div class="card list-card">
-                    <h3>使用说明</h3>
-                    <p class="hint">分配操作会立即生效；学员再次打开课程列表即可看到新的课程。</p>
-                    <div class="empty-hint" style="margin-top:1.5rem;">重复分配同一课程不会产生错误，系统会自动忽略。</div>
+                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                    <div class="card list-card">
+                        <h3>已分配课程</h3>
+                        <p class="hint">切换下方用户可查看课程列表，并可一键移除不再需要的课程。</p>
+                        <ul class="table-list" id="assignmentList">
+                            <li class="text-muted">请选择用户查看已分配课程</li>
+                        </ul>
+                    </div>
+                    <div class="card list-card">
+                        <h3>使用说明</h3>
+                        <p class="hint">分配操作会立即生效；学员再次打开课程列表即可看到新的课程。</p>
+                        <div class="empty-hint" style="margin-top:1.5rem;">重复分配同一课程不会产生错误，系统会自动忽略。</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -212,6 +221,7 @@
     const assignCourseMessage = document.getElementById('assignCourseMessage');
     const assignUserSelect = document.getElementById('assignUserSelect');
     const assignCourseSelect = document.getElementById('assignCourseSelect');
+    const assignmentListEl = document.getElementById('assignmentList');
 
     let state = {
         users: [],
@@ -220,10 +230,15 @@
     };
 
     function setMessage(element, text = '', type = '') {
-        element.textContent = text;
+        if (!element) {
+            return;
+        }
+        const message = text || '';
+        element.textContent = message;
         element.classList.remove('error', 'success');
-        if (!text) return;
-        if (type) {
+        const hasText = Boolean(message);
+        element.hidden = !hasText;
+        if (hasText && type) {
             element.classList.add(type);
         }
     }
@@ -281,7 +296,8 @@
         });
     }
 
-    function populateSelect(selectEl, items, valueKey, labelResolver) {
+    function populateSelect(selectEl, items, valueKey, labelResolver, preferredValue = null) {
+        const fallbackValue = preferredValue ?? selectEl.value ?? '';
         selectEl.innerHTML = '';
         if (!items.length) {
             const option = document.createElement('option');
@@ -289,20 +305,94 @@
             option.textContent = '暂无数据';
             selectEl.appendChild(option);
             selectEl.disabled = true;
-            return;
+            return '';
         }
         selectEl.disabled = false;
+        const fallbackString = fallbackValue !== null && fallbackValue !== undefined ? String(fallbackValue) : '';
+        let matched = false;
         items.forEach((item) => {
             const option = document.createElement('option');
             const value = item[valueKey];
             option.value = value;
             const label = typeof labelResolver === 'function' ? labelResolver(item) : (item[labelResolver] || `ID ${value}`);
             option.textContent = label;
+            if (!matched && String(value) === fallbackString) {
+                option.selected = true;
+                matched = true;
+            }
             selectEl.appendChild(option);
         });
-        const firstItem = items[0];
-        if (firstItem && firstItem[valueKey] !== undefined) {
-            selectEl.value = firstItem[valueKey];
+        if (!matched) {
+            selectEl.selectedIndex = 0;
+        }
+        return selectEl.value;
+    }
+
+    function summarize(text, maxLength = 60) {
+        if (!text) {
+            return '';
+        }
+        const clean = String(text).replace(/\s+/g, ' ').trim();
+        if (clean.length <= maxLength) {
+            return clean;
+        }
+        return `${clean.slice(0, maxLength)}…`;
+    }
+
+    function renderAssignmentPlaceholder(text, tone = 'muted') {
+        assignmentListEl.innerHTML = '';
+        const item = document.createElement('li');
+        item.textContent = text;
+        if (tone === 'error') {
+            item.style.color = '#b91c1c';
+        } else {
+            item.className = 'text-muted';
+        }
+        assignmentListEl.appendChild(item);
+    }
+
+    function renderAssignments(assignments) {
+        assignmentListEl.innerHTML = '';
+        if (!assignments.length) {
+            renderAssignmentPlaceholder('尚未分配课程');
+            return;
+        }
+        assignments.forEach((assignment) => {
+            const item = document.createElement('li');
+            const info = document.createElement('div');
+            const title = document.createElement('strong');
+            title.textContent = assignment.course_title || `课程 ${assignment.course_id}`;
+            info.appendChild(title);
+            const meta = document.createElement('div');
+            meta.className = 'text-muted';
+            meta.style.fontSize = '0.85rem';
+            const description = summarize(assignment.course_description || '', 64);
+            meta.textContent = description ? `课程ID：${assignment.course_id} · ${description}` : `课程ID：${assignment.course_id}`;
+            info.appendChild(meta);
+            item.appendChild(info);
+
+            const action = document.createElement('button');
+            action.type = 'button';
+            action.className = 'inline-button danger';
+            action.dataset.courseId = assignment.course_id;
+            action.textContent = '移除';
+            item.appendChild(action);
+
+            assignmentListEl.appendChild(item);
+        });
+    }
+
+    async function loadAssignmentsForUser(userId) {
+        if (!userId) {
+            renderAssignmentPlaceholder('请选择用户查看已分配课程');
+            return;
+        }
+        renderAssignmentPlaceholder('正在加载已分配课程...');
+        try {
+            const data = await fetchJSON(`${API_BASE}/course_assignments.php?user_id=${userId}`);
+            renderAssignments(data.assignments || []);
+        } catch (error) {
+            renderAssignmentPlaceholder(error.message || '加载已分配课程失败', 'error');
         }
     }
 
@@ -323,9 +413,16 @@
             state.courses = coursesData.courses || [];
             refreshUserList();
             refreshCourseList();
-            populateSelect(assignUserSelect, state.users, 'id', (user) => user.display_name || user.username);
+            const selectedUser = populateSelect(assignUserSelect, state.users, 'id', (user) => user.display_name || user.username);
             populateSelect(assignCourseSelect, state.courses, 'id', 'title');
             populateSelect(lessonCourseSelect, state.courses, 'id', 'title');
+
+            const initialUserId = parseInt(selectedUser, 10);
+            if (initialUserId) {
+                loadAssignmentsForUser(initialUserId);
+            } else {
+                renderAssignmentPlaceholder('暂无用户，请先创建。');
+            }
         } catch (error) {
             alert(error.message || '加载管理信息失败');
             window.location.href = 'index.php';
@@ -340,6 +437,44 @@
                 content.classList.toggle('active', content.id === `tab-${target}`);
             });
         });
+    });
+
+    assignUserSelect.addEventListener('change', () => {
+        const userId = parseInt(assignUserSelect.value, 10);
+        setMessage(assignCourseMessage);
+        if (userId) {
+            loadAssignmentsForUser(userId);
+        } else {
+            renderAssignmentPlaceholder('请选择用户查看已分配课程');
+        }
+    });
+
+    assignmentListEl.addEventListener('click', async (event) => {
+        const button = event.target.closest('button[data-course-id]');
+        if (!button) {
+            return;
+        }
+        const userId = parseInt(assignUserSelect.value, 10);
+        const courseId = parseInt(button.dataset.courseId, 10);
+        if (!userId || !courseId) {
+            return;
+        }
+        const originalLabel = button.textContent;
+        button.disabled = true;
+        button.textContent = '移除中...';
+        try {
+            await fetchJSON(`${API_BASE}/course_assignments.php`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, course_id: courseId })
+            });
+            setMessage(assignCourseMessage, '已移除课程', 'success');
+            await loadAssignmentsForUser(userId);
+        } catch (error) {
+            setMessage(assignCourseMessage, error.message || '移除课程失败', 'error');
+            button.disabled = false;
+            button.textContent = originalLabel;
+        }
     });
 
     createUserForm.addEventListener('submit', async (event) => {
@@ -363,9 +498,20 @@
             });
             state.users.push(result.user);
             refreshUserList();
-            populateSelect(assignUserSelect, state.users, 'id', (user) => user.display_name || user.username);
+            const selectedAfterCreate = populateSelect(
+                assignUserSelect,
+                state.users,
+                'id',
+                (user) => user.display_name || user.username,
+                result.user.id
+            );
             createUserForm.reset();
             setMessage(createUserMessage, '创建成功', 'success');
+            setMessage(assignCourseMessage);
+            const newUserId = parseInt(selectedAfterCreate, 10);
+            if (newUserId) {
+                loadAssignmentsForUser(newUserId);
+            }
         } catch (error) {
             setMessage(createUserMessage, error.message || '创建失败', 'error');
         }
@@ -390,8 +536,8 @@
             });
             state.courses.push(result.course);
             refreshCourseList();
-            populateSelect(assignCourseSelect, state.courses, 'id', 'title');
-            populateSelect(lessonCourseSelect, state.courses, 'id', 'title');
+            populateSelect(assignCourseSelect, state.courses, 'id', 'title', result.course.id);
+            populateSelect(lessonCourseSelect, state.courses, 'id', 'title', result.course.id);
             createCourseForm.reset();
             setMessage(createCourseMessage, '课程创建成功', 'success');
         } catch (error) {
@@ -416,6 +562,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
+            await loadAssignmentsForUser(payload.user_id);
             setMessage(assignCourseMessage, '分配成功', 'success');
         } catch (error) {
             setMessage(assignCourseMessage, error.message || '分配失败', 'error');

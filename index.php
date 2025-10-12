@@ -178,7 +178,7 @@
                 <input id="password" name="password" type="password" placeholder="请输入密码" required>
             </div>
             <button type="submit" class="primary-button" id="loginButton">立即登录</button>
-            <div class="message login-message" id="loginMessage" aria-live="polite"></div>
+            <div class="message login-message" id="loginMessage" aria-live="polite" hidden></div>
         </form>
         <footer>
             如需开通账号或重置密码，请联系课堂管理员。
@@ -192,10 +192,12 @@
 
     const API_BASE = 'api';
 
-    function showMessage(text, type = '') {
-        loginMessage.textContent = text || '';
+    function showMessage(text = '', type = '') {
+        const hasText = Boolean(text);
+        loginMessage.textContent = hasText ? text : '';
         loginMessage.classList.remove('error', 'success');
-        if (type) {
+        loginMessage.hidden = !hasText;
+        if (hasText && type) {
             loginMessage.classList.add(type);
         }
     }

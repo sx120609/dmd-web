@@ -129,6 +129,35 @@ label {
     color: var(--brand-color);
 }
 
+.inline-button {
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: rgba(79, 70, 229, 0.08);
+    color: var(--brand-color);
+    border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.inline-button:hover {
+    background: rgba(79, 70, 229, 0.12);
+}
+
+.inline-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.inline-button.danger {
+    color: #b91c1c;
+    border-color: rgba(220, 38, 38, 0.25);
+    background: rgba(220, 38, 38, 0.08);
+}
+
+.inline-button.danger:hover {
+    background: rgba(220, 38, 38, 0.14);
+}
+
 .badge {
     display: inline-flex;
     align-items: center;
