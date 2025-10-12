@@ -57,17 +57,15 @@
 
 <main class="dashboard-main container-xxl px-3 px-lg-4 pb-5">
     <div class="card floating-card border-0">
-        <div class="card-body p-4 p-lg-5">
-            <div class="lesson-columns lesson-deck">
-                <aside class="lesson-panel">
-                    <section class="panel-card">
-                        <div class="panel-header">
-                            <div>
-                                <h2>我的课程</h2>
-                                <p>挑选一个课程继续学习。</p>
-                            </div>
+        <div class="card-body p-0">
+            <div class="dashboard-split">
+                <section class="split-sidebar">
+                    <div class="sidebar-section">
+                        <div class="sidebar-heading">
+                            <h2>我的课程</h2>
+                            <p>挑选一个课程继续学习。</p>
                         </div>
-                        <div class="panel-content">
+                        <div class="sidebar-body">
                             <div class="panel-list" id="courseList">
                                 <div class="panel-list-item">
                                     <div class="placeholder-glow">
@@ -86,34 +84,34 @@
                                 </div>
                             </div>
                         </div>
-                    </section>
-                    <section class="panel-card">
-                        <div class="panel-header">
-                            <div>
-                                <h3 id="lessonPaneTitle">课节</h3>
-                                <p id="lessonPaneHint">先选择课程以加载课节。</p>
-                            </div>
+                    </div>
+                    <div class="sidebar-section">
+                        <div class="sidebar-heading">
+                            <h3 id="lessonPaneTitle">课节</h3>
+                            <p id="lessonPaneHint">先选择课程以加载课节。</p>
                         </div>
-                        <div class="panel-content">
+                        <div class="sidebar-body">
                             <div class="panel-list" id="lessonList">
                                 <div class="panel-empty">暂未选择课程。</div>
                             </div>
                         </div>
-                    </section>
-                </aside>
-                <section class="lesson-stage panel-card">
-                    <header class="stage-header">
-                        <div class="breadcrumbs" id="breadcrumbs"><span>网课</span></div>
-                        <h2 class="stage-title" id="lessonTitle">欢迎来到课堂</h2>
-                        <p class="stage-subtitle" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
-                        <div class="stage-meta" id="lessonMeta" hidden>
-                            <span class="chip" id="courseBadge"></span>
-                            <span class="chip subtle" id="lessonBadge"></span>
+                    </div>
+                </section>
+                <section class="split-stage">
+                    <div class="stage-surface">
+                        <header class="stage-header">
+                            <div class="breadcrumbs" id="breadcrumbs"><span>网课</span></div>
+                            <h2 class="stage-title" id="lessonTitle">欢迎来到课堂</h2>
+                            <p class="stage-subtitle" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
+                            <div class="stage-meta" id="lessonMeta" hidden>
+                                <span class="chip" id="courseBadge"></span>
+                                <span class="chip subtle" id="lessonBadge"></span>
+                            </div>
+                        </header>
+                        <div class="stage-hint" id="stageHint">尚未选择课节。</div>
+                        <div class="player-stage" id="playerHost">
+                            <div class="empty-state">尚未选择课节。</div>
                         </div>
-                    </header>
-                    <div class="stage-hint" id="stageHint">尚未选择课节。</div>
-                    <div class="player-stage" id="playerHost">
-                        <div class="empty-state">尚未选择课节。</div>
                     </div>
                 </section>
             </div>
@@ -367,6 +365,32 @@
         if (!stageHintEl) return;
         stageHintEl.textContent = message;
         stageHintEl.hidden = hidden;
+    }
+
+    function setCourseProgress(completed = 0, total = 0) {
+        const safeTotal = Math.max(Number(total) || 0, 0);
+        const safeCompleted = Math.min(Math.max(Number(completed) || 0, 0), safeTotal);
+        const percentage = safeTotal > 0 ? Math.round((safeCompleted / safeTotal) * 100) : 0;
+
+        if (courseProgressBarEl) {
+            courseProgressBarEl.style.setProperty('--progress', `${percentage}%`);
+            courseProgressBarEl.setAttribute('aria-valuemin', '0');
+            courseProgressBarEl.setAttribute('aria-valuemax', '100');
+            courseProgressBarEl.setAttribute('aria-valuenow', String(percentage));
+            if ('value' in courseProgressBarEl) {
+                courseProgressBarEl.value = percentage;
+            }
+        }
+
+        if (courseLessonCountEl) {
+            if (safeTotal <= 0) {
+                courseLessonCountEl.textContent = '0 个课节';
+            } else if (safeCompleted <= 0) {
+                courseLessonCountEl.textContent = `${safeTotal} 个课节`;
+            } else {
+                courseLessonCountEl.textContent = `${safeTotal} 个课节 · 已学 ${safeCompleted}/${safeTotal}`;
+            }
+        }
     }
 
     function renderLessonList(lessons, course) {
