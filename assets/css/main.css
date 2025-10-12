@@ -628,25 +628,30 @@ label {
 
 .dashboard-split {
     display: grid;
-    grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
-    gap: clamp(1.5rem, 2.5vw, 2.75rem);
+    grid-template-columns: minmax(230px, 260px) minmax(0, 1fr);
+    gap: clamp(1.15rem, 2.1vw, 2.2rem);
     align-items: start;
-    padding: clamp(1.25rem, 2.2vw, 2.25rem);
+    padding: clamp(0.9rem, 1.8vw, 1.6rem);
 }
 
 .split-sidebar {
     display: flex;
     flex-direction: column;
-    gap: clamp(1.5rem, 2.4vw, 2.5rem);
+    gap: clamp(1.25rem, 2.1vw, 2.2rem);
     border-right: 1px solid rgba(148, 163, 184, 0.16);
-    padding-right: clamp(1rem, 2.5vw, 2.2rem);
+    padding-right: clamp(0.85rem, 1.9vw, 1.6rem);
 }
 
 .split-stage {
     display: flex;
     flex-direction: column;
-    gap: clamp(1.5rem, 2.4vw, 2.4rem);
+    gap: clamp(1.25rem, 2vw, 2.2rem);
     min-width: 0;
+    align-items: stretch;
+}
+
+.split-stage > * {
+    width: 100%;
 }
 
 .sidebar-section {
@@ -687,6 +692,7 @@ label {
     gap: clamp(1.35rem, 2.1vw, 2rem);
     flex: 1 1 auto;
     min-height: clamp(18rem, 36vw, 32rem);
+    align-items: stretch;
 }
 
 @media (max-width: 992px) {
@@ -1020,6 +1026,7 @@ label {
     flex-direction: column;
     gap: clamp(0.75rem, 1.5vw, 1.35rem);
     flex: 1 1 auto;
+    width: 100%;
 }
 
 .player-stage .empty-state {
@@ -1030,6 +1037,7 @@ label {
 
 .player {
     width: 100%;
+    max-width: none;
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
@@ -1601,11 +1609,19 @@ body.lesson-drawer-open .drawer-backdrop {
     z-index: 1;
 }
 
+.hero-container {
+    padding-inline: clamp(1.1rem, 3vw, 1.85rem);
+}
+
+.dashboard-shell .dashboard-main.container-xxl {
+    padding-inline: clamp(1.1rem, 3vw, 2.1rem);
+}
+
 .hero-panel {
     position: relative;
     overflow: hidden;
     border-radius: var(--radius-lg);
-    padding: clamp(2rem, 3vw, 2.85rem);
+    padding: clamp(1.65rem, 2.8vw, 2.4rem);
     background: radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.15), transparent 55%),
         linear-gradient(135deg, rgba(79, 70, 229, 0.94), rgba(14, 165, 233, 0.92));
     color: #fff;
@@ -1644,8 +1660,8 @@ body.lesson-drawer-open .drawer-backdrop {
 .hero-main {
     display: flex;
     flex-direction: column;
-    gap: 1.8rem;
-    margin-top: 1.5rem;
+    gap: clamp(1.25rem, 2.2vw, 1.6rem);
+    margin-top: 1.1rem;
 }
 
 @media (min-width: 992px) {
@@ -1697,8 +1713,8 @@ body.lesson-drawer-open .drawer-backdrop {
 }
 
 .hero-summary {
-    margin-top: 2rem;
-    padding-top: 1.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.4rem;
     border-top: 1px solid rgba(255, 255, 255, 0.25);
 }
 

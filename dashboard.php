@@ -33,8 +33,8 @@
     </div>
 </nav>
 
-<section class="page-hero py-4 py-lg-5">
-    <div class="container-xxl px-3 px-lg-4">
+<section class="page-hero py-3 py-lg-4">
+    <div class="container-xxl hero-container">
         <div class="hero-panel student-hero">
             <div class="hero-eyebrow">继续学习</div>
             <div class="hero-main">
@@ -55,7 +55,7 @@
     </div>
 </section>
 
-<main class="dashboard-main container-xxl px-3 px-lg-4 pb-5">
+<main class="dashboard-main container-xxl pb-5">
     <div class="dashboard-split">
         <section class="split-sidebar">
             <div class="sidebar-section">
@@ -566,8 +566,7 @@
         if (video) {
             const player = new Plyr(video, {
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
-                settings: ['speed', 'quality'],
-                ratio: '16:9'
+                settings: ['speed', 'quality']
             });
             players.push(player);
         }
