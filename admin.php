@@ -67,7 +67,7 @@
                         <div class="d-flex flex-column gap-4">
                             <div class="card surface-section list-card user-list-card">
                                 <div class="panel-header">
-                                    <h3>现有用户</h3>
+                                    <h3>用户</h3>
                                     <p class="hint">点击用户即可查看详情、修改信息或重置密码。</p>
                                 </div>
                                 <ul class="table-list user-table" id="userList"></ul>
