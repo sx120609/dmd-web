@@ -369,6 +369,32 @@
         stageHintEl.hidden = hidden;
     }
 
+    function setCourseProgress(completed = 0, total = 0) {
+        const safeTotal = Math.max(Number(total) || 0, 0);
+        const safeCompleted = Math.min(Math.max(Number(completed) || 0, 0), safeTotal);
+        const percentage = safeTotal > 0 ? Math.round((safeCompleted / safeTotal) * 100) : 0;
+
+        if (courseProgressBarEl) {
+            courseProgressBarEl.style.setProperty('--progress', `${percentage}%`);
+            courseProgressBarEl.setAttribute('aria-valuemin', '0');
+            courseProgressBarEl.setAttribute('aria-valuemax', '100');
+            courseProgressBarEl.setAttribute('aria-valuenow', String(percentage));
+            if ('value' in courseProgressBarEl) {
+                courseProgressBarEl.value = percentage;
+            }
+        }
+
+        if (courseLessonCountEl) {
+            if (safeTotal <= 0) {
+                courseLessonCountEl.textContent = '0 个课节';
+            } else if (safeCompleted <= 0) {
+                courseLessonCountEl.textContent = `${safeTotal} 个课节`;
+            } else {
+                courseLessonCountEl.textContent = `${safeTotal} 个课节 · 已学 ${safeCompleted}/${safeTotal}`;
+            }
+        }
+    }
+
     function renderLessonList(lessons, course) {
         closeAllDrawers();
         currentCourse = course || null;
