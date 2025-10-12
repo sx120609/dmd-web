@@ -126,11 +126,6 @@
     const API_BASE = 'api';
 
     function normalizeApiUrl(url) {
-        if (url.startsWith(`${API_BASE}/`)) {
-            const [path, query] = url.split('?');
-            const sanitizedPath = path.replace(/\.php$/, '');
-            return query ? `${sanitizedPath}?${query}` : sanitizedPath;
-        }
         return url;
     }
 
