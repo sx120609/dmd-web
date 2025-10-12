@@ -32,6 +32,13 @@
             gap: 1.75rem;
         }
 
+        .admin-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
         @media (min-width: 1024px) {
             .section-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -215,13 +222,58 @@
             font-size: 0.9rem;
             line-height: 1.5;
         }
+
+        @media (max-width: 768px) {
+            .user-detail-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .user-detail-header .chip {
+                align-self: flex-start;
+            }
+
+            .admin-header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .password-inline {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .password-inline button {
+                width: 100%;
+            }
+
+            .admin-header-actions .ghost-button {
+                flex: 1 1 48%;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .admin-header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.6rem;
+            }
+
+            .admin-header-actions .ghost-button,
+            .admin-header-actions .user-chip {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="app-shell">
 <header class="app-header">
     <div class="inner">
         <div class="brand">管理后台</div>
-        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap: wrap;">
+        <div class="admin-header-actions">
             <div class="user-chip" id="adminChip"></div>
             <button class="ghost-button" id="backButton">返回课堂</button>
             <button class="ghost-button" id="logoutButton">退出登录</button>
@@ -241,7 +293,7 @@
             </div>
         </div>
         <div class="tab-content active" id="tab-users" role="tabpanel">
-            <div class="user-management" style="margin-top:2rem;">
+            <div class="user-management section-gap">
                 <div class="user-management-primary">
                     <div class="card list-card user-list-card">
                         <div class="panel-header">
@@ -250,7 +302,7 @@
                         </div>
                         <ul class="table-list user-table" id="userList"></ul>
                     </div>
-                    <form id="createUserForm" class="card surface-section form-grid" style="padding:2rem;">
+                    <form id="createUserForm" class="card surface-section form-grid surface-form">
                         <div>
                             <label for="newUsername">用户名</label>
                             <input id="newUsername" name="username" placeholder="例如：student01" required>
@@ -305,7 +357,7 @@
                                 <input id="editPassword" type="password" placeholder="填写新密码，留空则不修改">
                                 <button type="button" class="ghost-button" id="resetPasswordButton">生成临时密码</button>
                             </div>
-                            <p class="hint" style="margin-top:0.5rem;">生成临时密码会立即生效，并在下方显示结果。</p>
+                            <p class="hint mt-sm">生成临时密码会立即生效，并在下方显示结果。</p>
                         </div>
                         <button type="submit" class="primary-button">保存修改</button>
                         <div class="message inline" id="updateUserMessage" hidden></div>
@@ -322,8 +374,8 @@
             </div>
         </div>
         <div class="tab-content" id="tab-courses" role="tabpanel">
-            <div class="split" style="margin-top:2rem; gap:2rem;">
-                <form id="createCourseForm" class="card surface-section form-grid" style="padding:2rem;">
+            <div class="split split-relaxed section-gap">
+                <form id="createCourseForm" class="card surface-section form-grid surface-form">
                     <div>
                         <label for="courseTitleInput">课程名称</label>
                         <input id="courseTitleInput" name="title" placeholder="例如：高等数学" required>
@@ -335,15 +387,15 @@
                     <button type="submit" class="primary-button">创建课程</button>
                     <div class="message inline" id="createCourseMessage" hidden></div>
                 </form>
-                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                <div class="stack">
                     <div class="card list-card">
                         <h3>课程列表</h3>
                         <p class="hint">点击课程可编辑信息，删除将同时移除课节与分配记录。</p>
                         <ul class="table-list" id="courseList"></ul>
                         <div class="message inline" id="courseListMessage" hidden></div>
                     </div>
-                    <form id="updateCourseForm" class="card surface-section form-grid" style="padding:2rem;" hidden>
-                        <h3 style="margin-top:0;">编辑课程</h3>
+                    <form id="updateCourseForm" class="card surface-section form-grid surface-form" hidden>
+                        <h3 class="flush-top">编辑课程</h3>
                         <div>
                             <label for="editCourseTitle">课程名称</label>
                             <input id="editCourseTitle" placeholder="请输入课程标题" required>
@@ -352,7 +404,7 @@
                             <label for="editCourseDescription">课程简介</label>
                             <textarea id="editCourseDescription" rows="4" placeholder="填写课程简介"></textarea>
                         </div>
-                        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                        <div class="inline-actions">
                             <button type="submit" class="primary-button">保存修改</button>
                             <button type="button" class="ghost-button" id="cancelCourseEdit">取消</button>
                         </div>
@@ -362,8 +414,8 @@
             </div>
         </div>
         <div class="tab-content" id="tab-lessons" role="tabpanel">
-            <div class="split" style="margin-top:2rem; gap:2rem;">
-                <form id="createLessonForm" class="card surface-section form-grid" style="padding:2rem;">
+            <div class="split split-relaxed section-gap">
+                <form id="createLessonForm" class="card surface-section form-grid surface-form">
                     <div>
                         <label for="lessonCourseSelect">选择课程</label>
                         <select id="lessonCourseSelect" required></select>
@@ -380,7 +432,7 @@
                     <button type="submit" class="primary-button">添加课节</button>
                     <div class="message inline" id="createLessonMessage" hidden></div>
                 </form>
-                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                <div class="stack">
                     <div class="card list-card">
                         <h3>课节列表</h3>
                         <p class="hint">选择课程后可查看现有课节，并删除不再需要的内容。</p>
@@ -389,8 +441,8 @@
                         </ul>
                         <div class="message inline" id="lessonListMessage" hidden></div>
                     </div>
-                    <form id="updateLessonForm" class="card surface-section form-grid" style="padding:2rem;" hidden>
-                        <h3 style="margin-top:0;">编辑课节</h3>
+                    <form id="updateLessonForm" class="card surface-section form-grid surface-form" hidden>
+                        <h3 class="flush-top">编辑课节</h3>
                         <div>
                             <label for="editLessonCourseSelect">所属课程</label>
                             <select id="editLessonCourseSelect" required></select>
@@ -403,7 +455,7 @@
                             <label for="editLessonVideo">视频链接</label>
                             <input id="editLessonVideo" placeholder="支持本地文件链接或哔哩哔哩地址">
                         </div>
-                        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                        <div class="inline-actions">
                             <button type="submit" class="primary-button">保存课节</button>
                             <button type="button" class="ghost-button" id="cancelLessonEdit">取消</button>
                         </div>
@@ -412,14 +464,14 @@
                     <div class="card list-card">
                         <h3>课节小贴士</h3>
                         <p class="hint">添加课节后，学员刷新课程即可观看最新内容。建议为不同来源的视频提供清晰命名，便于识别。</p>
-                        <div class="empty-hint" style="margin-top:1.5rem;">删除课节后，已分配的学员将无法再看到该内容。</div>
+                        <div class="empty-hint mt-md">删除课节后，已分配的学员将无法再看到该内容。</div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="tab-content" id="tab-assignments" role="tabpanel">
-            <div class="split" style="margin-top:2rem; gap:2rem;">
-                <form id="assignCourseForm" class="card surface-section form-grid" style="padding:2rem;">
+            <div class="split split-relaxed section-gap">
+                <form id="assignCourseForm" class="card surface-section form-grid surface-form">
                     <div>
                         <label for="assignUserSelect">选择用户</label>
                         <select id="assignUserSelect" required></select>
@@ -431,7 +483,7 @@
                     <button type="submit" class="primary-button">分配课程</button>
                     <div class="message inline" id="assignCourseMessage" hidden></div>
                 </form>
-                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                <div class="stack">
                     <div class="card list-card">
                         <h3>已分配课程</h3>
                         <p class="hint">切换下方用户可查看课程列表，并可一键移除不再需要的课程。</p>
@@ -442,7 +494,7 @@
                     <div class="card list-card">
                         <h3>使用说明</h3>
                         <p class="hint">分配操作会立即生效；学员再次打开课程列表即可看到新的课程。</p>
-                        <div class="empty-hint" style="margin-top:1.5rem;">重复分配同一课程不会产生错误，系统会自动忽略。</div>
+                        <div class="empty-hint mt-md">重复分配同一课程不会产生错误，系统会自动忽略。</div>
                     </div>
                 </div>
             </div>
@@ -451,6 +503,17 @@
 </main>
 <script>
     const API_BASE = 'api';
+    const ROUTE_LOGIN = 'login';
+    const ROUTE_DASHBOARD = 'dashboard';
+
+    function normalizeApiUrl(url) {
+        if (url.startsWith(`${API_BASE}/`)) {
+            const [path, query] = url.split('?');
+            const sanitizedPath = path.replace(/\.php$/, '');
+            return query ? `${sanitizedPath}?${query}` : sanitizedPath;
+        }
+        return url;
+    }
     const logoutButton = document.getElementById('logoutButton');
     const backButton = document.getElementById('backButton');
     const adminChip = document.getElementById('adminChip');
@@ -551,7 +614,7 @@
     }
 
     async function fetchJSON(url, options = {}) {
-        const response = await fetch(url, {
+        const response = await fetch(normalizeApiUrl(url), {
             credentials: 'include',
             headers: {
                 'Accept': 'application/json',
@@ -1014,7 +1077,7 @@
         try {
             const session = await fetchJSON(`${API_BASE}/session.php`);
             if (!session.user || session.user.role !== 'admin') {
-                window.location.href = 'dashboard.php';
+                window.location.href = ROUTE_DASHBOARD;
                 return;
             }
             state.currentUser = session.user;
@@ -1060,7 +1123,7 @@
             }
         } catch (error) {
             alert(error.message || '加载管理信息失败');
-            window.location.href = 'index.php';
+            window.location.href = ROUTE_LOGIN;
         }
     }
 
@@ -1783,11 +1846,11 @@
         } catch (error) {
             console.error(error);
         }
-        window.location.href = 'index.php';
+        window.location.href = ROUTE_LOGIN;
     });
 
     backButton.addEventListener('click', () => {
-        window.location.href = 'dashboard.php';
+        window.location.href = ROUTE_DASHBOARD;
     });
 
     loadInitialData();
