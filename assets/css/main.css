@@ -604,12 +604,12 @@ label {
 .lesson-columns {
     display: grid;
     gap: 1.75rem;
-    grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+    grid-template-columns: clamp(340px, 32%, 540px) minmax(0, 1fr);
     align-items: start;
 }
 
 .lesson-columns.lesson-deck {
-    grid-template-columns: minmax(320px, 440px) minmax(0, 1fr);
+    grid-template-columns: clamp(360px, 34%, 580px) minmax(0, 1fr);
 }
 
 .lesson-deck .lesson-panel {
