@@ -252,7 +252,7 @@
         wrapper.className = 'player';
         const wrapInFrame = (element) => {
             const frame = document.createElement('div');
-            frame.className = 'ratio ratio-16x9 player-frame';
+            frame.className = 'player-frame';
             frame.appendChild(element);
             wrapper.appendChild(frame);
         };
