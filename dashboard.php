@@ -12,20 +12,28 @@
     <style>
         .course-empty,
         .lesson-empty {
-            border-radius: var(--radius-md);
-            padding: 1.4rem;
-            text-align: center;
+            border-radius: 18px;
+            padding: 1.25rem 1.4rem;
             color: var(--text-secondary);
-            background: rgba(148, 163, 184, 0.08);
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px dashed rgba(148, 163, 184, 0.35);
             line-height: 1.6;
         }
 
+        .course-empty {
+            text-align: left;
+        }
+
+        .lesson-empty {
+            text-align: center;
+        }
+
         .skeleton {
-            border-radius: var(--radius-sm);
-            background: linear-gradient(90deg, rgba(226, 232, 240, 0.5), rgba(226, 232, 240, 0.2), rgba(226, 232, 240, 0.5));
+            border-radius: 16px;
+            background: linear-gradient(90deg, rgba(226, 232, 240, 0.55), rgba(226, 232, 240, 0.2), rgba(226, 232, 240, 0.55));
             background-size: 400% 400%;
-            animation: shimmer 1.5s ease infinite;
-            height: 56px;
+            animation: shimmer 1.6s ease infinite;
+            height: 52px;
         }
 
         @keyframes shimmer {
@@ -34,66 +42,65 @@
         }
     </style>
 </head>
-<body class="app-shell">
-<header class="app-header">
-    <div class="inner">
-        <div>
+<body class="dashboard-shell">
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="topbar-branding">
             <div class="brand">智能录播课堂</div>
             <p class="text-muted" id="welcomeText">正在加载...</p>
         </div>
-        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+        <div class="topbar-actions">
             <div class="user-chip" id="userChip"></div>
             <button class="ghost-button" id="adminButton" style="display:none;">进入管理后台</button>
             <button class="ghost-button" id="logoutButton">退出登录</button>
         </div>
     </div>
 </header>
-<main class="app-main layered-layout">
-    <nav class="card rail-card" aria-label="学习模块">
-        <h2>学习模块</h2>
-        <div class="rail-menu">
-            <button type="button" class="rail-item active" data-section="courses">
-                <strong>网课</strong>
-                <small>查看已分配课程</small>
-            </button>
-        </div>
-    </nav>
-    <section class="card pane" aria-label="课程列表">
-        <header>
-            <h2>课程</h2>
-            <p>选择课程后继续挑选课节。</p>
-        </header>
-        <div class="nav-list" id="courseList">
-            <div class="skeleton"></div>
-            <div class="skeleton" style="width: 80%;"></div>
-            <div class="skeleton" style="width: 65%;"></div>
-        </div>
-    </section>
-    <section class="card pane" aria-label="课节列表">
-        <header>
-            <h2 id="lessonPaneTitle">课节</h2>
-            <p id="lessonPaneHint">先选择课程以加载课节。</p>
-        </header>
-        <div class="nav-list" id="lessonList">
-            <div class="lesson-empty">暂未选择课程。</div>
-        </div>
-    </section>
-    <section class="card content-pane" aria-live="polite">
-        <div class="breadcrumbs" id="breadcrumbs">
-            <span>网课</span>
-        </div>
-        <header>
-            <h1 id="lessonTitle">欢迎来到课堂</h1>
-            <p id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
-        </header>
-        <div class="lesson-meta" id="lessonMeta" hidden>
-            <span class="badge" id="courseBadge"></span>
-            <span class="badge" id="lessonBadge"></span>
-        </div>
-        <div class="player" id="playerHost">
-            <div class="empty-state">尚未选择课节。</div>
-        </div>
-    </section>
+<main class="dashboard-main">
+    <div class="dashboard-canvas">
+        <aside class="primary-panel glass-panel" aria-label="课程导航">
+            <header class="panel-header">
+                <div>
+                    <h2>我的课程</h2>
+                    <p>挑选一个课程继续学习。</p>
+                </div>
+            </header>
+            <div class="nav-list" id="courseList">
+                <div class="skeleton"></div>
+                <div class="skeleton" style="width: 80%;"></div>
+                <div class="skeleton" style="width: 65%;"></div>
+            </div>
+        </aside>
+        <section class="content-columns">
+            <aside class="secondary-panel glass-panel" aria-label="课节导航">
+                <header class="panel-header">
+                    <div>
+                        <h3 id="lessonPaneTitle">课节</h3>
+                        <p id="lessonPaneHint">先选择课程以加载课节。</p>
+                    </div>
+                </header>
+                <div class="nav-list" id="lessonList">
+                    <div class="lesson-empty">暂未选择课程。</div>
+                </div>
+            </aside>
+            <article class="lesson-stage glass-panel" aria-live="polite">
+                <div class="breadcrumbs" id="breadcrumbs">
+                    <span>网课</span>
+                </div>
+                <header class="lesson-header">
+                    <h1 id="lessonTitle">欢迎来到课堂</h1>
+                    <p id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
+                </header>
+                <div class="lesson-meta" id="lessonMeta" hidden>
+                    <span class="badge" id="courseBadge"></span>
+                    <span class="badge" id="lessonBadge"></span>
+                </div>
+                <div class="player-stage" id="playerHost">
+                    <div class="empty-state">尚未选择课节。</div>
+                </div>
+            </article>
+        </section>
+    </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 <script>
@@ -258,10 +265,10 @@
         currentLessons.forEach((lesson, index) => {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'fade-in';
+            button.className = 'nav-button fade-in';
             button.dataset.lessonId = lesson.id;
-            button.innerHTML = `<strong style="display:block; font-size:0.95rem;">${lesson.title || `课节 ${index + 1}`}</strong>` +
-                `<span class="text-muted" style="font-size:0.82rem;">${lesson.description || '点击查看详情'}</span>`;
+            button.innerHTML = `<strong>${lesson.title || `课节 ${index + 1}`}</strong>` +
+                `<span>${lesson.description || '点击查看详情'}</span>`;
             button.addEventListener('click', () => selectLesson(lesson.id));
             lessonListEl.appendChild(button);
         });
@@ -289,7 +296,7 @@
         courses.forEach((course) => {
             const item = document.createElement('button');
             item.type = 'button';
-            item.className = 'rail-item';
+            item.className = 'nav-button course-button';
             item.dataset.courseId = course.id;
             item.innerHTML = `<strong>${course.title}</strong><small>${course.description || '暂无描述'}</small>`;
             item.addEventListener('click', () => selectCourse(course.id));
@@ -299,13 +306,13 @@
     }
 
     function highlightCourse(courseId) {
-        document.querySelectorAll('#courseList .rail-item').forEach((el) => {
+        document.querySelectorAll('#courseList .nav-button').forEach((el) => {
             el.classList.toggle('active', Number(el.dataset.courseId) === courseId);
         });
     }
 
     function highlightLesson(lessonId) {
-        document.querySelectorAll('#lessonList button').forEach((el) => {
+        document.querySelectorAll('#lessonList .nav-button').forEach((el) => {
             el.classList.toggle('active', Number(el.dataset.lessonId) === lessonId);
         });
     }
