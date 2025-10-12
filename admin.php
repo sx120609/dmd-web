@@ -7,501 +7,253 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
-    <style>
-        .admin-header {
-            display: flex;
-            flex-direction: column;
-            gap: 0.85rem;
-        }
-
-        .admin-header h1 {
-            margin: 0;
-            font-size: 2rem;
-            letter-spacing: -0.02em;
-        }
-
-        .admin-header p {
-            margin: 0;
-            color: var(--text-secondary);
-            line-height: 1.65;
-        }
-
-        .section-grid {
-            display: grid;
-            gap: 1.75rem;
-        }
-
-        .admin-header-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        @media (min-width: 1024px) {
-            .section-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        .list-card {
-            padding: 1.75rem;
-        }
-
-        .list-card h3 {
-            margin-top: 0;
-            margin-bottom: 1.1rem;
-        }
-
-        .hint {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 0.35rem;
-            line-height: 1.5;
-        }
-
-        .empty-hint {
-            padding: 1.25rem;
-            border-radius: var(--radius-sm);
-            background: rgba(148, 163, 184, 0.1);
-            color: var(--text-secondary);
-            text-align: center;
-            font-size: 0.95rem;
-        }
-
-        .user-management {
-            display: grid;
-            gap: 2rem;
-        }
-
-        @media (min-width: 1120px) {
-            .user-management {
-                grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.2fr);
-                align-items: flex-start;
-            }
-        }
-
-        .user-management-primary {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .user-list-card {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .user-table {
-            margin-top: 0.5rem;
-        }
-
-        .user-table li {
-            border: none;
-            border-bottom: none;
-            padding: 0.85rem 0.6rem;
-            border-radius: var(--radius-md);
-            transition: background 0.2s ease, transform 0.2s ease;
-            gap: 0.75rem;
-        }
-
-        .user-table li + li {
-            margin-top: 0.4rem;
-        }
-
-        .user-table li:hover {
-            background: rgba(79, 70, 229, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .user-table li.active {
-            background: rgba(79, 70, 229, 0.16);
-            box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.2);
-        }
-
-        .user-table li .user-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
-        .user-table li .user-meta span {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .user-role-tag {
-            padding: 0.35rem 0.75rem;
-            border-radius: 999px;
-            background: rgba(148, 163, 184, 0.16);
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .user-role-tag.is-admin {
-            background: rgba(79, 70, 229, 0.18);
-            color: var(--brand-color-strong);
-        }
-
-        .user-detail-card {
-            display: flex;
-            flex-direction: column;
-            gap: 1.35rem;
-        }
-
-        .user-detail-header {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            align-items: flex-start;
-        }
-
-        .user-detail-header h3 {
-            margin: 0;
-            font-size: 1.3rem;
-            letter-spacing: -0.01em;
-        }
-
-        .user-detail-header p {
-            margin: 0.35rem 0 0;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .user-detail-chip {
-            background: rgba(148, 163, 184, 0.16);
-            color: var(--text-secondary);
-        }
-
-        .user-detail-chip.is-admin {
-            background: rgba(79, 70, 229, 0.18);
-            color: var(--brand-color-strong);
-        }
-
-        .user-detail-empty {
-            padding: 1.2rem 1.4rem;
-            border-radius: var(--radius-md);
-            background: rgba(148, 163, 184, 0.1);
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .password-inline {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-        }
-
-        .password-inline input {
-            flex: 1;
-        }
-
-        .password-inline button {
-            flex-shrink: 0;
-        }
-
-        .danger-zone {
-            border-top: 1px solid rgba(148, 163, 184, 0.16);
-            padding-top: 1.2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .danger-zone strong {
-            font-size: 1rem;
-        }
-
-        .danger-zone p {
-            margin: 0.4rem 0 0;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 768px) {
-            .user-detail-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.75rem;
-            }
-
-            .user-detail-header .chip {
-                align-self: flex-start;
-            }
-
-            .admin-header-actions {
-                width: 100%;
-                justify-content: flex-start;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .password-inline {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .password-inline button {
-                width: 100%;
-            }
-
-            .admin-header-actions .ghost-button {
-                flex: 1 1 48%;
-            }
-        }
-
-        @media (max-width: 520px) {
-            .admin-header-actions {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.6rem;
-            }
-
-            .admin-header-actions .ghost-button,
-            .admin-header-actions .user-chip {
-                width: 100%;
-            }
-        }
-    </style>
 </head>
-<body class="app-shell">
-<header class="app-header">
-    <div class="inner">
-        <div class="brand">管理后台</div>
-        <div class="admin-header-actions">
-            <div class="user-chip" id="adminChip"></div>
-            <button class="ghost-button" id="backButton">返回课堂</button>
-            <button class="ghost-button" id="logoutButton">退出登录</button>
+<body class="app-shell bg-body-tertiary">
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+    <div class="container-fluid py-2 px-3 px-lg-4">
+        <span class="navbar-brand fw-semibold">管理后台</span>
+        <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
+            <div class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="adminChip"></div>
+            <button class="btn btn-outline-secondary btn-sm" id="backButton">返回课堂</button>
+            <button class="btn btn-outline-danger btn-sm" id="logoutButton">退出登录</button>
         </div>
     </div>
-</header>
-<main class="app-main">
-    <section class="card surface-section">
-        <div class="admin-header">
-            <h1>快速配置教学内容</h1>
-            <p>管理用户、课程与课节，分配资源给不同的学员。所有操作实时生效。</p>
-            <div class="pill-tabs" role="tablist">
-                <button type="button" class="active" data-target="users">用户管理</button>
-                <button type="button" data-target="courses">课程管理</button>
-                <button type="button" data-target="lessons">课节管理</button>
-                <button type="button" data-target="assignments">课程分配</button>
-            </div>
-        </div>
-        <div class="tab-content active" id="tab-users" role="tabpanel">
-            <div class="user-management section-gap">
-                <div class="user-management-primary">
-                    <div class="card list-card user-list-card">
-                        <div class="panel-header">
-                            <h3>现有用户</h3>
-                            <p class="hint">点击用户即可查看详情、修改信息或重置密码。</p>
-                        </div>
-                        <ul class="table-list user-table" id="userList"></ul>
-                    </div>
-                    <form id="createUserForm" class="card surface-section form-grid surface-form">
-                        <div>
-                            <label for="newUsername">用户名</label>
-                            <input id="newUsername" name="username" placeholder="例如：student01" required>
-                        </div>
-                        <div>
-                            <label for="newDisplayName">显示名称</label>
-                            <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
-                        </div>
-                        <div>
-                            <label for="newPassword">初始密码</label>
-                            <input id="newPassword" name="password" type="password" placeholder="设置登录密码" required>
-                        </div>
-                        <div>
-                            <label for="newRole">角色</label>
-                            <select id="newRole" name="role">
-                                <option value="student">学员</option>
-                                <option value="admin">管理员</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="primary-button">创建用户</button>
-                        <div class="message inline" id="createUserMessage" hidden></div>
-                    </form>
+</nav>
+<main class="container-fluid py-4 px-3 px-lg-4 app-main">
+    <div class="card surface-section border-0 shadow-sm p-0">
+        <div class="card-body p-4 p-lg-5">
+            <div class="admin-header mb-4">
+                <h1 class="h3">快速配置教学内容</h1>
+                <p class="mb-0 text-secondary">管理用户、课程与课节，分配资源给不同的学员。所有操作实时生效。</p>
+                <div class="pill-tabs" role="tablist">
+                    <button type="button" class="active" data-target="users">用户管理</button>
+                    <button type="button" data-target="courses">课程管理</button>
+                    <button type="button" data-target="lessons">课节管理</button>
+                    <button type="button" data-target="assignments">课程分配</button>
                 </div>
-                <section class="card surface-section user-detail-card" id="userDetailCard">
-                    <div class="user-detail-header">
-                        <div>
-                            <h3 id="userDetailTitle">用户详情</h3>
-                            <p id="userDetailSubtitle">请选择左侧的用户进行管理。</p>
-                        </div>
-                        <span class="chip subtle user-detail-chip" id="userDetailRoleChip" hidden></span>
-                    </div>
-                    <div class="user-detail-empty" id="userDetailEmpty">没有选中的用户，点击左侧列表中的用户即可开始编辑。</div>
-                    <form id="updateUserForm" class="form-grid" hidden>
-                        <div>
-                            <label for="editUsername">用户名</label>
-                            <input id="editUsername" required>
-                        </div>
-                        <div>
-                            <label for="editDisplayName">显示名称</label>
-                            <input id="editDisplayName" placeholder="学生姓名或昵称">
-                        </div>
-                        <div>
-                            <label for="editRole">角色</label>
-                            <select id="editRole">
-                                <option value="student">学员</option>
-                                <option value="admin">管理员</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="editPassword">重置密码</label>
-                            <div class="password-inline">
-                                <input id="editPassword" type="password" placeholder="填写新密码，留空则不修改">
-                                <button type="button" class="ghost-button" id="resetPasswordButton">生成临时密码</button>
+            </div>
+            <div class="tab-content active" id="tab-users" role="tabpanel">
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-xl-5 col-xxl-4">
+                        <div class="d-flex flex-column gap-4">
+                            <div class="card surface-section list-card user-list-card">
+                                <div class="panel-header">
+                                    <h3>现有用户</h3>
+                                    <p class="hint">点击用户即可查看详情、修改信息或重置密码。</p>
+                                </div>
+                                <ul class="table-list user-table" id="userList"></ul>
                             </div>
-                            <p class="hint mt-sm">生成临时密码会立即生效，并在下方显示结果。</p>
+                            <form id="createUserForm" class="card surface-section form-grid surface-form">
+                                <div>
+                                    <label for="newUsername">用户名</label>
+                                    <input id="newUsername" name="username" placeholder="例如：student01" required>
+                                </div>
+                                <div>
+                                    <label for="newDisplayName">显示名称</label>
+                                    <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
+                                </div>
+                                <div>
+                                    <label for="newPassword">初始密码</label>
+                                    <input id="newPassword" name="password" type="password" placeholder="设置登录密码" required>
+                                </div>
+                                <div>
+                                    <label for="newRole">角色</label>
+                                    <select id="newRole" name="role">
+                                        <option value="student">学员</option>
+                                        <option value="admin">管理员</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="primary-button">创建用户</button>
+                                <div class="message inline" id="createUserMessage" hidden></div>
+                            </form>
                         </div>
-                        <button type="submit" class="primary-button">保存修改</button>
-                        <div class="message inline" id="updateUserMessage" hidden></div>
-                    </form>
-                    <div class="danger-zone" id="userDangerZone" hidden>
-                        <div>
-                            <strong>危险操作</strong>
-                            <p>删除用户将一并移除其课程分配，且无法撤销。</p>
-                        </div>
-                        <button type="button" class="inline-button danger" id="deleteUserButton">删除用户</button>
-                        <div class="message inline" id="deleteUserMessage" hidden></div>
                     </div>
-                </section>
-            </div>
-        </div>
-        <div class="tab-content" id="tab-courses" role="tabpanel">
-            <div class="split split-relaxed section-gap">
-                <form id="createCourseForm" class="card surface-section form-grid surface-form">
-                    <div>
-                        <label for="courseTitleInput">课程名称</label>
-                        <input id="courseTitleInput" name="title" placeholder="例如：高等数学" required>
-                    </div>
-                    <div>
-                        <label for="courseDescriptionInput">课程简介</label>
-                        <textarea id="courseDescriptionInput" name="description" rows="4" placeholder="补充课程概述与亮点"></textarea>
-                    </div>
-                    <button type="submit" class="primary-button">创建课程</button>
-                    <div class="message inline" id="createCourseMessage" hidden></div>
-                </form>
-                <div class="stack">
-                    <div class="card list-card">
-                        <h3>课程列表</h3>
-                        <p class="hint">点击课程可编辑信息，删除将同时移除课节与分配记录。</p>
-                        <ul class="table-list" id="courseList"></ul>
-                        <div class="message inline" id="courseListMessage" hidden></div>
-                    </div>
-                    <form id="updateCourseForm" class="card surface-section form-grid surface-form" hidden>
-                        <h3 class="flush-top">编辑课程</h3>
-                        <div>
-                            <label for="editCourseTitle">课程名称</label>
-                            <input id="editCourseTitle" placeholder="请输入课程标题" required>
-                        </div>
-                        <div>
-                            <label for="editCourseDescription">课程简介</label>
-                            <textarea id="editCourseDescription" rows="4" placeholder="填写课程简介"></textarea>
-                        </div>
-                        <div class="inline-actions">
-                            <button type="submit" class="primary-button">保存修改</button>
-                            <button type="button" class="ghost-button" id="cancelCourseEdit">取消</button>
-                        </div>
-                        <div class="message inline" id="updateCourseMessage" hidden></div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="tab-content" id="tab-lessons" role="tabpanel">
-            <div class="split split-relaxed section-gap">
-                <form id="createLessonForm" class="card surface-section form-grid surface-form">
-                    <div>
-                        <label for="lessonCourseSelect">选择课程</label>
-                        <select id="lessonCourseSelect" required></select>
-                    </div>
-                    <div>
-                        <label for="lessonTitle">课节标题</label>
-                        <input id="lessonTitle" placeholder="例如：第一讲 极限的概念" required>
-                    </div>
-                    <div>
-                        <label for="lessonVideo">视频链接</label>
-                        <input id="lessonVideo" placeholder="支持本地文件链接或哔哩哔哩地址">
-                        <p class="hint">示例：<code>https://example.com/video.mp4</code> 或 <code>https://www.bilibili.com/video/BVxxxx</code></p>
-                    </div>
-                    <button type="submit" class="primary-button">添加课节</button>
-                    <div class="message inline" id="createLessonMessage" hidden></div>
-                </form>
-                <div class="stack">
-                    <div class="card list-card">
-                        <h3>课节列表</h3>
-                        <p class="hint">选择课程后可查看现有课节，并删除不再需要的内容。</p>
-                        <ul class="table-list" id="lessonList">
-                            <li class="text-muted">请选择课程查看课节</li>
-                        </ul>
-                        <div class="message inline" id="lessonListMessage" hidden></div>
-                    </div>
-                    <form id="updateLessonForm" class="card surface-section form-grid surface-form" hidden>
-                        <h3 class="flush-top">编辑课节</h3>
-                        <div>
-                            <label for="editLessonCourseSelect">所属课程</label>
-                            <select id="editLessonCourseSelect" required></select>
-                        </div>
-                        <div>
-                            <label for="editLessonTitle">课节标题</label>
-                            <input id="editLessonTitle" placeholder="请输入课节名称" required>
-                        </div>
-                        <div>
-                            <label for="editLessonVideo">视频链接</label>
-                            <input id="editLessonVideo" placeholder="支持本地文件链接或哔哩哔哩地址">
-                        </div>
-                        <div class="inline-actions">
-                            <button type="submit" class="primary-button">保存课节</button>
-                            <button type="button" class="ghost-button" id="cancelLessonEdit">取消</button>
-                        </div>
-                        <div class="message inline" id="updateLessonMessage" hidden></div>
-                    </form>
-                    <div class="card list-card">
-                        <h3>课节小贴士</h3>
-                        <p class="hint">添加课节后，学员刷新课程即可观看最新内容。建议为不同来源的视频提供清晰命名，便于识别。</p>
-                        <div class="empty-hint mt-md">删除课节后，已分配的学员将无法再看到该内容。</div>
+                    <div class="col-12 col-xl-7 col-xxl-8">
+                        <section class="card surface-section user-detail-card" id="userDetailCard">
+                            <div class="user-detail-header">
+                                <div>
+                                    <h3 id="userDetailTitle">用户详情</h3>
+                                    <p id="userDetailSubtitle">请选择左侧的用户进行管理。</p>
+                                </div>
+                                <span class="chip subtle user-detail-chip" id="userDetailRoleChip" hidden></span>
+                            </div>
+                            <div class="user-detail-empty" id="userDetailEmpty">没有选中的用户，点击左侧列表中的用户即可开始编辑。</div>
+                            <form id="updateUserForm" class="form-grid" hidden>
+                                <div>
+                                    <label for="editUsername">用户名</label>
+                                    <input id="editUsername" required>
+                                </div>
+                                <div>
+                                    <label for="editDisplayName">显示名称</label>
+                                    <input id="editDisplayName" placeholder="学生姓名或昵称">
+                                </div>
+                                <div>
+                                    <label for="editRole">角色</label>
+                                    <select id="editRole">
+                                        <option value="student">学员</option>
+                                        <option value="admin">管理员</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="editPassword">重置密码</label>
+                                    <div class="password-inline">
+                                        <input id="editPassword" type="password" placeholder="填写新密码，留空则不修改">
+                                        <button type="button" class="ghost-button" id="resetPasswordButton">生成临时密码</button>
+                                    </div>
+                                    <p class="hint mt-sm">生成临时密码会立即生效，并在下方显示结果。</p>
+                                </div>
+                                <button type="submit" class="primary-button">保存修改</button>
+                                <div class="message inline" id="updateUserMessage" hidden></div>
+                            </form>
+                            <div class="danger-zone" id="userDangerZone" hidden>
+                                <div>
+                                    <strong>危险操作</strong>
+                                    <p>删除用户将一并移除其课程分配，且无法撤销。</p>
+                                </div>
+                                <button type="button" class="inline-button danger" id="deleteUserButton">删除用户</button>
+                                <div class="message inline" id="deleteUserMessage" hidden></div>
+                            </div>
+                        </section>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="tab-content" id="tab-assignments" role="tabpanel">
-            <div class="split split-relaxed section-gap">
-                <form id="assignCourseForm" class="card surface-section form-grid surface-form">
-                    <div>
-                        <label for="assignUserSelect">选择用户</label>
-                        <select id="assignUserSelect" required></select>
+            <div class="tab-content" id="tab-courses" role="tabpanel">
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-xl-5 col-xxl-4">
+                        <form id="createCourseForm" class="card surface-section form-grid surface-form">
+                            <div>
+                                <label for="courseTitleInput">课程名称</label>
+                                <input id="courseTitleInput" name="title" placeholder="例如：高等数学" required>
+                            </div>
+                            <div>
+                                <label for="courseDescriptionInput">课程简介</label>
+                                <textarea id="courseDescriptionInput" name="description" rows="4" placeholder="补充课程概述与亮点"></textarea>
+                            </div>
+                            <button type="submit" class="primary-button">创建课程</button>
+                            <div class="message inline" id="createCourseMessage" hidden></div>
+                        </form>
                     </div>
-                    <div>
-                        <label for="assignCourseSelect">选择课程</label>
-                        <select id="assignCourseSelect" required></select>
+                    <div class="col-12 col-xl-7 col-xxl-8">
+                        <div class="card surface-section list-card">
+                            <h3>课程列表</h3>
+                            <p class="hint">点击课程可编辑信息，删除将同时移除课节与分配记录。</p>
+                            <ul class="table-list" id="courseList"></ul>
+                            <div class="message inline" id="courseListMessage" hidden></div>
+                        </div>
+                        <form id="updateCourseForm" class="card surface-section form-grid surface-form mt-4" hidden>
+                            <h3 class="flush-top">编辑课程</h3>
+                            <div>
+                                <label for="editCourseTitle">课程名称</label>
+                                <input id="editCourseTitle" required>
+                            </div>
+                            <div>
+                                <label for="editCourseDescription">课程简介</label>
+                                <textarea id="editCourseDescription" rows="4" placeholder="补充课程概述"></textarea>
+                            </div>
+                            <div class="split">
+                                <button type="submit" class="primary-button">保存修改</button>
+                                <button type="button" class="ghost-button" id="cancelCourseEdit">取消</button>
+                            </div>
+                            <div class="message inline" id="updateCourseMessage" hidden></div>
+                        </form>
                     </div>
-                    <button type="submit" class="primary-button">分配课程</button>
-                    <div class="message inline" id="assignCourseMessage" hidden></div>
-                </form>
-                <div class="stack">
-                    <div class="card list-card">
-                        <h3>已分配课程</h3>
-                        <p class="hint">切换下方用户可查看课程列表，并可一键移除不再需要的课程。</p>
-                        <ul class="table-list" id="assignmentList">
-                            <li class="text-muted">请选择用户查看已分配课程</li>
-                        </ul>
+                </div>
+            </div>
+            <div class="tab-content" id="tab-lessons" role="tabpanel">
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-xl-5 col-xxl-4">
+                        <form id="createLessonForm" class="card surface-section form-grid surface-form">
+                            <div>
+                                <label for="lessonCourseSelect">所属课程</label>
+                                <select id="lessonCourseSelect" name="course_id" required></select>
+                            </div>
+                            <div>
+                                <label for="lessonTitleInput">课节标题</label>
+                                <input id="lessonTitleInput" name="title" placeholder="例如：第一章 函数极限" required>
+                            </div>
+                            <div>
+                                <label for="lessonVideoInput">视频地址</label>
+                                <input id="lessonVideoInput" name="video_url" placeholder="支持哔哩哔哩链接或本地视频文件路径">
+                            </div>
+                            <div>
+                                <label for="lessonDescriptionInput">课节简介</label>
+                                <textarea id="lessonDescriptionInput" name="description" rows="4" placeholder="填写课节要点"></textarea>
+                            </div>
+                            <button type="submit" class="primary-button">创建课节</button>
+                            <div class="message inline" id="createLessonMessage" hidden></div>
+                        </form>
                     </div>
-                    <div class="card list-card">
-                        <h3>使用说明</h3>
-                        <p class="hint">分配操作会立即生效；学员再次打开课程列表即可看到新的课程。</p>
-                        <div class="empty-hint mt-md">重复分配同一课程不会产生错误，系统会自动忽略。</div>
+                    <div class="col-12 col-xl-7 col-xxl-8">
+                        <div class="card surface-section list-card">
+                            <div class="panel-header">
+                                <h3>课节列表</h3>
+                                <p class="hint">从下拉框选择课程查看课节，点击课节可编辑内容。</p>
+                            </div>
+                            <ul class="table-list" id="lessonList"></ul>
+                            <div class="message inline" id="lessonListMessage" hidden></div>
+                        </div>
+                        <form id="updateLessonForm" class="card surface-section form-grid surface-form mt-4" hidden>
+                            <h3 class="flush-top">编辑课节</h3>
+                            <div>
+                                <label for="editLessonCourseSelect">所属课程</label>
+                                <select id="editLessonCourseSelect" required></select>
+                            </div>
+                            <div>
+                                <label for="editLessonTitle">课节标题</label>
+                                <input id="editLessonTitle" required>
+                            </div>
+                            <div>
+                                <label for="editLessonVideo">视频地址</label>
+                                <input id="editLessonVideo" placeholder="支持哔哩哔哩链接或本地视频文件路径">
+                            </div>
+                            <div>
+                                <label for="editLessonDescription">课节简介</label>
+                                <textarea id="editLessonDescription" rows="4" placeholder="填写课节要点"></textarea>
+                            </div>
+                            <div class="split">
+                                <button type="submit" class="primary-button">保存修改</button>
+                                <button type="button" class="ghost-button" id="cancelLessonEdit">取消</button>
+                            </div>
+                            <div class="message inline" id="updateLessonMessage" hidden></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="tab-assignments" role="tabpanel">
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-xl-5 col-xxl-4">
+                        <form id="assignCourseForm" class="card surface-section form-grid surface-form">
+                            <div>
+                                <label for="assignUserSelect">选择用户</label>
+                                <select id="assignUserSelect" name="user_id" required></select>
+                            </div>
+                            <div>
+                                <label for="assignCourseSelect">分配课程</label>
+                                <select id="assignCourseSelect" name="course_id" required></select>
+                            </div>
+                            <button type="submit" class="primary-button">分配课程</button>
+                            <div class="message inline" id="assignCourseMessage" hidden></div>
+                        </form>
+                    </div>
+                    <div class="col-12 col-xl-7 col-xxl-8">
+                        <div class="card surface-section list-card">
+                            <div class="panel-header">
+                                <h3>用户已分配课程</h3>
+                                <p class="hint">选择用户后会显示其已分配的课程，可点击移除。</p>
+                            </div>
+                            <ul class="table-list" id="assignmentList"></ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
     const API_BASE = 'api';
     const ROUTE_LOGIN = 'login';
     const ROUTE_DASHBOARD = 'dashboard';
@@ -514,6 +266,7 @@
         }
         return url;
     }
+
     const logoutButton = document.getElementById('logoutButton');
     const backButton = document.getElementById('backButton');
     const adminChip = document.getElementById('adminChip');

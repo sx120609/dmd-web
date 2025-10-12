@@ -759,8 +759,35 @@ label {
     }
 }
 
+.course-button {
+    text-align: left;
+}
+
 .course-button .nav-desc {
     -webkit-line-clamp: 1;
+}
+
+#courseList .list-group-item,
+#lessonList .list-group-item {
+    border: none;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+#courseList .list-group-item:last-child,
+#lessonList .list-group-item:last-child {
+    border-bottom: none;
+}
+
+#courseList .list-group-item.active,
+#lessonList .list-group-item.active {
+    background: rgba(79, 70, 229, 0.12);
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.3);
+}
+
+#courseList .list-group-item.active .text-secondary,
+#lessonList .list-group-item.active .text-secondary {
+    color: var(--brand-color-strong) !important;
 }
 
 .player-stage {
@@ -776,6 +803,13 @@ label {
     margin: 0;
     background: transparent;
     padding: 2.5rem 1.5rem;
+}
+
+.player iframe,
+.player video {
+    width: 100%;
+    min-height: 320px;
+    border-radius: var(--radius-md);
 }
 
 .breadcrumbs {
@@ -795,13 +829,6 @@ label {
     width: 0.85rem;
     height: 0.85rem;
     opacity: 0.5;
-}
-
-.player iframe,
-.player video {
-    width: 100%;
-    min-height: 320px;
-    border-radius: var(--radius-md);
 }
 
 @media (max-width: 1280px) {
@@ -891,6 +918,199 @@ label {
 @media (max-width: 768px) {
     .surface-section {
         padding: 1.6rem;
+    }
+}
+
+.admin-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 3vw, 2.1rem);
+    letter-spacing: -0.02em;
+}
+
+.admin-header p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.65;
+}
+
+.list-card {
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.list-card h3 {
+    margin: 0;
+}
+
+.hint {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0.35rem 0 0;
+    line-height: 1.5;
+}
+
+.user-list-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.user-table {
+    margin-top: 0.5rem;
+}
+
+.user-table li {
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.85rem 0.75rem;
+    transition: background 0.2s ease, transform 0.2s ease;
+    gap: 0.75rem;
+}
+
+.user-table li + li {
+    margin-top: 0.4rem;
+}
+
+.user-table li:hover {
+    background: rgba(79, 70, 229, 0.1);
+    transform: translateY(-1px);
+}
+
+.user-table li.active {
+    background: rgba(79, 70, 229, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.2);
+}
+
+.user-table li .user-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.user-table li .user-meta span {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.user-role-tag {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.16);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.user-role-tag.is-admin {
+    background: rgba(79, 70, 229, 0.18);
+    color: var(--brand-color-strong);
+}
+
+.user-detail-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.35rem;
+}
+
+.user-detail-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.user-detail-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    letter-spacing: -0.01em;
+}
+
+.user-detail-header p {
+    margin: 0.35rem 0 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.user-detail-chip {
+    background: rgba(148, 163, 184, 0.16);
+    color: var(--text-secondary);
+}
+
+.user-detail-chip.is-admin {
+    background: rgba(79, 70, 229, 0.18);
+    color: var(--brand-color-strong);
+}
+
+.user-detail-empty {
+    padding: 1.2rem 1.4rem;
+    border-radius: var(--radius-md);
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.password-inline {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.password-inline input {
+    flex: 1;
+}
+
+.password-inline button {
+    flex-shrink: 0;
+}
+
+.danger-zone {
+    border-top: 1px solid rgba(148, 163, 184, 0.16);
+    padding-top: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.danger-zone strong {
+    font-size: 1rem;
+}
+
+.danger-zone p {
+    margin: 0.4rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .user-detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .user-detail-header .chip {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 600px) {
+    .password-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .password-inline button {
+        width: 100%;
     }
 }
 
