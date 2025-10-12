@@ -11,93 +11,110 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
 </head>
-<body class="bg-body-tertiary">
-<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
-    <div class="container-fluid py-2 px-3 px-lg-4">
-        <div class="d-flex flex-column">
-            <span class="navbar-brand p-0 m-0 fw-semibold">智能录播课堂</span>
-            <small class="text-secondary" id="welcomeText">正在加载...</small>
+<body class="app-shell dashboard-shell">
+<nav class="navbar navbar-expand-lg app-navbar">
+    <div class="container-xxl py-3 px-3 px-lg-4 w-100 d-flex align-items-center gap-3 flex-wrap">
+        <div class="d-flex align-items-center gap-3">
+            <div class="brand-glow">CL</div>
+            <div class="d-flex flex-column">
+                <span class="brand-eyebrow text-uppercase">智能录播课堂</span>
+                <span class="navbar-brand p-0 m-0 fw-semibold">学习工作台</span>
+            </div>
         </div>
-        <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
-            <div class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="userChip"></div>
+        <div class="d-flex flex-wrap align-items-center gap-3 ms-auto">
+            <div class="text-end">
+                <div class="welcome-text" id="welcomeText">正在加载...</div>
+            </div>
+            <div class="user-chip" id="userChip"></div>
             <button class="btn btn-outline-primary btn-sm" id="adminButton" style="display:none;">进入管理后台</button>
             <button class="btn btn-outline-secondary btn-sm" id="logoutButton">退出登录</button>
         </div>
     </div>
 </nav>
-<main class="container-fluid py-4 px-3 px-lg-4">
-    <div class="row g-4 align-items-start">
-        <div class="col-12 col-xl-4 col-xxl-3">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body pb-0">
-                    <h2 class="h5 mb-1">我的课程</h2>
-                    <p class="text-secondary small">挑选一个课程继续学习。</p>
+
+<section class="page-hero py-4 py-lg-5">
+    <div class="container-xxl px-3 px-lg-4">
+        <div class="hero-panel student-hero">
+            <div class="hero-eyebrow">继续学习</div>
+            <div class="hero-main">
+                <div class="hero-copy">
+                    <h1 class="hero-title" id="workspaceHeading">我的课堂</h1>
+                    <p class="hero-subtitle" id="workspaceIntro">从左侧选择课程，即可在右侧查看课节详情。</p>
                 </div>
-                <div class="list-group list-group-flush" id="courseList">
-                    <div class="list-group-item bg-transparent">
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-10"></span>
-                        </div>
-                    </div>
-                    <div class="list-group-item bg-transparent">
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-7"></span>
-                        </div>
-                    </div>
-                    <div class="list-group-item bg-transparent">
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-5"></span>
-                        </div>
-                    </div>
+                <div class="hero-meta">
+                    <span class="hero-pill" id="courseLessonCount">0 个课节</span>
+                    <span class="hero-pill soft" id="courseStatusChip" hidden>待选课</span>
                 </div>
             </div>
-            <div class="card shadow-sm">
-                <div class="card-body pb-0">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <h3 class="h6 mb-1" id="lessonPaneTitle">课节</h3>
-                            <p class="text-secondary small mb-0" id="lessonPaneHint">先选择课程以加载课节。</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="list-group list-group-flush" id="lessonList">
-                    <div class="list-group-item text-center text-secondary small">暂未选择课程。</div>
-                </div>
+            <div class="hero-summary">
+                <h2 class="hero-summary-title" id="courseSummaryTitle">尚未选择课程</h2>
+                <p class="hero-summary-desc" id="courseSummaryDescription">从左侧课程列表中选择一个课程开始学习。</p>
             </div>
         </div>
-        <div class="col-12 col-xl-8 col-xxl-9">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <div class="small text-secondary mb-3 breadcrumbs" id="breadcrumbs"><span>网课</span></div>
-                    <h1 class="h4 mb-2" id="workspaceHeading">我的课堂</h1>
-                    <p class="text-secondary mb-4" id="workspaceIntro">从左侧选择课程，即可在右侧查看课节详情。</p>
-                    <div class="d-flex flex-column flex-lg-row gap-3 align-items-start align-items-lg-center justify-content-between">
-                        <div>
-                            <h2 class="h5 mb-1" id="courseSummaryTitle">尚未选择课程</h2>
-                            <p class="text-secondary mb-0" id="courseSummaryDescription">从左侧课程列表中选择一个课程开始学习。</p>
+    </div>
+</section>
+
+<main class="dashboard-main container-xxl px-3 px-lg-4 pb-5">
+    <div class="card floating-card border-0">
+        <div class="card-body p-4 p-lg-5">
+            <div class="lesson-columns lesson-deck">
+                <aside class="lesson-panel">
+                    <section class="panel-card">
+                        <div class="panel-header">
+                            <div>
+                                <h2>我的课程</h2>
+                                <p>挑选一个课程继续学习。</p>
+                            </div>
                         </div>
-                        <div class="d-flex flex-wrap gap-2">
-                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="courseLessonCount">0 个课节</span>
-                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis" id="courseStatusChip" hidden>待选课</span>
+                        <div class="panel-content">
+                            <div class="panel-list" id="courseList">
+                                <div class="panel-list-item">
+                                    <div class="placeholder-glow">
+                                        <span class="placeholder col-10"></span>
+                                    </div>
+                                </div>
+                                <div class="panel-list-item">
+                                    <div class="placeholder-glow">
+                                        <span class="placeholder col-7"></span>
+                                    </div>
+                                </div>
+                                <div class="panel-list-item">
+                                    <div class="placeholder-glow">
+                                        <span class="placeholder col-5"></span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <header class="mb-3">
-                        <h2 class="h4 mb-2" id="lessonTitle">欢迎来到课堂</h2>
-                        <p class="text-secondary mb-3" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
-                        <div class="d-flex flex-wrap gap-2" id="lessonMeta" hidden>
-                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="courseBadge"></span>
-                            <span class="badge rounded-pill bg-info-subtle text-info-emphasis" id="lessonBadge"></span>
+                    </section>
+                    <section class="panel-card">
+                        <div class="panel-header">
+                            <div>
+                                <h3 id="lessonPaneTitle">课节</h3>
+                                <p id="lessonPaneHint">先选择课程以加载课节。</p>
+                            </div>
+                        </div>
+                        <div class="panel-content">
+                            <div class="panel-list" id="lessonList">
+                                <div class="panel-empty">暂未选择课程。</div>
+                            </div>
+                        </div>
+                    </section>
+                </aside>
+                <section class="lesson-stage panel-card">
+                    <header class="stage-header">
+                        <div class="breadcrumbs" id="breadcrumbs"><span>网课</span></div>
+                        <h2 class="stage-title" id="lessonTitle">欢迎来到课堂</h2>
+                        <p class="stage-subtitle" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
+                        <div class="stage-meta" id="lessonMeta" hidden>
+                            <span class="chip" id="courseBadge"></span>
+                            <span class="chip subtle" id="lessonBadge"></span>
                         </div>
                     </header>
-                    <div class="alert alert-info" id="stageHint">尚未选择课节。</div>
+                    <div class="stage-hint" id="stageHint">尚未选择课节。</div>
                     <div class="player-stage" id="playerHost">
                         <div class="empty-state">尚未选择课节。</div>
                     </div>
-                </div>
+                </section>
             </div>
         </div>
     </div>
@@ -318,11 +335,19 @@
     }
 
     function setCourseSummary(title, description, lessonCountText = '0 个课节', statusText = '') {
-        courseSummaryTitleEl.textContent = title;
-        courseSummaryDescriptionEl.textContent = description;
-        courseLessonCountEl.textContent = lessonCountText;
-        courseStatusChipEl.textContent = statusText;
-        courseStatusChipEl.hidden = !statusText;
+        if (courseSummaryTitleEl) {
+            courseSummaryTitleEl.textContent = title;
+        }
+        if (courseSummaryDescriptionEl) {
+            courseSummaryDescriptionEl.textContent = description;
+        }
+        if (courseLessonCountEl) {
+            courseLessonCountEl.textContent = lessonCountText;
+        }
+        if (courseStatusChipEl) {
+            courseStatusChipEl.textContent = statusText;
+            courseStatusChipEl.hidden = !statusText;
+        }
     }
 
     function updateCourseSummary(course, lessonCount = 0) {
