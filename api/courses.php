@@ -122,6 +122,41 @@ if ($method === 'GET') {
     }
 
     json_response(['course' => ['id' => (int) $courseId, 'title' => $title, 'description' => $description]]);
+} elseif ($method === 'DELETE') {
+    require_admin($mysqli);
+    $input = get_json_input();
+    if (empty($input)) {
+        $raw = file_get_contents('php://input');
+        if ($raw) {
+            parse_str($raw, $input);
+        }
+    }
+    if (empty($input)) {
+        $input = $_GET;
+    }
+
+    $courseId = (int) ($input['course_id'] ?? $input['id'] ?? 0);
+    if ($courseId <= 0) {
+        error_response('课程ID无效');
+    }
+
+    $stmt = $mysqli->prepare('DELETE FROM courses WHERE id = ? LIMIT 1');
+    if (!$stmt) {
+        error_response('无法删除课程');
+    }
+    $stmt->bind_param('i', $courseId);
+    if (!$stmt->execute()) {
+        $stmt->close();
+        error_response('删除课程失败');
+    }
+    $affected = $stmt->affected_rows;
+    $stmt->close();
+
+    if ($affected <= 0) {
+        error_response('课程不存在或已删除', 404);
+    }
+
+    json_response(['success' => true]);
 } else {
     error_response('不支持的请求方法', 405);
 }

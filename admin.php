@@ -135,6 +135,7 @@
                 <div class="card list-card">
                     <h3>课程列表</h3>
                     <ul class="table-list" id="courseList"></ul>
+                    <div class="message inline" id="courseListMessage" hidden></div>
                 </div>
             </div>
         </div>
@@ -222,6 +223,7 @@
     const createCourseForm = document.getElementById('createCourseForm');
     const createCourseMessage = document.getElementById('createCourseMessage');
     const courseListEl = document.getElementById('courseList');
+    const courseListMessage = document.getElementById('courseListMessage');
 
     const createLessonForm = document.getElementById('createLessonForm');
     const createLessonMessage = document.getElementById('createLessonMessage');
@@ -267,7 +269,7 @@
         });
         const data = await response.json().catch(() => null);
         if (!response.ok) {
-            const message = data?.message || '请求失败';
+            const message = data?.message || data?.error || '请求失败';
             throw new Error(message);
         }
         return data;
@@ -293,6 +295,7 @@
 
     function refreshCourseList() {
         courseListEl.innerHTML = '';
+        setMessage(courseListMessage);
         if (!state.courses.length) {
             const empty = document.createElement('li');
             empty.textContent = '暂无课程';
@@ -305,6 +308,14 @@
             const label = document.createElement('div');
             label.innerHTML = `<strong>${course.title}</strong><div class="text-muted" style="font-size:0.85rem;">${course.description || '暂无描述'}</div>`;
             item.appendChild(label);
+
+            const action = document.createElement('button');
+            action.type = 'button';
+            action.className = 'inline-button danger';
+            action.dataset.courseId = course.id;
+            action.textContent = '删除';
+            item.appendChild(action);
+
             courseListEl.appendChild(item);
         });
     }
@@ -546,6 +557,79 @@
             renderLessonPlaceholder('暂无课程，请先创建。');
         } else {
             renderLessonPlaceholder('请选择课程查看课节');
+        }
+    });
+
+    courseListEl.addEventListener('click', async (event) => {
+        const button = event.target.closest('button[data-course-id]');
+        if (!button) {
+            return;
+        }
+        const courseId = parseInt(button.dataset.courseId, 10);
+        if (!courseId) {
+            return;
+        }
+        const course = state.courses.find((item) => item.id === courseId);
+        const courseLabel = course?.title ? `课程「${course.title}」` : '该课程';
+        if (!window.confirm(`确定删除${courseLabel}？删除后将同步移除课节与课程分配。`)) {
+            return;
+        }
+        const originalLabel = button.textContent;
+        button.disabled = true;
+        button.textContent = '删除中...';
+        setMessage(courseListMessage, '正在删除课程，请稍候...');
+        try {
+            await fetchJSON(`${API_BASE}/courses.php`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ course_id: courseId })
+            });
+            state.courses = state.courses.filter((item) => item.id !== courseId);
+            delete state.lessons[courseId];
+            refreshCourseList();
+            setMessage(courseListMessage, '课程已删除', 'success');
+
+            const previousLessonSelection = lessonCourseSelect.value;
+            const previousAssignSelection = assignCourseSelect.value;
+
+            const nextLessonValue = populateSelect(
+                lessonCourseSelect,
+                state.courses,
+                'id',
+                'title',
+                previousLessonSelection && parseInt(previousLessonSelection, 10) !== courseId ? previousLessonSelection : ''
+            );
+
+            populateSelect(
+                assignCourseSelect,
+                state.courses,
+                'id',
+                'title',
+                previousAssignSelection && parseInt(previousAssignSelection, 10) !== courseId ? previousAssignSelection : ''
+            );
+
+            const selectedLessonId = parseInt(nextLessonValue, 10);
+            if (selectedLessonId) {
+                await loadLessonsForCourse(selectedLessonId);
+            } else if (!state.courses.length) {
+                renderLessonPlaceholder('暂无课程，请先创建。');
+            } else {
+                renderLessonPlaceholder('请选择课程查看课节');
+            }
+            setMessage(lessonListMessage);
+
+            const selectedUserId = parseInt(assignUserSelect.value, 10);
+            if (selectedUserId) {
+                await loadAssignmentsForUser(selectedUserId);
+            } else {
+                renderAssignmentPlaceholder('请选择用户查看已分配课程');
+            }
+            setMessage(assignCourseMessage);
+            setMessage(createLessonMessage);
+        } catch (error) {
+            setMessage(courseListMessage, error.message || '删除课程失败', 'error');
+            button.disabled = false;
+            button.textContent = originalLabel;
         }
     });
 

@@ -16,154 +16,181 @@
             padding: 3rem 1.5rem;
         }
 
-        .login-grid {
+        .login-wrapper {
             width: min(1040px, 100%);
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2.25rem;
-            align-items: stretch;
-        }
-
-        .login-hero {
-            padding: 2.75rem;
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.85), rgba(147, 51, 234, 0.85));
-            color: #fff;
+            grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
             border-radius: var(--radius-lg);
-            position: relative;
             overflow: hidden;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            box-shadow: 0 34px 90px rgba(15, 23, 42, 0.18);
+            backdrop-filter: blur(18px);
+            min-height: 520px;
         }
 
-        .login-hero::after {
+        .login-aside {
+            position: relative;
+            padding: 3.2rem 3rem;
+            background: var(--brand-gradient);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 2.75rem;
+            isolation: isolate;
+        }
+
+        .login-aside::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.25), transparent 50%);
-            pointer-events: none;
+            background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.35), transparent 55%),
+                radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.22), transparent 55%);
+            opacity: 0.9;
+            z-index: 0;
         }
 
-        .login-hero h1 {
-            margin-top: 0;
-            font-size: clamp(2rem, 3vw, 2.8rem);
+        .login-aside > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            padding: 0.35rem 1rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .login-aside h1 {
+            margin: 0.75rem 0 1rem;
+            font-size: clamp(2.2rem, 3vw, 3rem);
             font-weight: 700;
             letter-spacing: -0.02em;
+            line-height: 1.1;
         }
 
-        .login-hero p {
-            font-size: 1rem;
+        .login-aside p {
+            margin: 0;
             line-height: 1.75;
-            color: rgba(255, 255, 255, 0.82);
+            color: rgba(255, 255, 255, 0.85);
         }
 
-        .login-hero .feature-list {
-            margin: 2rem 0 0;
+        .login-points {
+            margin: 0;
             padding: 0;
             list-style: none;
             display: grid;
             gap: 1rem;
         }
 
-        .login-hero .feature-list li {
+        .login-points li {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            font-weight: 600;
+            gap: 0.85rem;
+            font-weight: 500;
         }
 
-        .login-hero .feature-list span {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+        .login-points li::before {
+            content: '✓';
             width: 1.85rem;
             height: 1.85rem;
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.18);
-            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.22);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
         }
 
-        .login-card {
-            padding: 2.5rem 2.75rem;
+        .login-panel {
+            padding: 3.2rem 3rem;
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            gap: 2.5rem;
+            background: rgba(255, 255, 255, 0.94);
         }
 
-        .login-card header h2 {
-            margin: 0 0 0.4rem;
-            font-size: 1.75rem;
+        .login-panel header h2 {
+            margin: 0 0 0.6rem;
+            font-size: 2rem;
         }
 
-        .login-card header p {
+        .login-panel header p {
             margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .login-panel form {
+            display: grid;
+            gap: 1.2rem;
+        }
+
+        .login-panel footer {
+            font-size: 0.88rem;
             color: var(--text-secondary);
             line-height: 1.6;
         }
 
-        .login-card form {
-            display: grid;
-            gap: 1.1rem;
-        }
-
-        .login-card footer {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .login-card footer a {
+        .login-panel footer a {
             color: var(--brand-color);
             font-weight: 600;
         }
 
-        .floating-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(79, 70, 229, 0.1);
-            color: #fff;
-            padding: 0.5rem 1rem;
-            border-radius: 999px;
-            font-size: 0.9rem;
-            backdrop-filter: blur(8px);
-        }
-
-        .floating-badge svg {
-            width: 1.2rem;
-            height: 1.2rem;
-        }
-
         .login-message {
-            min-height: 1.5rem;
+            min-height: 1.6rem;
         }
 
-        @media (max-width: 720px) {
+        @media (max-width: 960px) {
+            .login-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .login-aside,
+            .login-panel {
+                padding: 2.75rem 2.5rem;
+            }
+
+            .login-aside {
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 640px) {
             body.login {
                 padding: 2rem 1rem;
             }
 
-            .login-card {
-                padding: 2rem;
+            .login-panel {
+                padding: 2.25rem 2rem;
             }
         }
     </style>
 </head>
 <body class="login">
-<main class="login-grid">
-    <section class="login-hero card fade-in">
-        <div class="floating-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            随时随地学习
+<main class="login-wrapper fade-in">
+    <section class="login-aside">
+        <div>
+            <span class="login-brand">智能录播课堂</span>
+            <h1>为每位学生定制的线上课堂</h1>
+            <p>轻松分发录播课、管理学员与进度，支持哔哩哔哩地址及本地资源，带来更连贯的学习体验。</p>
         </div>
-        <h1>欢迎来到智能录播课堂</h1>
-        <p>为每位学生分发专属课程，沉浸式观看体验与轻盈的管理后台一应俱全。登录后即可开始学习或管理内容。</p>
-        <ul class="feature-list">
-            <li><span>·</span> 一键播放录播课，支持哔哩哔哩地址</li>
-            <li><span>·</span> 灵活分配课程给不同学员</li>
-            <li><span>·</span> 管理端支持课程、课节、用户维护</li>
+        <ul class="login-points">
+            <li>专属账号登录，按用户分配课程</li>
+            <li>课节结构清晰，支持多种视频源</li>
+            <li>管理员后台实时维护课程内容</li>
         </ul>
     </section>
-    <section class="login-card card fade-in">
+    <section class="login-panel">
         <header>
             <h2>账号登录</h2>
             <p>请输入管理员为您创建的用户名和密码。</p>
@@ -213,7 +240,7 @@
         });
         const data = await response.json().catch(() => null);
         if (!response.ok) {
-            const message = data?.message || '请求失败，请稍后重试';
+            const message = data?.message || data?.error || '请求失败，请稍后重试';
             throw new Error(message);
         }
         return data;
