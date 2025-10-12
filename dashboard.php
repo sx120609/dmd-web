@@ -138,6 +138,12 @@
     const courseLessonCountEl = document.getElementById('courseLessonCount');
     const courseStatusChipEl = document.getElementById('courseStatusChip');
     const stageHintEl = document.getElementById('stageHint');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const courseDrawerToggle = document.getElementById('courseDrawerToggle');
+    const lessonDrawerToggle = document.getElementById('lessonDrawerToggle');
+    const courseDrawerClose = document.getElementById('courseDrawerClose');
+    const lessonDrawerClose = document.getElementById('lessonDrawerClose');
+    const mobileQuery = window.matchMedia('(max-width: 768px)');
 
     let currentUser = null;
     let currentCourseId = null;
@@ -145,6 +151,40 @@
     let currentLessons = [];
     let currentCourse = null;
     let players = [];
+
+    function closeAllDrawers() {
+        document.body.classList.remove('course-drawer-open', 'lesson-drawer-open');
+    }
+
+    function openDrawer(type) {
+        closeAllDrawers();
+        document.body.classList.add(`${type}-drawer-open`);
+    }
+
+    const handleDesktopSwitch = (event) => {
+        if (!event.matches) {
+            closeAllDrawers();
+        }
+    };
+
+    if (mobileQuery?.addEventListener) {
+        mobileQuery.addEventListener('change', handleDesktopSwitch);
+    } else if (mobileQuery?.addListener) {
+        mobileQuery.addListener(handleDesktopSwitch);
+    }
+
+    courseDrawerToggle?.addEventListener('click', () => openDrawer('course'));
+    lessonDrawerToggle?.addEventListener('click', () => openDrawer('lesson'));
+    courseDrawerClose?.addEventListener('click', closeAllDrawers);
+    lessonDrawerClose?.addEventListener('click', closeAllDrawers);
+    drawerBackdrop?.addEventListener('click', closeAllDrawers);
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && (document.body.classList.contains('course-drawer-open') || document.body.classList.contains('lesson-drawer-open'))) {
+            event.preventDefault();
+            closeAllDrawers();
+        }
+    });
 
     function showWelcome(user) {
         welcomeTextEl.textContent = user ? `欢迎回来，${user.display_name || user.username}` : '欢迎来到课堂';
@@ -274,6 +314,7 @@
     }
 
     function renderLessonList(lessons, course) {
+        closeAllDrawers();
         currentCourse = course || null;
         currentLessons = lessons || [];
         currentLessonId = null;
@@ -324,6 +365,7 @@
     }
 
     function renderCourseList(courses) {
+        closeAllDrawers();
         courseListEl.innerHTML = '';
         if (!courses || courses.length === 0) {
             const empty = document.createElement('div');
@@ -414,6 +456,7 @@
             workspaceIntroEl.textContent = '课程内容暂时不可用，请稍后刷新。';
             setCourseSummary('课程加载失败', '无法加载课程详情，请稍后重试。', '0 个课节', '加载失败');
             setStageHint('课程内容暂时不可用，请稍后重试。', false);
+            closeAllDrawers();
         }
     }
 
@@ -429,6 +472,7 @@
         if (!lesson) {
             return;
         }
+        closeAllDrawers();
         currentLessonId = normalizedLessonId;
         highlightLesson(currentLessonId);
         clearPlayers();
@@ -467,6 +511,7 @@
             setCourseSummary('课程加载失败', '无法获取课程列表，请稍后重试。', '0 个课节', '加载失败');
             setStageHint('课程列表暂时不可用，请稍后重试。', false);
             updateBreadcrumbs();
+            closeAllDrawers();
         }
     }
 
