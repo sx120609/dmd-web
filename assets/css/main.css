@@ -80,6 +80,10 @@ label {
     color: var(--text-secondary);
 }
 
+.text-nowrap {
+    white-space: nowrap;
+}
+
 .card,
 .glass-panel {
     background: #ffffff;

@@ -43,22 +43,39 @@
                 </div>
             </div>
         </div>
-    </div>
-</section>
-
-<main class="admin-main container-xxl px-3 px-lg-4 pb-5">
-    <div class="card surface-section border-0 shadow-sm p-0 glass-card">
-        <div class="card-body p-4 p-lg-5">
-            <div class="admin-toolbar mb-4">
-                <div>
-                    <h2 class="admin-section-title">选择管理模块</h2>
-                    <p class="mb-0 text-secondary">点击下方标签切换用户、课程、课节以及分配的管理视图。</p>
-                </div>
-                <div class="pill-tabs" role="tablist">
-                    <button type="button" class="active" data-target="users">用户管理</button>
-                    <button type="button" data-target="courses">课程管理</button>
-                    <button type="button" data-target="lessons">课节管理</button>
-                    <button type="button" data-target="assignments">课程分配</button>
+        <div class="tab-content active" id="tab-users" role="tabpanel">
+            <div class="user-management" style="margin-top:2rem;">
+                <div class="user-management-primary">
+                    <div class="card list-card user-list-card">
+                        <div class="panel-header">
+                            <h3 class="text-nowrap">现有用户</h3>
+                            <p class="hint">点击用户即可查看详情、修改信息或重置密码。</p>
+                        </div>
+                        <ul class="table-list user-table" id="userList"></ul>
+                    </div>
+                    <form id="createUserForm" class="card surface-section form-grid" style="padding:2rem;">
+                        <div>
+                            <label for="newUsername">用户名</label>
+                            <input id="newUsername" name="username" placeholder="例如：student01" required>
+                        </div>
+                        <div>
+                            <label for="newDisplayName">显示名称</label>
+                            <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
+                        </div>
+                        <div>
+                            <label for="newPassword">初始密码</label>
+                            <input id="newPassword" name="password" type="password" placeholder="设置登录密码" required>
+                        </div>
+                        <div>
+                            <label for="newRole">角色</label>
+                            <select id="newRole" name="role">
+                                <option value="student">学员</option>
+                                <option value="admin">管理员</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="primary-button">创建用户</button>
+                        <div class="message inline" id="createUserMessage" hidden></div>
+                    </form>
                 </div>
             </div>
             <div class="tab-content active" id="tab-users" role="tabpanel">
