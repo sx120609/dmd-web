@@ -122,6 +122,57 @@ if ($method === 'GET') {
     }
 
     json_response(['course' => ['id' => (int) $courseId, 'title' => $title, 'description' => $description]]);
+} elseif ($method === 'PATCH' || $method === 'PUT') {
+    require_admin($mysqli);
+    $input = get_json_input();
+    if (empty($input)) {
+        $raw = file_get_contents('php://input');
+        if ($raw) {
+            parse_str($raw, $input);
+        }
+    }
+    if (empty($input)) {
+        $input = $_POST;
+    }
+
+    $courseId = (int) ($input['course_id'] ?? $input['id'] ?? 0);
+    if ($courseId <= 0) {
+        error_response('课程ID无效');
+    }
+
+    $stmt = $mysqli->prepare('SELECT id, title, description FROM courses WHERE id = ? LIMIT 1');
+    if (!$stmt) {
+        error_response('无法获取课程信息');
+    }
+    $stmt->bind_param('i', $courseId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $current = $result->fetch_assoc();
+    $stmt->close();
+
+    if (!$current) {
+        error_response('课程不存在', 404);
+    }
+
+    $title = array_key_exists('title', $input) ? trim((string) $input['title']) : ($current['title'] ?? '');
+    $description = array_key_exists('description', $input) ? trim((string) $input['description']) : ($current['description'] ?? '');
+
+    if ($title === '') {
+        error_response('课程标题不能为空');
+    }
+
+    $stmt = $mysqli->prepare('UPDATE courses SET title = ?, description = ? WHERE id = ? LIMIT 1');
+    if (!$stmt) {
+        error_response('无法更新课程');
+    }
+    $stmt->bind_param('ssi', $title, $description, $courseId);
+    if (!$stmt->execute()) {
+        $stmt->close();
+        error_response('更新课程失败');
+    }
+    $stmt->close();
+
+    json_response(['course' => ['id' => (int) $courseId, 'title' => $title, 'description' => $description]]);
 } elseif ($method === 'DELETE') {
     require_admin($mysqli);
     $input = get_json_input();

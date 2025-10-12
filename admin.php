@@ -335,10 +335,29 @@
                     <button type="submit" class="primary-button">创建课程</button>
                     <div class="message inline" id="createCourseMessage" hidden></div>
                 </form>
-                <div class="card list-card">
-                    <h3>课程列表</h3>
-                    <ul class="table-list" id="courseList"></ul>
-                    <div class="message inline" id="courseListMessage" hidden></div>
+                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                    <div class="card list-card">
+                        <h3>课程列表</h3>
+                        <p class="hint">点击课程可编辑信息，删除将同时移除课节与分配记录。</p>
+                        <ul class="table-list" id="courseList"></ul>
+                        <div class="message inline" id="courseListMessage" hidden></div>
+                    </div>
+                    <form id="updateCourseForm" class="card surface-section form-grid" style="padding:2rem;" hidden>
+                        <h3 style="margin-top:0;">编辑课程</h3>
+                        <div>
+                            <label for="editCourseTitle">课程名称</label>
+                            <input id="editCourseTitle" placeholder="请输入课程标题" required>
+                        </div>
+                        <div>
+                            <label for="editCourseDescription">课程简介</label>
+                            <textarea id="editCourseDescription" rows="4" placeholder="填写课程简介"></textarea>
+                        </div>
+                        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                            <button type="submit" class="primary-button">保存修改</button>
+                            <button type="button" class="ghost-button" id="cancelCourseEdit">取消</button>
+                        </div>
+                        <div class="message inline" id="updateCourseMessage" hidden></div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -370,6 +389,26 @@
                         </ul>
                         <div class="message inline" id="lessonListMessage" hidden></div>
                     </div>
+                    <form id="updateLessonForm" class="card surface-section form-grid" style="padding:2rem;" hidden>
+                        <h3 style="margin-top:0;">编辑课节</h3>
+                        <div>
+                            <label for="editLessonCourseSelect">所属课程</label>
+                            <select id="editLessonCourseSelect" required></select>
+                        </div>
+                        <div>
+                            <label for="editLessonTitle">课节标题</label>
+                            <input id="editLessonTitle" placeholder="请输入课节名称" required>
+                        </div>
+                        <div>
+                            <label for="editLessonVideo">视频链接</label>
+                            <input id="editLessonVideo" placeholder="支持本地文件链接或哔哩哔哩地址">
+                        </div>
+                        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                            <button type="submit" class="primary-button">保存课节</button>
+                            <button type="button" class="ghost-button" id="cancelLessonEdit">取消</button>
+                        </div>
+                        <div class="message inline" id="updateLessonMessage" hidden></div>
+                    </form>
                     <div class="card list-card">
                         <h3>课节小贴士</h3>
                         <p class="hint">添加课节后，学员刷新课程即可观看最新内容。建议为不同来源的视频提供清晰命名，便于识别。</p>
@@ -443,17 +482,42 @@
     if (deleteUserButton) {
         deleteUserButton.disabled = true;
     }
-
     const createCourseForm = document.getElementById('createCourseForm');
     const createCourseMessage = document.getElementById('createCourseMessage');
     const courseListEl = document.getElementById('courseList');
     const courseListMessage = document.getElementById('courseListMessage');
+    const updateCourseForm = document.getElementById('updateCourseForm');
+    const updateCourseMessage = document.getElementById('updateCourseMessage');
+    const editCourseTitleInput = document.getElementById('editCourseTitle');
+    const editCourseDescriptionInput = document.getElementById('editCourseDescription');
+    const cancelCourseEditButton = document.getElementById('cancelCourseEdit');
 
     const createLessonForm = document.getElementById('createLessonForm');
     const createLessonMessage = document.getElementById('createLessonMessage');
     const lessonCourseSelect = document.getElementById('lessonCourseSelect');
     const lessonListEl = document.getElementById('lessonList');
     const lessonListMessage = document.getElementById('lessonListMessage');
+    const updateLessonForm = document.getElementById('updateLessonForm');
+    const updateLessonMessage = document.getElementById('updateLessonMessage');
+    const editLessonCourseSelect = document.getElementById('editLessonCourseSelect');
+    const editLessonTitleInput = document.getElementById('editLessonTitle');
+    const editLessonVideoInput = document.getElementById('editLessonVideo');
+    const cancelLessonEditButton = document.getElementById('cancelLessonEdit');
+
+    if (cancelCourseEditButton) {
+        cancelCourseEditButton.addEventListener('click', () => {
+            clearCourseEditor();
+        });
+    }
+    if (cancelLessonEditButton) {
+        cancelLessonEditButton.addEventListener('click', () => {
+            const currentCourseId = parseInt(lessonCourseSelect.value, 10);
+            clearLessonEditor();
+            if (currentCourseId && Array.isArray(state.lessons[currentCourseId])) {
+                renderLessons(currentCourseId, state.lessons[currentCourseId]);
+            }
+        });
+    }
 
     const assignCourseForm = document.getElementById('assignCourseForm');
     const assignCourseMessage = document.getElementById('assignCourseMessage');
@@ -466,7 +530,10 @@
         courses: [],
         lessons: {},
         currentUser: null,
-        selectedUserId: null
+        selectedUserId: null,
+        selectedCourseId: null,
+        selectedLessonId: null,
+        editingLessonOriginalCourseId: null
     };
 
     function setMessage(element, text = '', type = '') {
@@ -617,16 +684,50 @@
         }
         state.courses.forEach((course) => {
             const item = document.createElement('li');
-            const label = document.createElement('div');
-            label.innerHTML = `<strong>${course.title}</strong><div class="text-muted" style="font-size:0.85rem;">${course.description || '暂无描述'}</div>`;
-            item.appendChild(label);
+            item.dataset.courseId = course.id;
+            item.classList.add('selectable');
+            item.setAttribute('role', 'button');
+            item.tabIndex = 0;
+            if (state.selectedCourseId === course.id) {
+                item.classList.add('active');
+            }
 
-            const action = document.createElement('button');
-            action.type = 'button';
-            action.className = 'inline-button danger';
-            action.dataset.courseId = course.id;
-            action.textContent = '删除';
-            item.appendChild(action);
+            const info = document.createElement('div');
+            info.style.flex = '1';
+            const title = document.createElement('strong');
+            title.textContent = course.title;
+            info.appendChild(title);
+            const meta = document.createElement('div');
+            meta.className = 'text-muted';
+            meta.style.fontSize = '0.85rem';
+            const description = summarize(course.description || '', 64);
+            meta.textContent = description ? `课程ID：${course.id} · ${description}` : `课程ID：${course.id} · 暂无描述`;
+            info.appendChild(meta);
+            item.appendChild(info);
+
+            const actions = document.createElement('div');
+            actions.className = 'list-actions';
+            actions.style.display = 'flex';
+            actions.style.gap = '0.5rem';
+            actions.style.alignItems = 'center';
+
+            const editButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.className = 'inline-button';
+            editButton.dataset.courseId = course.id;
+            editButton.dataset.courseAction = 'edit';
+            editButton.textContent = '编辑';
+            actions.appendChild(editButton);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.className = 'inline-button danger';
+            deleteButton.dataset.courseId = course.id;
+            deleteButton.dataset.courseAction = 'delete';
+            deleteButton.textContent = '删除';
+            actions.appendChild(deleteButton);
+
+            item.appendChild(actions);
 
             courseListEl.appendChild(item);
         });
@@ -662,6 +763,74 @@
             selectEl.selectedIndex = 0;
         }
         return selectEl.value;
+    }
+
+    function clearCourseEditor() {
+        state.selectedCourseId = null;
+        if (updateCourseForm) {
+            updateCourseForm.hidden = true;
+            updateCourseForm.reset();
+        }
+        setMessage(updateCourseMessage);
+        refreshCourseList();
+    }
+
+    function showCourseEditor(courseId) {
+        const target = state.courses.find((course) => course.id === courseId);
+        if (!target) {
+            setMessage(updateCourseMessage, '未找到课程信息', 'error');
+            return;
+        }
+        state.selectedCourseId = target.id;
+        if (updateCourseForm) {
+            updateCourseForm.hidden = false;
+        }
+        if (editCourseTitleInput) {
+            editCourseTitleInput.value = target.title || '';
+        }
+        if (editCourseDescriptionInput) {
+            editCourseDescriptionInput.value = target.description || '';
+        }
+        setMessage(updateCourseMessage);
+        refreshCourseList();
+    }
+
+    function clearLessonEditor() {
+        state.selectedLessonId = null;
+        state.editingLessonOriginalCourseId = null;
+        if (updateLessonForm) {
+            updateLessonForm.hidden = true;
+            updateLessonForm.reset();
+        }
+        setMessage(updateLessonMessage);
+    }
+
+    function showLessonEditor(courseId, lessonId) {
+        const lessons = state.lessons[courseId] || [];
+        const target = lessons.find((lesson) => lesson.id === lessonId);
+        if (!target) {
+            setMessage(updateLessonMessage, '未找到课节信息', 'error');
+            return;
+        }
+        state.selectedLessonId = target.id;
+        state.editingLessonOriginalCourseId = courseId;
+        if (updateLessonForm) {
+            updateLessonForm.hidden = false;
+        }
+        if (editLessonCourseSelect) {
+            populateSelect(editLessonCourseSelect, state.courses, 'id', 'title', courseId);
+        }
+        if (lessonCourseSelect && lessonCourseSelect.value !== String(courseId)) {
+            lessonCourseSelect.value = String(courseId);
+        }
+        if (editLessonTitleInput) {
+            editLessonTitleInput.value = target.title || '';
+        }
+        if (editLessonVideoInput) {
+            editLessonVideoInput.value = target.video_url || '';
+        }
+        setMessage(updateLessonMessage);
+        renderLessons(courseId, lessons);
     }
 
     function summarize(text, maxLength = 60) {
@@ -703,9 +872,25 @@
             renderLessonPlaceholder('该课程还没有课节');
             return;
         }
+        if (state.editingLessonOriginalCourseId === courseId) {
+            const exists = lessons.some((lesson) => lesson.id === state.selectedLessonId);
+            if (!exists) {
+                clearLessonEditor();
+            }
+        }
         lessons.forEach((lesson, index) => {
             const item = document.createElement('li');
+            item.dataset.lessonId = lesson.id;
+            item.dataset.courseId = courseId;
+            item.classList.add('selectable');
+            item.setAttribute('role', 'button');
+            item.tabIndex = 0;
+            if (state.selectedLessonId === lesson.id) {
+                item.classList.add('active');
+            }
+
             const info = document.createElement('div');
+            info.style.flex = '1';
             const title = document.createElement('strong');
             title.textContent = `${index + 1}. ${lesson.title}`;
             info.appendChild(title);
@@ -717,13 +902,31 @@
             info.appendChild(meta);
             item.appendChild(info);
 
-            const action = document.createElement('button');
-            action.type = 'button';
-            action.className = 'inline-button danger';
-            action.dataset.lessonId = lesson.id;
-            action.dataset.courseId = courseId;
-            action.textContent = '删除';
-            item.appendChild(action);
+            const actions = document.createElement('div');
+            actions.className = 'list-actions';
+            actions.style.display = 'flex';
+            actions.style.gap = '0.5rem';
+            actions.style.alignItems = 'center';
+
+            const editButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.className = 'inline-button';
+            editButton.dataset.lessonId = lesson.id;
+            editButton.dataset.courseId = courseId;
+            editButton.dataset.lessonAction = 'edit';
+            editButton.textContent = '编辑';
+            actions.appendChild(editButton);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.className = 'inline-button danger';
+            deleteButton.dataset.lessonId = lesson.id;
+            deleteButton.dataset.courseId = courseId;
+            deleteButton.dataset.lessonAction = 'delete';
+            deleteButton.textContent = '删除';
+            actions.appendChild(deleteButton);
+
+            item.appendChild(actions);
 
             lessonListEl.appendChild(item);
         });
@@ -838,6 +1041,7 @@
             );
             populateSelect(assignCourseSelect, state.courses, 'id', 'title');
             const selectedLessonCourse = populateSelect(lessonCourseSelect, state.courses, 'id', 'title');
+            populateSelect(editLessonCourseSelect, state.courses, 'id', 'title');
 
             const normalizedUserId = parseInt(selectedUserOption, 10);
             if (!Number.isNaN(normalizedUserId) && normalizedUserId > 0) {
@@ -885,6 +1089,9 @@
         const courseId = parseInt(lessonCourseSelect.value, 10);
         setMessage(createLessonMessage);
         setMessage(lessonListMessage);
+        if (state.editingLessonOriginalCourseId && state.editingLessonOriginalCourseId !== courseId) {
+            clearLessonEditor();
+        }
         if (courseId) {
             loadLessonsForCourse(courseId);
         } else if (!state.courses.length) {
@@ -924,75 +1131,128 @@
 
     courseListEl.addEventListener('click', async (event) => {
         const button = event.target.closest('button[data-course-id]');
-        if (!button) {
+        if (button) {
+            const courseId = parseInt(button.dataset.courseId, 10);
+            if (!courseId) {
+                return;
+            }
+            const action = button.dataset.courseAction || 'delete';
+            if (action === 'edit') {
+                showCourseEditor(courseId);
+                return;
+            }
+            if (action !== 'delete') {
+                return;
+            }
+            const course = state.courses.find((item) => item.id === courseId);
+            const courseLabel = course?.title ? `课程「${course.title}」` : '该课程';
+            if (!window.confirm(`确定删除${courseLabel}？删除后将同步移除课节与课程分配。`)) {
+                return;
+            }
+            const originalLabel = button.textContent;
+            button.disabled = true;
+            button.textContent = '删除中...';
+            setMessage(courseListMessage, '正在删除课程，请稍候...');
+            try {
+                await fetchJSON(`${API_BASE}/courses.php`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ course_id: courseId })
+                });
+                const previousLessonSelection = lessonCourseSelect.value;
+                const previousAssignSelection = assignCourseSelect.value;
+                const removedActiveCourse = state.selectedCourseId === courseId;
+                const removedLessonEditingCourse = state.editingLessonOriginalCourseId === courseId;
+                state.courses = state.courses.filter((item) => item.id !== courseId);
+                delete state.lessons[courseId];
+                if (removedActiveCourse) {
+                    clearCourseEditor();
+                } else {
+                    refreshCourseList();
+                }
+                if (removedLessonEditingCourse) {
+                    clearLessonEditor();
+                }
+                setMessage(courseListMessage, '课程已删除', 'success');
+
+                const nextLessonValue = populateSelect(
+                    lessonCourseSelect,
+                    state.courses,
+                    'id',
+                    'title',
+                    previousLessonSelection && parseInt(previousLessonSelection, 10) !== courseId ? previousLessonSelection : ''
+                );
+
+                populateSelect(
+                    assignCourseSelect,
+                    state.courses,
+                    'id',
+                    'title',
+                    previousAssignSelection && parseInt(previousAssignSelection, 10) !== courseId ? previousAssignSelection : ''
+                );
+
+                populateSelect(
+                    editLessonCourseSelect,
+                    state.courses,
+                    'id',
+                    'title',
+                    state.editingLessonOriginalCourseId || ''
+                );
+
+                const selectedLessonCourseId = parseInt(nextLessonValue, 10);
+                if (selectedLessonCourseId) {
+                    await loadLessonsForCourse(selectedLessonCourseId);
+                } else if (!state.courses.length) {
+                    renderLessonPlaceholder('暂无课程，请先创建。');
+                } else {
+                    renderLessonPlaceholder('请选择课程查看课节');
+                }
+                setMessage(lessonListMessage);
+
+                const selectedUserId = parseInt(assignUserSelect.value, 10);
+                if (selectedUserId) {
+                    await loadAssignmentsForUser(selectedUserId);
+                } else {
+                    renderAssignmentPlaceholder('请选择用户查看已分配课程');
+                }
+                setMessage(assignCourseMessage);
+                setMessage(createLessonMessage);
+            } catch (error) {
+                setMessage(courseListMessage, error.message || '删除课程失败', 'error');
+                button.disabled = false;
+                button.textContent = originalLabel;
+            }
             return;
         }
-        const courseId = parseInt(button.dataset.courseId, 10);
+
+        const item = event.target.closest('li[data-course-id]');
+        if (!item) {
+            return;
+        }
+        const courseId = parseInt(item.dataset.courseId, 10);
         if (!courseId) {
             return;
         }
-        const course = state.courses.find((item) => item.id === courseId);
-        const courseLabel = course?.title ? `课程「${course.title}」` : '该课程';
-        if (!window.confirm(`确定删除${courseLabel}？删除后将同步移除课节与课程分配。`)) {
+        showCourseEditor(courseId);
+    });
+
+    courseListEl.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') {
             return;
         }
-        const originalLabel = button.textContent;
-        button.disabled = true;
-        button.textContent = '删除中...';
-        setMessage(courseListMessage, '正在删除课程，请稍候...');
-        try {
-            await fetchJSON(`${API_BASE}/courses.php`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ course_id: courseId })
-            });
-            state.courses = state.courses.filter((item) => item.id !== courseId);
-            delete state.lessons[courseId];
-            refreshCourseList();
-            setMessage(courseListMessage, '课程已删除', 'success');
-
-            const previousLessonSelection = lessonCourseSelect.value;
-            const previousAssignSelection = assignCourseSelect.value;
-
-            const nextLessonValue = populateSelect(
-                lessonCourseSelect,
-                state.courses,
-                'id',
-                'title',
-                previousLessonSelection && parseInt(previousLessonSelection, 10) !== courseId ? previousLessonSelection : ''
-            );
-
-            populateSelect(
-                assignCourseSelect,
-                state.courses,
-                'id',
-                'title',
-                previousAssignSelection && parseInt(previousAssignSelection, 10) !== courseId ? previousAssignSelection : ''
-            );
-
-            const selectedLessonId = parseInt(nextLessonValue, 10);
-            if (selectedLessonId) {
-                await loadLessonsForCourse(selectedLessonId);
-            } else if (!state.courses.length) {
-                renderLessonPlaceholder('暂无课程，请先创建。');
-            } else {
-                renderLessonPlaceholder('请选择课程查看课节');
-            }
-            setMessage(lessonListMessage);
-
-            const selectedUserId = parseInt(assignUserSelect.value, 10);
-            if (selectedUserId) {
-                await loadAssignmentsForUser(selectedUserId);
-            } else {
-                renderAssignmentPlaceholder('请选择用户查看已分配课程');
-            }
-            setMessage(assignCourseMessage);
-            setMessage(createLessonMessage);
-        } catch (error) {
-            setMessage(courseListMessage, error.message || '删除课程失败', 'error');
-            button.disabled = false;
-            button.textContent = originalLabel;
+        if (event.target instanceof HTMLElement && event.target.tagName === 'BUTTON') {
+            return;
         }
+        const item = event.target.closest('li[data-course-id]');
+        if (!item) {
+            return;
+        }
+        event.preventDefault();
+        const courseId = parseInt(item.dataset.courseId, 10);
+        if (!courseId) {
+            return;
+        }
+        showCourseEditor(courseId);
     });
 
     assignmentListEl.addEventListener('click', async (event) => {
@@ -1025,33 +1285,77 @@
 
     lessonListEl.addEventListener('click', async (event) => {
         const button = event.target.closest('button[data-lesson-id]');
-        if (!button) {
+        if (button) {
+            const lessonId = parseInt(button.dataset.lessonId, 10);
+            const courseId = parseInt(button.dataset.courseId || lessonCourseSelect.value, 10);
+            if (!lessonId) {
+                return;
+            }
+            const action = button.dataset.lessonAction || 'delete';
+            if (action === 'edit') {
+                if (courseId) {
+                    showLessonEditor(courseId, lessonId);
+                }
+                return;
+            }
+            if (action !== 'delete') {
+                return;
+            }
+            if (!window.confirm('确定删除该课节？删除后无法恢复。')) {
+                return;
+            }
+            const originalLabel = button.textContent;
+            button.disabled = true;
+            button.textContent = '删除中...';
+            try {
+                await fetchJSON(`${API_BASE}/lessons.php`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lesson_id: lessonId })
+                });
+                if (state.selectedLessonId === lessonId) {
+                    clearLessonEditor();
+                }
+                setMessage(lessonListMessage, '课节已删除', 'success');
+                await loadLessonsForCourse(courseId);
+            } catch (error) {
+                setMessage(lessonListMessage, error.message || '删除课节失败', 'error');
+                button.disabled = false;
+                button.textContent = originalLabel;
+            }
             return;
         }
-        const lessonId = parseInt(button.dataset.lessonId, 10);
-        const courseId = parseInt(button.dataset.courseId || lessonCourseSelect.value, 10);
-        if (!lessonId) {
+
+        const item = event.target.closest('li[data-lesson-id]');
+        if (!item) {
             return;
         }
-        if (!window.confirm('确定删除该课节？删除后无法恢复。')) {
+        const lessonId = parseInt(item.dataset.lessonId, 10);
+        const courseId = parseInt(item.dataset.courseId || lessonCourseSelect.value, 10);
+        if (!lessonId || !courseId) {
             return;
         }
-        const originalLabel = button.textContent;
-        button.disabled = true;
-        button.textContent = '删除中...';
-        try {
-            await fetchJSON(`${API_BASE}/lessons.php`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ lesson_id: lessonId })
-            });
-            setMessage(lessonListMessage, '课节已删除', 'success');
-            await loadLessonsForCourse(courseId);
-        } catch (error) {
-            setMessage(lessonListMessage, error.message || '删除课节失败', 'error');
-            button.disabled = false;
-            button.textContent = originalLabel;
+        showLessonEditor(courseId, lessonId);
+    });
+
+    lessonListEl.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
         }
+        if (event.target instanceof HTMLElement && event.target.tagName === 'BUTTON') {
+            return;
+        }
+        const item = event.target.closest('li[data-lesson-id]');
+        if (!item) {
+            return;
+        }
+        event.preventDefault();
+        const lessonId = parseInt(item.dataset.lessonId, 10);
+        const courseId = parseInt(item.dataset.courseId || lessonCourseSelect.value, 10);
+        if (!lessonId || !courseId) {
+            return;
+        }
+        showLessonEditor(courseId, lessonId);
     });
 
     createUserForm.addEventListener('submit', async (event) => {
@@ -1114,11 +1418,17 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            state.courses.push(result.course);
+            const newCourse = {
+                ...result.course,
+                id: Number(result.course.id)
+            };
+            state.courses.push(newCourse);
+            state.courses.sort((a, b) => a.id - b.id);
             refreshCourseList();
-            const newCourseId = result.course.id;
+            const newCourseId = newCourse.id;
             populateSelect(assignCourseSelect, state.courses, 'id', 'title', newCourseId);
             const lessonSelectValue = populateSelect(lessonCourseSelect, state.courses, 'id', 'title', newCourseId);
+            populateSelect(editLessonCourseSelect, state.courses, 'id', 'title', state.editingLessonOriginalCourseId || newCourseId);
             createCourseForm.reset();
             setMessage(createCourseMessage, '课程创建成功', 'success');
             setMessage(lessonListMessage);
@@ -1130,6 +1440,95 @@
             setMessage(createCourseMessage, error.message || '创建失败', 'error');
         }
     });
+
+    if (updateCourseForm) {
+        updateCourseForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (!state.selectedCourseId) {
+                setMessage(updateCourseMessage, '请选择需要编辑的课程', 'error');
+                return;
+            }
+            const payload = {
+                id: state.selectedCourseId,
+                title: editCourseTitleInput.value.trim(),
+                description: editCourseDescriptionInput.value.trim()
+            };
+            if (!payload.title) {
+                setMessage(updateCourseMessage, '课程名称不能为空', 'error');
+                return;
+            }
+            setMessage(updateCourseMessage, '正在保存课程，请稍候...');
+            try {
+                const result = await fetchJSON(`${API_BASE}/courses.php`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const updatedCourse = {
+                    ...result.course,
+                    id: Number(result.course.id)
+                };
+                const index = state.courses.findIndex((course) => course.id === updatedCourse.id);
+                if (index !== -1) {
+                    state.courses[index] = updatedCourse;
+                } else {
+                    state.courses.push(updatedCourse);
+                }
+                state.courses.sort((a, b) => a.id - b.id);
+                state.selectedCourseId = updatedCourse.id;
+                refreshCourseList();
+
+                const existingCourseIds = new Set(state.courses.map((course) => course.id));
+                const previousLessonSelection = parseInt(lessonCourseSelect.value, 10);
+                const previousAssignSelection = parseInt(assignCourseSelect.value, 10);
+                const previousEditLessonSelection = parseInt(editLessonCourseSelect.value, 10);
+
+                const resolvedLessonSelection = populateSelect(
+                    lessonCourseSelect,
+                    state.courses,
+                    'id',
+                    'title',
+                    existingCourseIds.has(previousLessonSelection) ? previousLessonSelection : updatedCourse.id
+                );
+
+                populateSelect(
+                    assignCourseSelect,
+                    state.courses,
+                    'id',
+                    'title',
+                    existingCourseIds.has(previousAssignSelection) ? previousAssignSelection : updatedCourse.id
+                );
+
+                const nextEditSelection = state.editingLessonOriginalCourseId && existingCourseIds.has(state.editingLessonOriginalCourseId)
+                    ? state.editingLessonOriginalCourseId
+                    : (existingCourseIds.has(previousEditLessonSelection) ? previousEditLessonSelection : updatedCourse.id);
+
+                populateSelect(
+                    editLessonCourseSelect,
+                    state.courses,
+                    'id',
+                    'title',
+                    nextEditSelection
+                );
+
+                const selectedAssignmentsUserId = parseInt(assignUserSelect.value, 10);
+                if (selectedAssignmentsUserId) {
+                    await loadAssignmentsForUser(selectedAssignmentsUserId);
+                }
+                setMessage(assignCourseMessage);
+
+                setMessage(updateCourseMessage, '课程信息已更新', 'success');
+                setMessage(courseListMessage, '课程信息已更新', 'success');
+
+                const activeLessonCourseId = parseInt(resolvedLessonSelection, 10);
+                if (activeLessonCourseId && Array.isArray(state.lessons[activeLessonCourseId])) {
+                    renderLessons(activeLessonCourseId, state.lessons[activeLessonCourseId]);
+                }
+            } catch (error) {
+                setMessage(updateCourseMessage, error.message || '保存失败', 'error');
+            }
+        });
+    }
 
     assignCourseForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -1191,6 +1590,57 @@
             setMessage(createLessonMessage, error.message || '添加失败', 'error');
         }
     });
+
+    if (updateLessonForm) {
+        updateLessonForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (!state.selectedLessonId) {
+                setMessage(updateLessonMessage, '请选择需要编辑的课节', 'error');
+                return;
+            }
+            const payload = {
+                lesson_id: state.selectedLessonId,
+                course_id: parseInt(editLessonCourseSelect.value, 10),
+                title: editLessonTitleInput.value.trim(),
+                video_url: editLessonVideoInput.value.trim()
+            };
+            if (!payload.course_id || !payload.title) {
+                setMessage(updateLessonMessage, '请选择课程并填写课节标题', 'error');
+                return;
+            }
+            setMessage(updateLessonMessage, '正在保存课节，请稍候...');
+            try {
+                const result = await fetchJSON(`${API_BASE}/lessons.php`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const updatedLesson = {
+                    ...result.lesson,
+                    id: Number(result.lesson.id),
+                    course_id: Number(result.lesson.course_id)
+                };
+                const previousCourseId = state.editingLessonOriginalCourseId;
+                state.selectedLessonId = updatedLesson.id;
+                state.editingLessonOriginalCourseId = updatedLesson.course_id;
+
+                populateSelect(editLessonCourseSelect, state.courses, 'id', 'title', updatedLesson.course_id);
+                if (lessonCourseSelect.value !== String(updatedLesson.course_id)) {
+                    lessonCourseSelect.value = String(updatedLesson.course_id);
+                }
+
+                await loadLessonsForCourse(updatedLesson.course_id);
+                if (previousCourseId && previousCourseId !== updatedLesson.course_id) {
+                    await loadLessonsForCourse(previousCourseId);
+                }
+
+                setMessage(updateLessonMessage, '课节已更新', 'success');
+                setMessage(lessonListMessage, '课节已更新', 'success');
+            } catch (error) {
+                setMessage(updateLessonMessage, error.message || '保存失败', 'error');
+            }
+        });
+    }
 
     updateUserForm.addEventListener('submit', async (event) => {
         event.preventDefault();

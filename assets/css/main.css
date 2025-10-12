@@ -620,6 +620,27 @@ label {
     border-bottom: 1px solid rgba(148, 163, 184, 0.18);
 }
 
+.table-list li.selectable {
+    cursor: pointer;
+    gap: 1rem;
+}
+
+.table-list li.selectable:hover {
+    background: rgba(79, 70, 229, 0.08);
+}
+
+.table-list li.active {
+    background: rgba(79, 70, 229, 0.12);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.85rem;
+}
+
+.list-actions {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 .table-list li:last-child {
     border-bottom: none;
 }
