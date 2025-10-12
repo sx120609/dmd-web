@@ -230,23 +230,6 @@
         }
     }
 
-    function tuneBilibiliUrl(url, page) {
-        try {
-            const urlObj = new URL(url, window.location.origin);
-            if (page) {
-                urlObj.searchParams.set('page', String(page));
-            }
-            urlObj.searchParams.set('as_wide', '1');
-            urlObj.searchParams.set('high_quality', '1');
-            urlObj.searchParams.set('autoplay', '0');
-            urlObj.searchParams.set('danmaku', '0');
-            urlObj.searchParams.set('muted', '0');
-            return urlObj.toString();
-        } catch (error) {
-            return url;
-        }
-    }
-
     function buildPlayer(url) {
         const wrapper = document.createElement('div');
         wrapper.className = 'player';
@@ -254,7 +237,15 @@
             const frame = document.createElement('div');
             frame.className = 'player-frame';
             if (extraFrameClass) {
-                frame.classList.add(extraFrameClass);
+                if (Array.isArray(extraFrameClass)) {
+                    extraFrameClass.filter(Boolean).forEach(cls => frame.classList.add(cls));
+                } else {
+                    String(extraFrameClass)
+                        .split(' ')
+                        .map(cls => cls.trim())
+                        .filter(Boolean)
+                        .forEach(cls => frame.classList.add(cls));
+                }
             }
             frame.appendChild(element);
             wrapper.appendChild(frame);
@@ -282,28 +273,90 @@
             // ignore malformed url
         }
         if (bilibiliEmbedRegex.test(trimmed) || bilibiliBvMatch || bilibiliAvMatch) {
-            let embedUrl = trimmed;
-            if (bilibiliBvMatch) {
-                const bvid = bilibiliBvMatch[1];
-                embedUrl = `https://player.bilibili.com/player.html?bvid=${encodeURIComponent(bvid)}`;
-            } else if (bilibiliAvMatch) {
-                const aid = bilibiliAvMatch[1];
-                embedUrl = `https://player.bilibili.com/player.html?aid=${encodeURIComponent(aid)}`;
+            let bvid = bilibiliBvMatch ? bilibiliBvMatch[1] : '';
+            let aid = bilibiliAvMatch ? bilibiliAvMatch[1] : '';
+            if (bilibiliEmbedRegex.test(trimmed)) {
+                try {
+                    const embedUrl = new URL(trimmed, window.location.href);
+                    if (!bvid) {
+                        const queryBvid = embedUrl.searchParams.get('bvid');
+                        if (queryBvid) {
+                            bvid = queryBvid;
+                        }
+                    }
+                    if (!aid) {
+                        const queryAid = embedUrl.searchParams.get('aid');
+                        if (queryAid) {
+                            aid = queryAid;
+                        }
+                    }
+                    const pageParam = parseInt(embedUrl.searchParams.get('page') || embedUrl.searchParams.get('p'), 10);
+                    if (!Number.isNaN(pageParam) && pageParam > 0) {
+                        page = pageParam;
+                    }
+                } catch (error) {
+                    // ignore malformed url
+                }
             }
-            embedUrl = tuneBilibiliUrl(embedUrl, page);
-            const iframe = document.createElement('iframe');
-            iframe.src = embedUrl;
-            iframe.className = 'player-embed';
-            iframe.allowFullscreen = true;
-            iframe.setAttribute('allowfullscreen', '');
-            iframe.referrerPolicy = 'no-referrer';
-            iframe.setAttribute('allow', 'fullscreen; picture-in-picture');
-            iframe.setAttribute('loading', 'eager');
-            iframe.setAttribute('width', '100%');
-            iframe.setAttribute('height', '100%');
-            iframe.title = 'Bilibili 播放器';
-            wrapper.classList.add('player--bilibili');
-            wrapInFrame(iframe, 'player-frame--bilibili');
+            let portalUrl = trimmed;
+            if (bvid) {
+                portalUrl = `https://www.bilibili.com/video/${encodeURIComponent(bvid)}`;
+            } else if (aid) {
+                portalUrl = `https://www.bilibili.com/video/av${encodeURIComponent(aid)}`;
+            }
+            let hostLabel = 'bilibili.com';
+            try {
+                const portalUrlObj = new URL(portalUrl, window.location.href);
+                if (page > 1) {
+                    portalUrlObj.searchParams.set('p', String(page));
+                }
+                portalUrl = portalUrlObj.toString();
+                hostLabel = portalUrlObj.hostname.replace(/^www\./, '') || hostLabel;
+                hostLabel = hostLabel.replace(/^player\./, '') || hostLabel;
+            } catch (error) {
+                // keep defaults on malformed url
+            }
+            const portal = document.createElement('a');
+            portal.className = 'player-portal player-portal--bilibili';
+            portal.href = portalUrl;
+            portal.target = '_blank';
+            portal.rel = 'noopener noreferrer';
+
+            const chip = document.createElement('span');
+            chip.className = 'portal-chip';
+            chip.textContent = '哔哩哔哩外部视频';
+            portal.appendChild(chip);
+
+            const heading = document.createElement('div');
+            heading.className = 'portal-heading';
+            portal.appendChild(heading);
+
+            const title = document.createElement('span');
+            title.className = 'portal-title';
+            title.textContent = '前往哔哩哔哩观看';
+            heading.appendChild(title);
+
+            const meta = document.createElement('span');
+            meta.className = 'portal-meta';
+            meta.textContent = page > 1 ? `${hostLabel} · P${page}` : hostLabel;
+            heading.appendChild(meta);
+
+            const description = document.createElement('p');
+            description.className = 'portal-description';
+            description.textContent = '点击在新标签打开完整视频，返回此页即可继续学习。';
+            portal.appendChild(description);
+
+            const action = document.createElement('span');
+            action.className = 'portal-action';
+            action.textContent = '打开视频';
+            const actionIcon = document.createElement('span');
+            actionIcon.setAttribute('aria-hidden', 'true');
+            actionIcon.textContent = '↗';
+            action.appendChild(actionIcon);
+            portal.appendChild(action);
+
+            wrapper.classList.add('player--bilibili', 'player--external');
+            wrapInFrame(portal, ['player-frame--bilibili', 'player-frame--portal']);
             return { wrapper };
         }
         const video = document.createElement('video');
