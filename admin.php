@@ -62,6 +62,159 @@
             text-align: center;
             font-size: 0.95rem;
         }
+
+        .user-management {
+            display: grid;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1120px) {
+            .user-management {
+                grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.2fr);
+                align-items: flex-start;
+            }
+        }
+
+        .user-management-primary {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .user-list-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .user-table {
+            margin-top: 0.5rem;
+        }
+
+        .user-table li {
+            border: none;
+            border-bottom: none;
+            padding: 0.85rem 0.6rem;
+            border-radius: var(--radius-md);
+            transition: background 0.2s ease, transform 0.2s ease;
+            gap: 0.75rem;
+        }
+
+        .user-table li + li {
+            margin-top: 0.4rem;
+        }
+
+        .user-table li:hover {
+            background: rgba(79, 70, 229, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .user-table li.active {
+            background: rgba(79, 70, 229, 0.16);
+            box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.2);
+        }
+
+        .user-table li .user-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .user-table li .user-meta span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .user-role-tag {
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.16);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .user-role-tag.is-admin {
+            background: rgba(79, 70, 229, 0.18);
+            color: var(--brand-color-strong);
+        }
+
+        .user-detail-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1.35rem;
+        }
+
+        .user-detail-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .user-detail-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            letter-spacing: -0.01em;
+        }
+
+        .user-detail-header p {
+            margin: 0.35rem 0 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .user-detail-chip {
+            background: rgba(148, 163, 184, 0.16);
+            color: var(--text-secondary);
+        }
+
+        .user-detail-chip.is-admin {
+            background: rgba(79, 70, 229, 0.18);
+            color: var(--brand-color-strong);
+        }
+
+        .user-detail-empty {
+            padding: 1.2rem 1.4rem;
+            border-radius: var(--radius-md);
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .password-inline {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .password-inline input {
+            flex: 1;
+        }
+
+        .password-inline button {
+            flex-shrink: 0;
+        }
+
+        .danger-zone {
+            border-top: 1px solid rgba(148, 163, 184, 0.16);
+            padding-top: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .danger-zone strong {
+            font-size: 1rem;
+        }
+
+        .danger-zone p {
+            margin: 0.4rem 0 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body class="app-shell">
@@ -88,34 +241,84 @@
             </div>
         </div>
         <div class="tab-content active" id="tab-users" role="tabpanel">
-            <div class="split" style="margin-top:2rem; gap:2rem;">
-                <form id="createUserForm" class="card surface-section form-grid" style="padding:2rem;">
-                    <div>
-                        <label for="newUsername">用户名</label>
-                        <input id="newUsername" name="username" placeholder="例如：student01" required>
+            <div class="user-management" style="margin-top:2rem;">
+                <div class="user-management-primary">
+                    <div class="card list-card user-list-card">
+                        <div class="panel-header">
+                            <h3>现有用户</h3>
+                            <p class="hint">点击用户即可查看详情、修改信息或重置密码。</p>
+                        </div>
+                        <ul class="table-list user-table" id="userList"></ul>
                     </div>
-                    <div>
-                        <label for="newDisplayName">显示名称</label>
-                        <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
-                    </div>
-                    <div>
-                        <label for="newPassword">初始密码</label>
-                        <input id="newPassword" name="password" type="password" placeholder="设置登录密码" required>
-                    </div>
-                    <div>
-                        <label for="newRole">角色</label>
-                        <select id="newRole" name="role">
-                            <option value="student">学员</option>
-                            <option value="admin">管理员</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="primary-button">创建用户</button>
-                    <div class="message inline" id="createUserMessage" hidden></div>
-                </form>
-                <div class="card list-card">
-                    <h3>现有用户</h3>
-                    <ul class="table-list" id="userList"></ul>
+                    <form id="createUserForm" class="card surface-section form-grid" style="padding:2rem;">
+                        <div>
+                            <label for="newUsername">用户名</label>
+                            <input id="newUsername" name="username" placeholder="例如：student01" required>
+                        </div>
+                        <div>
+                            <label for="newDisplayName">显示名称</label>
+                            <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
+                        </div>
+                        <div>
+                            <label for="newPassword">初始密码</label>
+                            <input id="newPassword" name="password" type="password" placeholder="设置登录密码" required>
+                        </div>
+                        <div>
+                            <label for="newRole">角色</label>
+                            <select id="newRole" name="role">
+                                <option value="student">学员</option>
+                                <option value="admin">管理员</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="primary-button">创建用户</button>
+                        <div class="message inline" id="createUserMessage" hidden></div>
+                    </form>
                 </div>
+                <section class="card surface-section user-detail-card" id="userDetailCard">
+                    <div class="user-detail-header">
+                        <div>
+                            <h3 id="userDetailTitle">用户详情</h3>
+                            <p id="userDetailSubtitle">请选择左侧的用户进行管理。</p>
+                        </div>
+                        <span class="chip subtle user-detail-chip" id="userDetailRoleChip" hidden></span>
+                    </div>
+                    <div class="user-detail-empty" id="userDetailEmpty">没有选中的用户，点击左侧列表中的用户即可开始编辑。</div>
+                    <form id="updateUserForm" class="form-grid" hidden>
+                        <div>
+                            <label for="editUsername">用户名</label>
+                            <input id="editUsername" required>
+                        </div>
+                        <div>
+                            <label for="editDisplayName">显示名称</label>
+                            <input id="editDisplayName" placeholder="学生姓名或昵称">
+                        </div>
+                        <div>
+                            <label for="editRole">角色</label>
+                            <select id="editRole">
+                                <option value="student">学员</option>
+                                <option value="admin">管理员</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="editPassword">重置密码</label>
+                            <div class="password-inline">
+                                <input id="editPassword" type="password" placeholder="填写新密码，留空则不修改">
+                                <button type="button" class="ghost-button" id="resetPasswordButton">生成临时密码</button>
+                            </div>
+                            <p class="hint" style="margin-top:0.5rem;">生成临时密码会立即生效，并在下方显示结果。</p>
+                        </div>
+                        <button type="submit" class="primary-button">保存修改</button>
+                        <div class="message inline" id="updateUserMessage" hidden></div>
+                    </form>
+                    <div class="danger-zone" id="userDangerZone" hidden>
+                        <div>
+                            <strong>危险操作</strong>
+                            <p>删除用户将一并移除其课程分配，且无法撤销。</p>
+                        </div>
+                        <button type="button" class="inline-button danger" id="deleteUserButton">删除用户</button>
+                        <div class="message inline" id="deleteUserMessage" hidden></div>
+                    </div>
+                </section>
             </div>
         </div>
         <div class="tab-content" id="tab-courses" role="tabpanel">
@@ -219,6 +422,27 @@
     const createUserForm = document.getElementById('createUserForm');
     const createUserMessage = document.getElementById('createUserMessage');
     const userListEl = document.getElementById('userList');
+    const updateUserForm = document.getElementById('updateUserForm');
+    const updateUserMessage = document.getElementById('updateUserMessage');
+    const editUsernameInput = document.getElementById('editUsername');
+    const editDisplayNameInput = document.getElementById('editDisplayName');
+    const editRoleSelect = document.getElementById('editRole');
+    const editPasswordInput = document.getElementById('editPassword');
+    const resetPasswordButton = document.getElementById('resetPasswordButton');
+    const deleteUserButton = document.getElementById('deleteUserButton');
+    const deleteUserMessage = document.getElementById('deleteUserMessage');
+    const userDetailTitle = document.getElementById('userDetailTitle');
+    const userDetailSubtitle = document.getElementById('userDetailSubtitle');
+    const userDetailRoleChip = document.getElementById('userDetailRoleChip');
+    const userDetailEmpty = document.getElementById('userDetailEmpty');
+    const userDangerZone = document.getElementById('userDangerZone');
+
+    if (resetPasswordButton) {
+        resetPasswordButton.disabled = true;
+    }
+    if (deleteUserButton) {
+        deleteUserButton.disabled = true;
+    }
 
     const createCourseForm = document.getElementById('createCourseForm');
     const createCourseMessage = document.getElementById('createCourseMessage');
@@ -241,7 +465,8 @@
         users: [],
         courses: [],
         lessons: {},
-        currentUser: null
+        currentUser: null,
+        selectedUserId: null
     };
 
     function setMessage(element, text = '', type = '') {
@@ -280,17 +505,104 @@
         if (!state.users.length) {
             const empty = document.createElement('li');
             empty.textContent = '暂无用户';
-            empty.style.color = 'var(--text-secondary)';
+            empty.className = 'text-muted';
             userListEl.appendChild(empty);
             return;
         }
         state.users.forEach((user) => {
             const item = document.createElement('li');
-            const label = document.createElement('div');
-            label.innerHTML = `<strong>${user.display_name || user.username}</strong><div class="text-muted" style="font-size:0.85rem;">${user.username} · ${user.role === 'admin' ? '管理员' : '学员'}</div>`;
-            item.appendChild(label);
+            item.dataset.userId = user.id;
+            item.setAttribute('role', 'button');
+            item.tabIndex = 0;
+            item.classList.add('selectable');
+            if (state.selectedUserId === user.id) {
+                item.classList.add('active');
+            }
+            const info = document.createElement('div');
+            info.className = 'user-meta';
+            const nameEl = document.createElement('strong');
+            nameEl.textContent = user.display_name || user.username;
+            info.appendChild(nameEl);
+            const metaEl = document.createElement('span');
+            metaEl.textContent = `用户名：${user.username}`;
+            info.appendChild(metaEl);
+            item.appendChild(info);
+            const roleTag = document.createElement('span');
+            roleTag.className = 'user-role-tag' + (user.role === 'admin' ? ' is-admin' : '');
+            roleTag.textContent = user.role === 'admin' ? '管理员' : '学员';
+            item.appendChild(roleTag);
             userListEl.appendChild(item);
         });
+    }
+
+    function selectUser(userId) {
+        const numericId = typeof userId === 'number' ? userId : parseInt(userId, 10);
+        const target = state.users.find((user) => user.id === numericId) || null;
+        state.selectedUserId = target ? target.id : null;
+
+        document.querySelectorAll('#userList li[data-user-id]').forEach((el) => {
+            const matchId = parseInt(el.dataset.userId, 10);
+            el.classList.toggle('active', !Number.isNaN(matchId) && matchId === state.selectedUserId);
+        });
+
+        if (!target) {
+            if (assignUserSelect && assignUserSelect.value !== '') {
+                assignUserSelect.value = '';
+            }
+            userDetailTitle.textContent = '用户详情';
+            userDetailSubtitle.textContent = state.users.length ? '请选择左侧的用户进行管理。' : '暂无用户，请先创建。';
+            userDetailRoleChip.hidden = true;
+            userDetailEmpty.hidden = false;
+            updateUserForm.hidden = true;
+            userDangerZone.hidden = true;
+            if (resetPasswordButton) {
+                resetPasswordButton.disabled = true;
+            }
+            if (deleteUserButton) {
+                deleteUserButton.disabled = true;
+            }
+            editUsernameInput.value = '';
+            editDisplayNameInput.value = '';
+            editRoleSelect.value = 'student';
+            editPasswordInput.value = '';
+            setMessage(updateUserMessage);
+            setMessage(deleteUserMessage);
+            renderAssignmentPlaceholder(state.users.length ? '请选择用户查看已分配课程' : '暂无用户，请先创建。');
+            return;
+        }
+
+        userDetailTitle.textContent = target.display_name || target.username;
+        userDetailSubtitle.textContent = `用户名：${target.username}`;
+        userDetailRoleChip.hidden = false;
+        userDetailRoleChip.textContent = target.role === 'admin' ? '管理员' : '学员';
+        userDetailRoleChip.classList.toggle('is-admin', target.role === 'admin');
+        userDetailEmpty.hidden = true;
+        updateUserForm.hidden = false;
+        userDangerZone.hidden = false;
+        editUsernameInput.value = target.username;
+        editDisplayNameInput.value = target.display_name || '';
+        editRoleSelect.value = target.role;
+        editPasswordInput.value = '';
+        if (resetPasswordButton) {
+            resetPasswordButton.disabled = false;
+        }
+        const isCurrentAdmin = state.currentUser && Number(state.currentUser.id) === target.id;
+        if (deleteUserButton) {
+            deleteUserButton.disabled = !!isCurrentAdmin;
+            deleteUserButton.title = isCurrentAdmin ? '无法删除当前登录的管理员' : '';
+        }
+        setMessage(updateUserMessage);
+        setMessage(deleteUserMessage);
+        setMessage(assignCourseMessage);
+
+        if (assignUserSelect) {
+            const valueString = String(target.id);
+            if (assignUserSelect.value !== valueString) {
+                assignUserSelect.value = valueString;
+            }
+        }
+
+        loadAssignmentsForUser(target.id);
     }
 
     function refreshCourseList() {
@@ -361,6 +673,16 @@
             return clean;
         }
         return `${clean.slice(0, maxLength)}…`;
+    }
+
+    function generateTemporaryPassword(length = 10) {
+        const pool = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+        let result = '';
+        for (let index = 0; index < length; index += 1) {
+            const random = Math.floor(Math.random() * pool.length);
+            result += pool.charAt(random);
+        }
+        return result;
     }
 
     function renderLessonPlaceholder(text, tone = 'muted') {
@@ -498,19 +820,30 @@
                 fetchJSON(`${API_BASE}/users.php`),
                 fetchJSON(`${API_BASE}/courses.php?all=1`)
             ]);
-            state.users = usersData.users || [];
+            state.users = (usersData.users || []).map((user) => ({
+                ...user,
+                id: Number(user.id)
+            }));
+            state.users.sort((a, b) => a.id - b.id);
             state.courses = coursesData.courses || [];
+            state.selectedUserId = state.users.length ? state.users[0].id : null;
             refreshUserList();
             refreshCourseList();
-            const selectedUser = populateSelect(assignUserSelect, state.users, 'id', (user) => user.display_name || user.username);
+            const selectedUserOption = populateSelect(
+                assignUserSelect,
+                state.users,
+                'id',
+                (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
+                state.selectedUserId
+            );
             populateSelect(assignCourseSelect, state.courses, 'id', 'title');
             const selectedLessonCourse = populateSelect(lessonCourseSelect, state.courses, 'id', 'title');
 
-            const initialUserId = parseInt(selectedUser, 10);
-            if (initialUserId) {
-                loadAssignmentsForUser(initialUserId);
+            const normalizedUserId = parseInt(selectedUserOption, 10);
+            if (!Number.isNaN(normalizedUserId) && normalizedUserId > 0) {
+                selectUser(normalizedUserId);
             } else {
-                renderAssignmentPlaceholder('暂无用户，请先创建。');
+                selectUser(state.selectedUserId);
             }
 
             const initialCourseId = parseInt(selectedLessonCourse, 10);
@@ -539,12 +872,13 @@
 
     assignUserSelect.addEventListener('change', () => {
         const userId = parseInt(assignUserSelect.value, 10);
-        setMessage(assignCourseMessage);
-        if (userId) {
-            loadAssignmentsForUser(userId);
-        } else {
-            renderAssignmentPlaceholder('请选择用户查看已分配课程');
+        if (Number.isNaN(userId) || userId <= 0) {
+            setMessage(assignCourseMessage);
+            selectUser(null);
+            return;
         }
+        setMessage(assignCourseMessage);
+        selectUser(userId);
     });
 
     lessonCourseSelect.addEventListener('change', () => {
@@ -558,6 +892,34 @@
         } else {
             renderLessonPlaceholder('请选择课程查看课节');
         }
+    });
+
+    userListEl.addEventListener('click', (event) => {
+        const item = event.target.closest('li[data-user-id]');
+        if (!item) {
+            return;
+        }
+        const userId = parseInt(item.dataset.userId, 10);
+        if (Number.isNaN(userId) || userId <= 0) {
+            return;
+        }
+        selectUser(userId);
+    });
+
+    userListEl.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
+        }
+        const item = event.target.closest('li[data-user-id]');
+        if (!item) {
+            return;
+        }
+        event.preventDefault();
+        const userId = parseInt(item.dataset.userId, 10);
+        if (Number.isNaN(userId) || userId <= 0) {
+            return;
+        }
+        selectUser(userId);
     });
 
     courseListEl.addEventListener('click', async (event) => {
@@ -711,22 +1073,25 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            state.users.push(result.user);
+            const newUser = {
+                ...result.user,
+                id: Number(result.user.id)
+            };
+            state.users.push(newUser);
+            state.users.sort((a, b) => a.id - b.id);
+            state.selectedUserId = newUser.id;
             refreshUserList();
-            const selectedAfterCreate = populateSelect(
+            populateSelect(
                 assignUserSelect,
                 state.users,
                 'id',
-                (user) => user.display_name || user.username,
-                result.user.id
+                (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
+                newUser.id
             );
             createUserForm.reset();
             setMessage(createUserMessage, '创建成功', 'success');
             setMessage(assignCourseMessage);
-            const newUserId = parseInt(selectedAfterCreate, 10);
-            if (newUserId) {
-                loadAssignmentsForUser(newUserId);
-            }
+            selectUser(newUser.id);
         } catch (error) {
             setMessage(createUserMessage, error.message || '创建失败', 'error');
         }
@@ -824,6 +1189,141 @@
             }
         } catch (error) {
             setMessage(createLessonMessage, error.message || '添加失败', 'error');
+        }
+    });
+
+    updateUserForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!state.selectedUserId) {
+            setMessage(updateUserMessage, '请选择需要修改的用户', 'error');
+            return;
+        }
+        const payload = {
+            id: state.selectedUserId,
+            username: editUsernameInput.value.trim(),
+            display_name: editDisplayNameInput.value.trim(),
+            role: editRoleSelect.value
+        };
+        if (!payload.username) {
+            setMessage(updateUserMessage, '用户名不能为空', 'error');
+            return;
+        }
+        const password = editPasswordInput.value.trim();
+        if (password) {
+            payload.password = password;
+        }
+        setMessage(updateUserMessage, '正在保存修改，请稍候...');
+        try {
+            const result = await fetchJSON(`${API_BASE}/users.php`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const updatedUser = {
+                ...result.user,
+                id: Number(result.user.id)
+            };
+            const index = state.users.findIndex((user) => user.id === updatedUser.id);
+            if (index !== -1) {
+                state.users[index] = updatedUser;
+            }
+            state.users.sort((a, b) => a.id - b.id);
+            state.selectedUserId = updatedUser.id;
+            refreshUserList();
+            populateSelect(
+                assignUserSelect,
+                state.users,
+                'id',
+                (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
+                updatedUser.id
+            );
+            selectUser(updatedUser.id);
+            if (state.currentUser && Number(state.currentUser.id) === updatedUser.id) {
+                state.currentUser = { ...state.currentUser, ...updatedUser };
+                adminChip.textContent = `${state.currentUser.display_name || state.currentUser.username} · 管理员`;
+            }
+            editPasswordInput.value = '';
+            setMessage(updateUserMessage, '保存成功', 'success');
+        } catch (error) {
+            setMessage(updateUserMessage, error.message || '保存失败', 'error');
+        }
+    });
+
+    resetPasswordButton.addEventListener('click', async () => {
+        if (!state.selectedUserId) {
+            setMessage(updateUserMessage, '请选择需要重置密码的用户', 'error');
+            return;
+        }
+        const target = state.users.find((user) => user.id === state.selectedUserId);
+        if (!target) {
+            setMessage(updateUserMessage, '用户不存在', 'error');
+            return;
+        }
+        const tempPassword = generateTemporaryPassword(10);
+        setMessage(updateUserMessage, '正在重置密码，请稍候...');
+        try {
+            await fetchJSON(`${API_BASE}/users.php`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: target.id, password: tempPassword })
+            });
+            editPasswordInput.value = '';
+            let copied = false;
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(tempPassword);
+                    copied = true;
+                } catch (clipboardError) {
+                    copied = false;
+                }
+            }
+            const suffix = copied ? '（已复制）' : '';
+            setMessage(updateUserMessage, `新密码：${tempPassword}${suffix}`, 'success');
+        } catch (error) {
+            setMessage(updateUserMessage, error.message || '重置密码失败', 'error');
+        }
+    });
+
+    deleteUserButton.addEventListener('click', async () => {
+        if (!state.selectedUserId) {
+            setMessage(deleteUserMessage, '请选择需要删除的用户', 'error');
+            return;
+        }
+        const targetIndex = state.users.findIndex((user) => user.id === state.selectedUserId);
+        if (targetIndex === -1) {
+            setMessage(deleteUserMessage, '用户不存在', 'error');
+            return;
+        }
+        const targetUser = state.users[targetIndex];
+        const label = targetUser.display_name || targetUser.username;
+        if (!window.confirm(`确定删除用户「${label}」吗？该操作无法恢复。`)) {
+            return;
+        }
+        setMessage(deleteUserMessage, '正在删除用户...');
+        try {
+            await fetchJSON(`${API_BASE}/users.php`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: targetUser.id })
+            });
+            state.users.splice(targetIndex, 1);
+            const fallback = state.users[targetIndex] || state.users[targetIndex - 1] || null;
+            state.users.sort((a, b) => a.id - b.id);
+            state.selectedUserId = fallback ? fallback.id : null;
+            refreshUserList();
+            populateSelect(
+                assignUserSelect,
+                state.users,
+                'id',
+                (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
+                state.selectedUserId
+            );
+            setMessage(deleteUserMessage, '用户已删除', 'success');
+            setMessage(updateUserMessage);
+            setMessage(assignCourseMessage);
+            selectUser(state.selectedUserId);
+        } catch (error) {
+            setMessage(deleteUserMessage, error.message || '删除失败', 'error');
         }
     });
 

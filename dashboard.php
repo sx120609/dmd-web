@@ -82,24 +82,28 @@
             </div>
         </aside>
         <section class="workspace">
-            <section class="workspace-header">
-                <div class="workspace-lead glass-panel">
+            <section class="lesson-overview glass-panel">
+                <div class="overview-top">
                     <div class="breadcrumbs" id="breadcrumbs">
                         <span>网课</span>
                     </div>
-                    <h1 id="workspaceHeading">我的课堂</h1>
-                    <p id="workspaceIntro">从左侧选择课程，即可在右侧查看课节详情。</p>
+                    <div class="overview-heading">
+                        <h1 id="workspaceHeading">我的课堂</h1>
+                        <p id="workspaceIntro">从左侧选择课程，即可在右侧查看课节详情。</p>
+                    </div>
                 </div>
-                <div class="course-summary" id="courseSummary">
-                    <h3 id="courseSummaryTitle">尚未选择课程</h3>
-                    <p id="courseSummaryDescription">从左侧课程列表中选择一个课程开始学习。</p>
+                <div class="overview-bottom">
+                    <div class="overview-info">
+                        <h3 id="courseSummaryTitle">尚未选择课程</h3>
+                        <p id="courseSummaryDescription">从左侧课程列表中选择一个课程开始学习。</p>
+                    </div>
                     <div class="course-summary-meta">
                         <span class="chip" id="courseLessonCount">0 个课节</span>
-                        <span class="chip" id="courseStatusChip" hidden>待选课</span>
+                        <span class="chip subtle" id="courseStatusChip" hidden>待选课</span>
                     </div>
                 </div>
             </section>
-            <div class="lesson-columns">
+            <div class="lesson-columns lesson-deck">
                 <section class="lesson-panel glass-panel" aria-label="课节导航">
                     <header class="panel-header">
                         <div>
@@ -275,12 +279,8 @@
         courseSummaryTitleEl.textContent = title;
         courseSummaryDescriptionEl.textContent = description;
         courseLessonCountEl.textContent = lessonCountText;
-        if (statusText) {
-            courseStatusChipEl.textContent = statusText;
-            courseStatusChipEl.hidden = false;
-        } else {
-            courseStatusChipEl.hidden = true;
-        }
+        courseStatusChipEl.textContent = statusText;
+        courseStatusChipEl.hidden = !statusText;
     }
 
     function updateCourseSummary(course, lessonCount = 0) {
@@ -289,7 +289,7 @@
             return;
         }
         const description = course.description && course.description.trim() ? course.description : '该课程暂无简介。';
-        const statusText = lessonCount > 0 ? '学习中' : '待发布';
+        const statusText = lessonCount > 0 ? '学习中' : '准备中';
         setCourseSummary(course.title || '未命名课程', description, `${lessonCount} 个课节`, statusText);
     }
 
@@ -313,22 +313,22 @@
             courseBadgeEl.textContent = currentCourse ? `课程 · ${currentCourse.title || '未命名课程'}` : '课程';
             const empty = document.createElement('div');
             empty.className = 'lesson-empty';
-            empty.textContent = '该课程暂时还没有课节内容。';
+            empty.textContent = '课程内容准备中。';
             lessonListEl.appendChild(empty);
-            lessonPaneHintEl.textContent = '等待添加课节后即可在此选择。';
+            lessonPaneHintEl.textContent = '老师正在准备课节内容。';
             lessonMetaEl.hidden = true;
             lessonTitleEl.textContent = currentCourse ? currentCourse.title || '未命名课程' : '欢迎来到课堂';
-            lessonDescriptionEl.textContent = currentCourse && currentCourse.description ? currentCourse.description : '请等待老师发布课节内容。';
-            workspaceIntroEl.textContent = '课程暂未发布课节，发布后这里会显示学习列表。';
-            setStageHint('等待老师发布课节内容。', false);
+            lessonDescriptionEl.textContent = currentCourse && currentCourse.description ? currentCourse.description : '敬请期待课程内容。';
+            workspaceIntroEl.textContent = '课程暂无课节内容，稍后再来看看。';
+            setStageHint('课程暂无课节内容。', false);
             updateBreadcrumbs(currentCourse);
             return;
         }
-        lessonPaneHintEl.textContent = '选择一个课节即可开始观看。';
+        lessonPaneHintEl.textContent = '选择课节开始学习。';
         lessonMetaEl.hidden = false;
         courseBadgeEl.textContent = currentCourse ? `课程 · ${currentCourse.title || '未命名课程'}` : '课程';
         lessonBadgeEl.textContent = `${currentLessons.length} 个课节`;
-        workspaceIntroEl.textContent = `该课程共有 ${currentLessons.length} 个课节，选择一个开始学习。`;
+        workspaceIntroEl.textContent = `共有 ${currentLessons.length} 个课节，选择一个开始学习。`;
         currentLessons.forEach((lesson, index) => {
             const button = document.createElement('button');
             button.type = 'button';
@@ -345,7 +345,7 @@
             button.addEventListener('click', () => selectLesson(lesson.id));
             lessonListEl.appendChild(button);
         });
-        setStageHint('从左侧选择课节开始学习。');
+        setStageHint('选择左侧课节播放视频。');
         selectLesson(currentLessons[0].id);
     }
 
@@ -357,17 +357,17 @@
             empty.textContent = '暂未为您分配课程，请联系管理员。';
             courseListEl.appendChild(empty);
             lessonPaneTitleEl.textContent = '课节';
-            lessonPaneHintEl.textContent = '先选择课程以加载课节。';
-            lessonListEl.innerHTML = '<div class="lesson-empty">暂未选择课程。</div>';
+            lessonPaneHintEl.textContent = '等待分配课程后即可在此查看课节。';
+            lessonListEl.innerHTML = '<div class="lesson-empty">暂无课程。</div>';
             lessonMetaEl.hidden = true;
             courseBadgeEl.textContent = '课程';
             lessonBadgeEl.textContent = '0 个课节';
             lessonTitleEl.textContent = '欢迎来到课堂';
-            lessonDescriptionEl.textContent = '从左侧依次选择课程与课节即可开始学习。';
+            lessonDescriptionEl.textContent = '待分配课程后将在此显示课节内容。';
             workspaceHeadingEl.textContent = '我的课堂';
-            workspaceIntroEl.textContent = '暂未为您分配课程，请联系管理员。';
+            workspaceIntroEl.textContent = '暂无课程，联系管理员开通访问。';
             setCourseSummary('暂无课程', '暂未为您分配课程，请联系管理员。', '0 个课节', '待分配');
-            setStageHint('尚未选择课节。', false);
+            setStageHint('等待分配课程。', false);
             updateBreadcrumbs();
             return;
         }
@@ -437,11 +437,11 @@
             lessonListEl.innerHTML = `<div class="lesson-empty">加载课程内容失败：${error.message}</div>`;
             lessonMetaEl.hidden = true;
             lessonTitleEl.textContent = '课程加载失败';
-            lessonDescriptionEl.textContent = '请稍后再试，联系管理员排查问题。';
+            lessonDescriptionEl.textContent = '请稍后重试或联系管理员排查问题。';
             workspaceHeadingEl.textContent = '课程加载失败';
-            workspaceIntroEl.textContent = '请稍后再试，联系管理员排查问题。';
+            workspaceIntroEl.textContent = '课程内容暂时不可用，请稍后刷新。';
             setCourseSummary('课程加载失败', '无法加载课程详情，请稍后重试。', '0 个课节', '加载失败');
-            setStageHint('课程内容暂时无法加载，请稍后再试。', false);
+            setStageHint('课程内容暂时不可用，请稍后重试。', false);
         }
     }
 
@@ -485,15 +485,15 @@
         } catch (error) {
             courseListEl.innerHTML = `<div class="course-empty">无法加载课程列表：${error.message}</div>`;
             lessonPaneTitleEl.textContent = '课节';
-            lessonPaneHintEl.textContent = '请稍后再试加载课程。';
+            lessonPaneHintEl.textContent = '请稍后刷新重试。';
             lessonListEl.innerHTML = '<div class="lesson-empty">暂无课程内容</div>';
             lessonMetaEl.hidden = true;
             lessonTitleEl.textContent = '课程加载失败';
             lessonDescriptionEl.textContent = '无法获取课程列表，请稍后重试。';
             workspaceHeadingEl.textContent = '课程加载失败';
-            workspaceIntroEl.textContent = '无法获取课程列表，请稍后重试。';
+            workspaceIntroEl.textContent = '课程列表暂时不可用，请稍后刷新。';
             setCourseSummary('课程加载失败', '无法获取课程列表，请稍后重试。', '0 个课节', '加载失败');
-            setStageHint('课程列表加载失败，请稍后再试。', false);
+            setStageHint('课程列表暂时不可用，请稍后重试。', false);
             updateBreadcrumbs();
         }
     }

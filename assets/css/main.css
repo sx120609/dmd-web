@@ -295,42 +295,62 @@ label {
     gap: 1.75rem;
 }
 
-.workspace-header {
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    align-items: start;
-}
 
-.workspace-lead {
+.lesson-overview {
+    background: rgba(255, 255, 255, 0.78);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    backdrop-filter: blur(18px);
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 1.4rem;
+    padding: 1.8rem 2rem;
 }
 
-.workspace-lead h1 {
+.lesson-overview .overview-top {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.lesson-overview .overview-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.lesson-overview h1 {
     margin: 0;
-    font-size: clamp(1.55rem, 2.4vw, 2rem);
+    font-size: clamp(1.6rem, 2.6vw, 2.15rem);
     letter-spacing: -0.01em;
 }
 
-.course-summary {
-    padding: 1.25rem 1.5rem;
-    border-radius: var(--radius-md);
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    backdrop-filter: blur(16px);
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+.lesson-overview p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.65;
 }
 
-.course-summary h3 {
+.lesson-overview .overview-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.6rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.lesson-overview .overview-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.lesson-overview .overview-info h3 {
     margin: 0;
     font-size: 1.1rem;
 }
 
-.course-summary p {
+.lesson-overview .overview-info p {
     margin: 0;
     color: var(--text-secondary);
     line-height: 1.65;
@@ -354,11 +374,28 @@ label {
     font-weight: 600;
 }
 
+.chip.subtle {
+    background: rgba(148, 163, 184, 0.16);
+    color: var(--text-secondary);
+}
+
 .lesson-columns {
     display: grid;
     gap: 1.75rem;
     grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
     align-items: start;
+}
+
+.lesson-columns.lesson-deck {
+    grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+}
+
+.lesson-deck .lesson-panel {
+    gap: 1.1rem;
+}
+
+.lesson-deck .lesson-stage {
+    padding: 2rem 2.1rem;
 }
 
 .lesson-panel {
@@ -550,8 +587,14 @@ label {
 }
 
 @media (max-width: 900px) {
-    .workspace-header {
-        grid-template-columns: minmax(0, 1fr);
+    .lesson-overview {
+        padding: 1.45rem 1.6rem;
+    }
+
+    .lesson-overview .overview-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.1rem;
     }
 
     .dashboard-main {
