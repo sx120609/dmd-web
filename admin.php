@@ -10,23 +10,50 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
 </head>
-<body class="app-shell bg-body-tertiary">
-<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
-    <div class="container-fluid py-2 px-3 px-lg-4">
-        <span class="navbar-brand fw-semibold">管理后台</span>
+<body class="app-shell">
+<nav class="navbar navbar-expand-lg app-navbar">
+    <div class="container-xxl py-3 px-3 px-lg-4">
+        <div class="d-flex align-items-center gap-3">
+            <div class="brand-glow">CL</div>
+            <div class="d-flex flex-column">
+                <span class="brand-eyebrow text-uppercase">智能录播课堂</span>
+                <span class="navbar-brand p-0 m-0 fw-semibold">管理中心</span>
+            </div>
+        </div>
         <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
-            <div class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="adminChip"></div>
+            <div class="user-chip" id="adminChip" style="display:none;"></div>
             <button class="btn btn-outline-secondary btn-sm" id="backButton">返回课堂</button>
             <button class="btn btn-outline-danger btn-sm" id="logoutButton">退出登录</button>
         </div>
     </div>
 </nav>
-<main class="container-fluid py-4 px-3 px-lg-4 app-main">
-    <div class="card surface-section border-0 shadow-sm p-0">
+
+<section class="page-hero py-4 py-lg-5">
+    <div class="container-xxl px-3 px-lg-4">
+        <div class="hero-panel admin-hero">
+            <div class="hero-eyebrow">内容运营中心</div>
+            <div class="hero-main">
+                <div class="hero-copy">
+                    <h1 class="hero-title">快速配置教学内容</h1>
+                    <p class="hero-subtitle">管理用户、课程与课节，分配资源给不同的学员。所有操作实时生效。</p>
+                </div>
+                <div class="hero-meta">
+                    <span class="hero-pill">实时保存</span>
+                    <span class="hero-pill soft">一体化管理</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<main class="admin-main container-xxl px-3 px-lg-4 pb-5">
+    <div class="card surface-section border-0 shadow-sm p-0 glass-card">
         <div class="card-body p-4 p-lg-5">
-            <div class="admin-header mb-4">
-                <h1 class="h3">快速配置教学内容</h1>
-                <p class="mb-0 text-secondary">管理用户、课程与课节，分配资源给不同的学员。所有操作实时生效。</p>
+            <div class="admin-toolbar mb-4">
+                <div>
+                    <h2 class="admin-section-title">选择管理模块</h2>
+                    <p class="mb-0 text-secondary">点击下方标签切换用户、课程、课节以及分配的管理视图。</p>
+                </div>
                 <div class="pill-tabs" role="tablist">
                     <button type="button" class="active" data-target="users">用户管理</button>
                     <button type="button" data-target="courses">课程管理</button>
@@ -834,7 +861,10 @@
                 return;
             }
             state.currentUser = session.user;
-            adminChip.textContent = `${session.user.display_name || session.user.username} · 管理员`;
+            if (adminChip) {
+                adminChip.textContent = `${session.user.display_name || session.user.username} · 管理员`;
+                adminChip.style.display = 'inline-flex';
+            }
             const [usersData, coursesData] = await Promise.all([
                 fetchJSON(`${API_BASE}/users.php`),
                 fetchJSON(`${API_BASE}/courses.php?all=1`)
@@ -1506,7 +1536,10 @@
             selectUser(updatedUser.id);
             if (state.currentUser && Number(state.currentUser.id) === updatedUser.id) {
                 state.currentUser = { ...state.currentUser, ...updatedUser };
-                adminChip.textContent = `${state.currentUser.display_name || state.currentUser.username} · 管理员`;
+                if (adminChip) {
+                    adminChip.textContent = `${state.currentUser.display_name || state.currentUser.username} · 管理员`;
+                    adminChip.style.display = 'inline-flex';
+                }
             }
             editPasswordInput.value = '';
             setMessage(updateUserMessage, '保存成功', 'success');
