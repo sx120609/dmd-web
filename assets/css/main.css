@@ -16,7 +16,7 @@
     --body-background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.12), transparent 55%),
         radial-gradient(circle at 80% 10%, rgba(14, 165, 233, 0.12), transparent 45%),
         linear-gradient(180deg, #f8f9ff 0%, #f4f6fb 45%, #f1f3f8 100%);
-    --canvas-width: 1260px;
+    --canvas-width: 1520px;
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Microsoft YaHei', sans-serif;
 }
 
@@ -49,7 +49,7 @@ body {
 }
 
 .dashboard-navbar-inner {
-    max-width: 1240px;
+    max-width: 1440px;
     margin: 0 auto;
 }
 
@@ -84,7 +84,7 @@ body {
 }
 
 .dashboard-container {
-    max-width: 1240px;
+    max-width: 1440px;
     margin: 0 auto;
 }
 
@@ -604,12 +604,12 @@ label {
 .lesson-columns {
     display: grid;
     gap: 1.75rem;
-    grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+    grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
     align-items: start;
 }
 
 .lesson-columns.lesson-deck {
-    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+    grid-template-columns: minmax(320px, 440px) minmax(0, 1fr);
 }
 
 .lesson-deck .lesson-panel {
@@ -1633,7 +1633,7 @@ body.lesson-drawer-open .drawer-backdrop {
 }
 
 .dashboard-shell .container-xxl {
-    max-width: min(100%, 1440px);
+    max-width: min(100%, 1560px);
 }
 
 .floating-card {
