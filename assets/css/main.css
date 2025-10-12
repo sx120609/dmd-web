@@ -805,11 +805,36 @@ label {
     padding: 2.5rem 1.5rem;
 }
 
-.player iframe,
-.player video {
+.player {
     width: 100%;
-    min-height: 320px;
+}
+
+.player-frame {
     border-radius: var(--radius-md);
+    overflow: hidden;
+    background: #000;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.player-frame::before {
+    border-radius: inherit;
+}
+
+.player-embed,
+.player-media {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.player-embed {
+    display: block;
+    background: #000;
+}
+
+.player-media {
+    object-fit: contain;
+    background: #000;
 }
 
 .breadcrumbs {

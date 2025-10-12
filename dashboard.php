@@ -216,9 +216,32 @@
         }
     }
 
+    function tuneBilibiliUrl(url, page) {
+        try {
+            const urlObj = new URL(url, window.location.origin);
+            if (page) {
+                urlObj.searchParams.set('page', String(page));
+            }
+            urlObj.searchParams.set('as_wide', '1');
+            urlObj.searchParams.set('high_quality', '1');
+            urlObj.searchParams.set('autoplay', '0');
+            urlObj.searchParams.set('danmaku', '0');
+            urlObj.searchParams.set('muted', '0');
+            return urlObj.toString();
+        } catch (error) {
+            return url;
+        }
+    }
+
     function buildPlayer(url) {
         const wrapper = document.createElement('div');
         wrapper.className = 'player';
+        const wrapInFrame = (element) => {
+            const frame = document.createElement('div');
+            frame.className = 'ratio ratio-16x9 player-frame';
+            frame.appendChild(element);
+            wrapper.appendChild(frame);
+        };
         if (!url || !url.trim()) {
             const placeholder = document.createElement('div');
             placeholder.className = 'empty-state';
@@ -245,20 +268,25 @@
             let embedUrl = trimmed;
             if (bilibiliBvMatch) {
                 const bvid = bilibiliBvMatch[1];
-                embedUrl = `https://player.bilibili.com/player.html?bvid=${encodeURIComponent(bvid)}&page=${page}&high_quality=1&autoplay=0`;
+                embedUrl = `https://player.bilibili.com/player.html?bvid=${encodeURIComponent(bvid)}`;
             } else if (bilibiliAvMatch) {
                 const aid = bilibiliAvMatch[1];
-                embedUrl = `https://player.bilibili.com/player.html?aid=${encodeURIComponent(aid)}&page=${page}&high_quality=1&autoplay=0`;
+                embedUrl = `https://player.bilibili.com/player.html?aid=${encodeURIComponent(aid)}`;
             }
+            embedUrl = tuneBilibiliUrl(embedUrl, page);
             const iframe = document.createElement('iframe');
             iframe.src = embedUrl;
+            iframe.className = 'player-embed';
             iframe.allowFullscreen = true;
             iframe.referrerPolicy = 'no-referrer';
             iframe.setAttribute('allow', 'fullscreen; picture-in-picture');
-            wrapper.appendChild(iframe);
+            iframe.setAttribute('loading', 'lazy');
+            iframe.title = 'Bilibili 播放器';
+            wrapInFrame(iframe);
             return { wrapper };
         }
         const video = document.createElement('video');
+        video.className = 'player-media';
         video.setAttribute('playsinline', '');
         video.setAttribute('controls', '');
         video.setAttribute('preload', 'metadata');
@@ -270,7 +298,7 @@
             source.type = mime;
         }
         video.appendChild(source);
-        wrapper.appendChild(video);
+        wrapInFrame(video);
         return { wrapper, video };
     }
 
