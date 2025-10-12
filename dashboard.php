@@ -8,97 +8,136 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
 </head>
 <body class="bg-body-tertiary">
-<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
-    <div class="container-fluid py-2 px-3 px-lg-4">
+<nav class="navbar navbar-expand-lg glass-navbar sticky-top">
+    <div class="container-xxl py-2 px-3 px-lg-4">
         <div class="d-flex flex-column">
             <span class="navbar-brand p-0 m-0 fw-semibold">智能录播课堂</span>
             <small class="text-secondary" id="welcomeText">正在加载...</small>
         </div>
         <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
-            <div class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="userChip"></div>
+            <div class="chip" id="userChip" style="display:none;"></div>
             <button class="btn btn-outline-primary btn-sm" id="adminButton" style="display:none;">进入管理后台</button>
             <button class="btn btn-outline-secondary btn-sm" id="logoutButton">退出登录</button>
         </div>
     </div>
 </nav>
-<main class="container-fluid py-4 px-3 px-lg-4">
-    <div class="row g-4 align-items-start">
-        <div class="col-12 col-xl-4 col-xxl-3">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body pb-0">
-                    <h2 class="h5 mb-1">我的课程</h2>
-                    <p class="text-secondary small">挑选一个课程继续学习。</p>
+<main class="dashboard-main py-5">
+    <div class="container-xxl d-flex flex-column gap-4">
+        <section class="dashboard-hero glass-panel gradient-surface">
+            <div class="hero-text">
+                <div class="small text-secondary mb-3 breadcrumbs" id="breadcrumbs"><span>网课</span></div>
+                <h1 class="display-6 mb-2" id="workspaceHeading">我的课堂</h1>
+                <p class="text-secondary mb-0" id="workspaceIntro">从左侧选择课程，即可在右侧查看课节详情。</p>
+            </div>
+            <div class="hero-summary">
+                <div>
+                    <h2 class="h5 mb-1" id="courseSummaryTitle">尚未选择课程</h2>
+                    <p class="text-secondary small mb-3" id="courseSummaryDescription">从左侧课程列表中选择一个课程开始学习。</p>
                 </div>
-                <div class="list-group list-group-flush" id="courseList">
-                    <div class="list-group-item bg-transparent">
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-10"></span>
-                        </div>
-                    </div>
-                    <div class="list-group-item bg-transparent">
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-7"></span>
-                        </div>
-                    </div>
-                    <div class="list-group-item bg-transparent">
-                        <div class="placeholder-glow">
-                            <span class="placeholder col-5"></span>
-                        </div>
-                    </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge rounded-pill" id="courseLessonCount">0 个课节</span>
+                    <span class="badge rounded-pill badge-muted" id="courseStatusChip" hidden>待选课</span>
                 </div>
             </div>
-            <div class="card shadow-sm">
-                <div class="card-body pb-0">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <h3 class="h6 mb-1" id="lessonPaneTitle">课节</h3>
-                            <p class="text-secondary small mb-0" id="lessonPaneHint">先选择课程以加载课节。</p>
+        </section>
+
+        <section class="summary-grid">
+            <article class="summary-card glass-panel">
+                <div class="summary-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-journal-text"></i>
+                </div>
+                <div>
+                    <h3 class="h6 mb-1">课程学习进度</h3>
+                    <p class="text-secondary small mb-2">选择课程后即可查看课节进度，快速定位未完成的内容。</p>
+                    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div class="progress-bar" id="courseProgressBar" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </article>
+            <article class="summary-card glass-panel">
+                <div class="summary-icon bg-info-subtle text-info">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+                <div>
+                    <h3 class="h6 mb-1">学习小贴士</h3>
+                    <p class="text-secondary small mb-0">将课程加入收藏、设定学习计划，保持稳定的学习节奏。</p>
+                </div>
+            </article>
+            <article class="summary-card glass-panel">
+                <div class="summary-icon bg-success-subtle text-success">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div>
+                    <h3 class="h6 mb-1">课堂公告</h3>
+                    <p class="text-secondary small mb-0">随时关注教学公告与最新课节安排，不错过任何更新。</p>
+                </div>
+            </article>
+        </section>
+
+        <div class="dashboard-grid">
+            <aside class="dashboard-sidebar">
+                <div class="dashboard-card glass-panel">
+                    <div class="card-header border-0 bg-transparent px-0 pt-0">
+                        <h2 class="h5 mb-1">我的课程</h2>
+                        <p class="text-secondary small mb-0">挑选一个课程继续学习。</p>
+                    </div>
+                    <div class="list-group list-group-flush course-list" id="courseList">
+                        <div class="list-group-item bg-transparent">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-10"></span>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-transparent">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-7"></span>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-transparent">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-5"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="list-group list-group-flush" id="lessonList">
-                    <div class="list-group-item text-center text-secondary small">暂未选择课程。</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-xl-8 col-xxl-9">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <div class="small text-secondary mb-3 breadcrumbs" id="breadcrumbs"><span>网课</span></div>
-                    <h1 class="h4 mb-2" id="workspaceHeading">我的课堂</h1>
-                    <p class="text-secondary mb-4" id="workspaceIntro">从左侧选择课程，即可在右侧查看课节详情。</p>
-                    <div class="d-flex flex-column flex-lg-row gap-3 align-items-start align-items-lg-center justify-content-between">
-                        <div>
-                            <h2 class="h5 mb-1" id="courseSummaryTitle">尚未选择课程</h2>
-                            <p class="text-secondary mb-0" id="courseSummaryDescription">从左侧课程列表中选择一个课程开始学习。</p>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2">
-                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="courseLessonCount">0 个课节</span>
-                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis" id="courseStatusChip" hidden>待选课</span>
+                <div class="dashboard-card glass-panel">
+                    <div class="card-header border-0 bg-transparent px-0 pt-0">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div>
+                                <h3 class="h6 mb-1" id="lessonPaneTitle">课节</h3>
+                                <p class="text-secondary small mb-0" id="lessonPaneHint">先选择课程以加载课节。</p>
+                            </div>
                         </div>
                     </div>
+                    <div class="list-group list-group-flush lesson-list" id="lessonList">
+                        <div class="list-group-item text-center text-secondary small">暂未选择课程。</div>
+                    </div>
                 </div>
-            </div>
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <header class="mb-3">
-                        <h2 class="h4 mb-2" id="lessonTitle">欢迎来到课堂</h2>
-                        <p class="text-secondary mb-3" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
-                        <div class="d-flex flex-wrap gap-2" id="lessonMeta" hidden>
-                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="courseBadge"></span>
-                            <span class="badge rounded-pill bg-info-subtle text-info-emphasis" id="lessonBadge"></span>
+            </aside>
+            <section class="dashboard-content">
+                <div class="dashboard-card glass-panel stage-card">
+                    <header class="mb-4">
+                        <div class="d-flex flex-column flex-lg-row gap-3 align-items-start align-items-lg-center justify-content-between">
+                            <div>
+                                <h2 class="h4 mb-2" id="lessonTitle">欢迎来到课堂</h2>
+                                <p class="text-secondary mb-0" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2" id="lessonMeta" hidden>
+                                <span class="badge rounded-pill" id="courseBadge"></span>
+                                <span class="badge rounded-pill badge-info" id="lessonBadge"></span>
+                            </div>
                         </div>
                     </header>
-                    <div class="alert alert-info" id="stageHint">尚未选择课节。</div>
+                    <div class="stage-hint" id="stageHint">尚未选择课节。</div>
                     <div class="player-stage" id="playerHost">
                         <div class="empty-state">尚未选择课节。</div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 </main>
@@ -137,6 +176,7 @@
     const courseSummaryDescriptionEl = document.getElementById('courseSummaryDescription');
     const courseLessonCountEl = document.getElementById('courseLessonCount');
     const courseStatusChipEl = document.getElementById('courseStatusChip');
+    const courseProgressBarEl = document.getElementById('courseProgressBar');
     const stageHintEl = document.getElementById('stageHint');
     const drawerBackdrop = document.getElementById('drawerBackdrop');
     const courseDrawerToggle = document.getElementById('courseDrawerToggle');
@@ -189,7 +229,13 @@
     function showWelcome(user) {
         welcomeTextEl.textContent = user ? `欢迎回来，${user.display_name || user.username}` : '欢迎来到课堂';
         if (userChipEl) {
-            userChipEl.textContent = user ? `${user.display_name || user.username} · ${user.role === 'admin' ? '管理员' : '学员'}` : '';
+            if (user) {
+                userChipEl.textContent = `${user.display_name || user.username} · ${user.role === 'admin' ? '管理员' : '学员'}`;
+                userChipEl.style.display = 'inline-flex';
+            } else {
+                userChipEl.textContent = '';
+                userChipEl.style.display = 'none';
+            }
         }
     }
 
@@ -317,22 +363,32 @@
         }
     }
 
-    function setCourseSummary(title, description, lessonCountText = '0 个课节', statusText = '') {
+    function setCourseSummary(title, description, lessonCountText = '0 个课节', statusText = '', lessonCountNumber = 0) {
         courseSummaryTitleEl.textContent = title;
         courseSummaryDescriptionEl.textContent = description;
         courseLessonCountEl.textContent = lessonCountText;
         courseStatusChipEl.textContent = statusText;
         courseStatusChipEl.hidden = !statusText;
+        setCourseProgress(0, lessonCountNumber);
+    }
+
+    function setCourseProgress(completed, total) {
+        if (!courseProgressBarEl) return;
+        const safeTotal = Number.isFinite(total) && total > 0 ? total : 0;
+        const safeCompleted = Math.max(0, Math.min(Number(completed) || 0, safeTotal));
+        const progress = safeTotal === 0 ? 0 : Math.round((safeCompleted / safeTotal) * 100);
+        courseProgressBarEl.style.width = `${progress}%`;
+        courseProgressBarEl.setAttribute('aria-valuenow', String(progress));
     }
 
     function updateCourseSummary(course, lessonCount = 0) {
         if (!course) {
-            setCourseSummary('暂无课程', '暂未为您分配课程，请联系管理员。', '0 个课节', '待分配');
+            setCourseSummary('暂无课程', '暂未为您分配课程，请联系管理员。', '0 个课节', '待分配', 0);
             return;
         }
         const description = course.description && course.description.trim() ? course.description : '该课程暂无简介。';
         const statusText = lessonCount > 0 ? '学习中' : '准备中';
-        setCourseSummary(course.title || '未命名课程', description, `${lessonCount} 个课节`, statusText);
+        setCourseSummary(course.title || '未命名课程', description, `${lessonCount} 个课节`, statusText, lessonCount);
     }
 
     function setStageHint(message, hidden = false) {
@@ -350,6 +406,7 @@
         playerHostEl.innerHTML = '<div class="empty-state">尚未选择课节。</div>';
         lessonListEl.innerHTML = '';
         updateCourseSummary(currentCourse, currentLessons.length);
+        setCourseProgress(0, currentLessons.length);
         workspaceHeadingEl.textContent = currentCourse ? (currentCourse.title || '未命名课程') : '我的课堂';
         if (!currentLessons.length) {
             lessonBadgeEl.textContent = '0 个课节';
@@ -410,7 +467,7 @@
             lessonDescriptionEl.textContent = '待分配课程后将在此显示课节内容。';
             workspaceHeadingEl.textContent = '我的课堂';
             workspaceIntroEl.textContent = '暂无课程，联系管理员开通访问。';
-            setCourseSummary('暂无课程', '暂未为您分配课程，请联系管理员。', '0 个课节', '待分配');
+            setCourseSummary('暂无课程', '暂未为您分配课程，请联系管理员。', '0 个课节', '待分配', 0);
             setStageHint('等待分配课程。', false);
             updateBreadcrumbs();
             return;
@@ -482,7 +539,7 @@
             lessonDescriptionEl.textContent = '请稍后重试或联系管理员排查问题。';
             workspaceHeadingEl.textContent = '课程加载失败';
             workspaceIntroEl.textContent = '课程内容暂时不可用，请稍后刷新。';
-            setCourseSummary('课程加载失败', '无法加载课程详情，请稍后重试。', '0 个课节', '加载失败');
+            setCourseSummary('课程加载失败', '无法加载课程详情，请稍后重试。', '0 个课节', '加载失败', 0);
             setStageHint('课程内容暂时不可用，请稍后重试。', false);
             closeAllDrawers();
         }
@@ -512,6 +569,8 @@
         workspaceIntroEl.textContent = `正在观看「${lesson.title || '课节'}」`;
         updateBreadcrumbs(currentCourse, lesson);
         setStageHint('', true);
+        const lessonIndex = currentLessons.findIndex((item) => Number(item.id) === currentLessonId);
+        setCourseProgress(lessonIndex + 1, currentLessons.length);
         if (video) {
             const player = new Plyr(video, {
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
@@ -536,7 +595,7 @@
             lessonDescriptionEl.textContent = '无法获取课程列表，请稍后重试。';
             workspaceHeadingEl.textContent = '课程加载失败';
             workspaceIntroEl.textContent = '课程列表暂时不可用，请稍后刷新。';
-            setCourseSummary('课程加载失败', '无法获取课程列表，请稍后重试。', '0 个课节', '加载失败');
+            setCourseSummary('课程加载失败', '无法获取课程列表，请稍后重试。', '0 个课节', '加载失败', 0);
             setStageHint('课程列表暂时不可用，请稍后重试。', false);
             updateBreadcrumbs();
             closeAllDrawers();
