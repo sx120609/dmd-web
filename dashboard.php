@@ -12,12 +12,13 @@
     <style>
         .course-empty,
         .lesson-empty {
-            border-radius: 18px;
-            padding: 1.1rem 1.35rem;
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
             color: var(--text-secondary);
-            background: rgba(255, 255, 255, 0.78);
-            border: 1px dashed rgba(148, 163, 184, 0.32);
-            line-height: 1.6;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.78));
+            border: 1px dashed rgba(99, 102, 241, 0.22);
+            line-height: 1.65;
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.1);
         }
 
         .lesson-empty {
@@ -25,30 +26,21 @@
         }
 
         .skeleton {
-            border-radius: 16px;
-            background: linear-gradient(90deg, rgba(226, 232, 240, 0.55), rgba(226, 232, 240, 0.18), rgba(226, 232, 240, 0.55));
-            background-size: 400% 400%;
-            animation: shimmer 1.6s ease infinite;
+            border-radius: 18px;
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.18), rgba(148, 163, 184, 0.12), rgba(99, 102, 241, 0.18));
+            background-size: 320% 320%;
+            animation: shimmer 1.4s ease infinite;
             height: 52px;
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.12);
         }
 
         @keyframes shimmer {
             0% {
-                background-position: 100% 0;
+                background-position: 200% 0;
             }
             100% {
                 background-position: 0 0;
             }
-        }
-
-        .workspace-lead.glass-panel {
-            padding: 1.5rem 1.6rem;
-        }
-
-        .workspace-lead p {
-            margin: 0;
-            color: var(--text-secondary);
-            line-height: 1.6;
         }
     </style>
 </head>

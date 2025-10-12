@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <style>
         body.login {
@@ -219,6 +220,15 @@
 
     const API_BASE = 'api';
 
+    function normalizeApiUrl(url) {
+        if (url.startsWith(`${API_BASE}/`)) {
+            const [path, query] = url.split('?');
+            const sanitizedPath = path.replace(/\.php$/, '');
+            return query ? `${sanitizedPath}?${query}` : sanitizedPath;
+        }
+        return url;
+    }
+
     function showMessage(text = '', type = '') {
         const hasText = Boolean(text);
         loginMessage.textContent = hasText ? text : '';
@@ -230,7 +240,7 @@
     }
 
     async function fetchJSON(url, options = {}) {
-        const response = await fetch(url, {
+        const response = await fetch(normalizeApiUrl(url), {
             credentials: 'include',
             headers: {
                 'Accept': 'application/json',
@@ -250,7 +260,7 @@
         try {
             const data = await fetchJSON(`${API_BASE}/session.php`, { method: 'GET' });
             if (data?.user) {
-                window.location.href = 'dashboard.php';
+                window.location.href = 'dashboard';
             }
         } catch (error) {
             // ignore
@@ -278,7 +288,7 @@
             });
             showMessage('登录成功，正在跳转...', 'success');
             setTimeout(() => {
-                window.location.href = 'dashboard.php';
+                window.location.href = 'dashboard';
             }, 400);
         } catch (error) {
             showMessage(error.message || '登录失败，请重试', 'error');
@@ -289,5 +299,6 @@
 
     checkSession();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
