@@ -32,6 +32,13 @@
             gap: 1.75rem;
         }
 
+        .admin-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
         @media (min-width: 1024px) {
             .section-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -215,13 +222,58 @@
             font-size: 0.9rem;
             line-height: 1.5;
         }
+
+        @media (max-width: 768px) {
+            .user-detail-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .user-detail-header .chip {
+                align-self: flex-start;
+            }
+
+            .admin-header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .password-inline {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .password-inline button {
+                width: 100%;
+            }
+
+            .admin-header-actions .ghost-button {
+                flex: 1 1 48%;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .admin-header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.6rem;
+            }
+
+            .admin-header-actions .ghost-button,
+            .admin-header-actions .user-chip {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="app-shell">
 <header class="app-header">
     <div class="inner">
         <div class="brand">管理后台</div>
-        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap: wrap;">
+        <div class="admin-header-actions">
             <div class="user-chip" id="adminChip"></div>
             <button class="ghost-button" id="backButton">返回课堂</button>
             <button class="ghost-button" id="logoutButton">退出登录</button>
