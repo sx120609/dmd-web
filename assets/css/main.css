@@ -604,12 +604,12 @@ label {
 .lesson-columns {
     display: grid;
     gap: 1.75rem;
-    grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+    grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
     align-items: start;
 }
 
 .lesson-columns.lesson-deck {
-    grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
 }
 
 .lesson-deck .lesson-panel {
@@ -1630,6 +1630,10 @@ body.lesson-drawer-open .drawer-backdrop {
 
 .dashboard-main {
     margin-top: -2.5rem;
+}
+
+.dashboard-shell .container-xxl {
+    max-width: min(100%, 1440px);
 }
 
 .floating-card {
