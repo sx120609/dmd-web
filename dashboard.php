@@ -250,9 +250,12 @@
     function buildPlayer(url) {
         const wrapper = document.createElement('div');
         wrapper.className = 'player';
-        const wrapInFrame = (element) => {
+        const wrapInFrame = (element, extraFrameClass = '') => {
             const frame = document.createElement('div');
             frame.className = 'player-frame';
+            if (extraFrameClass) {
+                frame.classList.add(extraFrameClass);
+            }
             frame.appendChild(element);
             wrapper.appendChild(frame);
         };
@@ -299,7 +302,8 @@
             iframe.setAttribute('width', '100%');
             iframe.setAttribute('height', '100%');
             iframe.title = 'Bilibili 播放器';
-            wrapInFrame(iframe);
+            wrapper.classList.add('player--bilibili');
+            wrapInFrame(iframe, 'player-frame--bilibili');
             return { wrapper };
         }
         const video = document.createElement('video');
