@@ -11,29 +11,29 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
 </head>
-<body class="bg-body-tertiary">
-<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
-    <div class="container-fluid py-2 px-3 px-lg-4">
+<body class="bg-body-tertiary dashboard-body">
+<nav class="navbar navbar-expand-lg shadow-sm sticky-top dashboard-navbar">
+    <div class="container-fluid py-2 px-3 px-lg-4 dashboard-navbar-inner">
         <div class="d-flex flex-column">
             <span class="navbar-brand p-0 m-0 fw-semibold">智能录播课堂</span>
             <small class="text-secondary" id="welcomeText">正在加载...</small>
         </div>
         <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
             <div class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="userChip"></div>
-            <button class="btn btn-outline-primary btn-sm" id="adminButton" style="display:none;">进入管理后台</button>
-            <button class="btn btn-outline-secondary btn-sm" id="logoutButton">退出登录</button>
+            <button class="btn btn-outline-primary btn-sm soft-button" id="adminButton" style="display:none;">进入管理后台</button>
+            <button class="btn btn-outline-secondary btn-sm soft-button" id="logoutButton">退出登录</button>
         </div>
     </div>
 </nav>
-<main class="container-fluid py-4 px-3 px-lg-4">
+<main class="dashboard-container container-fluid py-4 px-3 px-lg-4">
     <div class="row g-4 align-items-start">
         <div class="col-12 col-xl-4 col-xxl-3">
-            <div class="card shadow-sm mb-4">
+            <div class="card shadow-sm mb-4 surface-card">
                 <div class="card-body pb-0">
                     <h2 class="h5 mb-1">我的课程</h2>
                     <p class="text-secondary small">挑选一个课程继续学习。</p>
                 </div>
-                <div class="list-group list-group-flush" id="courseList">
+                <div class="list-group list-group-flush surface-list" id="courseList">
                     <div class="list-group-item bg-transparent">
                         <div class="placeholder-glow">
                             <span class="placeholder col-10"></span>
@@ -51,7 +51,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card shadow-sm">
+            <div class="card shadow-sm surface-card">
                 <div class="card-body pb-0">
                     <div class="d-flex align-items-start justify-content-between">
                         <div>
@@ -60,13 +60,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="list-group list-group-flush" id="lessonList">
+                <div class="list-group list-group-flush surface-list" id="lessonList">
                     <div class="list-group-item text-center text-secondary small">暂未选择课程。</div>
                 </div>
             </div>
         </div>
         <div class="col-12 col-xl-8 col-xxl-9">
-            <div class="card shadow-sm mb-4">
+            <div class="card shadow-sm mb-4 surface-card">
                 <div class="card-body">
                     <div class="small text-secondary mb-3 breadcrumbs" id="breadcrumbs"><span>网课</span></div>
                     <h1 class="h4 mb-2" id="workspaceHeading">我的课堂</h1>
@@ -83,7 +83,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card shadow-sm">
+            <div class="card shadow-sm surface-card">
                 <div class="card-body">
                     <header class="mb-3">
                         <h2 class="h4 mb-2" id="lessonTitle">欢迎来到课堂</h2>
@@ -93,8 +93,8 @@
                             <span class="badge rounded-pill bg-info-subtle text-info-emphasis" id="lessonBadge"></span>
                         </div>
                     </header>
-                    <div class="alert alert-info" id="stageHint">尚未选择课节。</div>
-                    <div class="player-stage" id="playerHost">
+                    <div class="alert alert-info surface-alert" id="stageHint">尚未选择课节。</div>
+                    <div class="player-stage surface-stage" id="playerHost">
                         <div class="empty-state">尚未选择课节。</div>
                     </div>
                 </div>
@@ -318,11 +318,19 @@
     }
 
     function setCourseSummary(title, description, lessonCountText = '0 个课节', statusText = '') {
-        courseSummaryTitleEl.textContent = title;
-        courseSummaryDescriptionEl.textContent = description;
-        courseLessonCountEl.textContent = lessonCountText;
-        courseStatusChipEl.textContent = statusText;
-        courseStatusChipEl.hidden = !statusText;
+        if (courseSummaryTitleEl) {
+            courseSummaryTitleEl.textContent = title;
+        }
+        if (courseSummaryDescriptionEl) {
+            courseSummaryDescriptionEl.textContent = description;
+        }
+        if (courseLessonCountEl) {
+            courseLessonCountEl.textContent = lessonCountText;
+        }
+        if (courseStatusChipEl) {
+            courseStatusChipEl.textContent = statusText;
+            courseStatusChipEl.hidden = !statusText;
+        }
     }
 
     function updateCourseSummary(course, lessonCount = 0) {
