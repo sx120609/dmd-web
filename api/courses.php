@@ -3,22 +3,6 @@ require __DIR__ . '/bootstrap.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-function normalize_datetime_value($value)
-{
-    if ($value === null) {
-        return null;
-    }
-    $trimmed = trim((string) $value);
-    if ($trimmed === '') {
-        return null;
-    }
-    $timestamp = strtotime($trimmed);
-    if ($timestamp === false) {
-        return null;
-    }
-    return date('Y-m-d H:i:s', $timestamp);
-}
-
 if ($method === 'GET') {
     $user = require_login($mysqli);
 
@@ -50,7 +34,7 @@ if ($method === 'GET') {
             error_response('课程不存在或无访问权限', 404);
         }
 
-        $stmt = $mysqli->prepare('SELECT id, title, video_url, type, live_url, live_start_at, live_end_at FROM lessons WHERE course_id = ? ORDER BY id ASC');
+        $stmt = $mysqli->prepare('SELECT id, title, video_url FROM lessons WHERE course_id = ? ORDER BY id ASC');
         if (!$stmt) {
             error_response('无法获取课节列表');
         }
@@ -60,7 +44,6 @@ if ($method === 'GET') {
         $lessons = [];
         while ($row = $lessonsResult->fetch_assoc()) {
             $row['id'] = (int) $row['id'];
-            $row['type'] = isset($row['type']) ? ($row['type'] ?: 'recorded') : 'recorded';
             $lessons[] = $row;
         }
         $stmt->close();
@@ -123,40 +106,15 @@ if ($method === 'GET') {
     $stmt->close();
 
     if (!empty($input['lessons']) && is_array($input['lessons'])) {
-        $lessonStmt = $mysqli->prepare('INSERT INTO lessons (course_id, title, video_url, type, live_url, live_start_at, live_end_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $lessonStmt = $mysqli->prepare('INSERT INTO lessons (course_id, title, video_url) VALUES (?, ?, ?)');
         if ($lessonStmt) {
             foreach ($input['lessons'] as $lesson) {
                 $lessonTitle = trim($lesson['title'] ?? '');
                 $videoUrl = trim($lesson['video_url'] ?? '');
-                $lessonType = isset($lesson['type']) ? strtolower(trim((string) $lesson['type'])) : 'recorded';
-                if (!in_array($lessonType, ['recorded', 'live'], true)) {
-                    $lessonType = 'recorded';
-                }
-                $liveUrl = trim($lesson['live_url'] ?? '');
-                $liveStartSource = $lesson['live_start_at'] ?? null;
-                $liveEndSource = $lesson['live_end_at'] ?? null;
-                $liveStartAt = normalize_datetime_value($liveStartSource);
-                $liveEndAt = normalize_datetime_value($liveEndSource);
-                if ($lessonType === 'live') {
-                    if ($liveUrl === '') {
-                        continue;
-                    }
-                    if ($liveStartSource !== null && $liveStartSource !== '' && $liveStartAt === null) {
-                        continue;
-                    }
-                    if ($liveEndSource !== null && $liveEndSource !== '' && $liveEndAt === null) {
-                        continue;
-                    }
-                    $videoUrl = '';
-                } else {
-                    $liveUrl = '';
-                    $liveStartAt = null;
-                    $liveEndAt = null;
-                }
                 if ($lessonTitle === '') {
                     continue;
                 }
-                $lessonStmt->bind_param('issssss', $courseId, $lessonTitle, $videoUrl, $lessonType, $liveUrl, $liveStartAt, $liveEndAt);
+                $lessonStmt->bind_param('iss', $courseId, $lessonTitle, $videoUrl);
                 $lessonStmt->execute();
             }
             $lessonStmt->close();
