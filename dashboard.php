@@ -292,9 +292,12 @@
             iframe.src = embedUrl;
             iframe.className = 'player-embed';
             iframe.allowFullscreen = true;
+            iframe.setAttribute('allowfullscreen', '');
             iframe.referrerPolicy = 'no-referrer';
             iframe.setAttribute('allow', 'fullscreen; picture-in-picture');
-            iframe.setAttribute('loading', 'lazy');
+            iframe.setAttribute('loading', 'eager');
+            iframe.setAttribute('width', '100%');
+            iframe.setAttribute('height', '100%');
             iframe.title = 'Bilibili 播放器';
             wrapInFrame(iframe);
             return { wrapper };
