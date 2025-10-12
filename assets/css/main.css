@@ -204,6 +204,41 @@ label {
     gap: 1.5rem;
 }
 
+@media (max-width: 960px) {
+    .dashboard-main {
+        padding: 1.75rem 1.35rem 2.75rem;
+    }
+
+    .dashboard-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .dashboard-sidebar {
+        position: static;
+        top: auto;
+        max-height: none;
+    }
+
+    .dashboard-sidebar .nav-list {
+        padding-right: 0;
+        max-height: none;
+    }
+
+    .lesson-columns,
+    .lesson-columns.lesson-deck {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .lesson-panel,
+    .lesson-stage {
+        padding: 1.6rem 1.65rem;
+    }
+
+    .workspace {
+        gap: 1.55rem;
+    }
+}
+
 @media (min-width: 960px) {
     .split-2 {
         grid-template-columns: 320px 1fr;
@@ -337,6 +372,21 @@ label {
     gap: 1.6rem;
     flex-wrap: wrap;
     align-items: flex-end;
+}
+
+@media (max-width: 768px) {
+    .lesson-overview {
+        padding: 1.6rem 1.65rem;
+    }
+
+    .lesson-overview .overview-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .course-summary-meta {
+        width: 100%;
+    }
 }
 
 .lesson-overview .overview-info {
@@ -520,6 +570,21 @@ label {
     box-shadow: 0 12px 24px rgba(79, 70, 229, 0.14);
 }
 
+@media (max-width: 768px) {
+    .nav-button {
+        padding: 0.85rem 1rem;
+    }
+
+    .nav-button-head {
+        align-items: flex-start;
+    }
+
+    .nav-index {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+}
+
 .course-button .nav-desc {
     -webkit-line-clamp: 1;
 }
@@ -649,12 +714,19 @@ label {
     padding: 2rem;
 }
 
+@media (max-width: 768px) {
+    .surface-section {
+        padding: 1.6rem;
+    }
+}
+
 .pill-tabs {
     display: inline-flex;
     padding: 0.4rem;
     border-radius: 999px;
     background: rgba(15, 23, 42, 0.06);
     gap: 0.35rem;
+    flex-wrap: wrap;
 }
 
 .pill-tabs button {
@@ -669,6 +741,53 @@ label {
     background: #fff;
     color: var(--text-primary);
     box-shadow: 0 4px 16px rgba(79, 70, 229, 0.16);
+}
+
+@media (max-width: 640px) {
+    .topbar-actions {
+        flex-wrap: wrap;
+        gap: 0.6rem;
+    }
+
+    .topbar-actions .ghost-button,
+    .topbar-actions .inline-button,
+    .topbar-actions .primary-button {
+        flex: 1 1 48%;
+    }
+
+    .pill-tabs {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .pill-tabs button {
+        flex: 1 1 calc(50% - 0.35rem);
+        text-align: center;
+    }
+}
+
+@media (max-width: 520px) {
+    .topbar-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ghost-button,
+    .primary-button,
+    .inline-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    .lesson-stage,
+    .lesson-panel,
+    .lesson-overview {
+        padding: 1.45rem 1.4rem;
+    }
+
+    .surface-section {
+        padding: 1.45rem;
+    }
 }
 
 .fade-in {
@@ -711,6 +830,24 @@ label {
     gap: 1.5rem;
 }
 
+@media (max-width: 768px) {
+    .app-header .inner,
+    .topbar-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.9rem;
+    }
+
+    .topbar-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .user-chip {
+        margin-bottom: 0;
+    }
+}
+
 .brand {
     font-size: 1.25rem;
     font-weight: 700;
@@ -748,6 +885,13 @@ label {
     padding: 2.5rem 1.75rem 3.5rem;
     display: grid;
     gap: 1.75rem;
+}
+
+@media (max-width: 768px) {
+    .app-main {
+        padding: 2rem 1.25rem 2.75rem;
+        gap: 1.5rem;
+    }
 }
 
 .sidebar {

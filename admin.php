@@ -32,6 +32,13 @@
             gap: 1.75rem;
         }
 
+        .admin-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
         @media (min-width: 1024px) {
             .section-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -215,13 +222,58 @@
             font-size: 0.9rem;
             line-height: 1.5;
         }
+
+        @media (max-width: 768px) {
+            .user-detail-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .user-detail-header .chip {
+                align-self: flex-start;
+            }
+
+            .admin-header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .password-inline {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .password-inline button {
+                width: 100%;
+            }
+
+            .admin-header-actions .ghost-button {
+                flex: 1 1 48%;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .admin-header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.6rem;
+            }
+
+            .admin-header-actions .ghost-button,
+            .admin-header-actions .user-chip {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="app-shell">
 <header class="app-header">
     <div class="inner">
         <div class="brand">管理后台</div>
-        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap: wrap;">
+        <div class="admin-header-actions">
             <div class="user-chip" id="adminChip"></div>
             <button class="ghost-button" id="backButton">返回课堂</button>
             <button class="ghost-button" id="logoutButton">退出登录</button>
@@ -451,6 +503,17 @@
 </main>
 <script>
     const API_BASE = 'api';
+    const ROUTE_LOGIN = 'login';
+    const ROUTE_DASHBOARD = 'dashboard';
+
+    function normalizeApiUrl(url) {
+        if (url.startsWith(`${API_BASE}/`)) {
+            const [path, query] = url.split('?');
+            const sanitizedPath = path.replace(/\.php$/, '');
+            return query ? `${sanitizedPath}?${query}` : sanitizedPath;
+        }
+        return url;
+    }
     const logoutButton = document.getElementById('logoutButton');
     const backButton = document.getElementById('backButton');
     const adminChip = document.getElementById('adminChip');
@@ -551,7 +614,7 @@
     }
 
     async function fetchJSON(url, options = {}) {
-        const response = await fetch(url, {
+        const response = await fetch(normalizeApiUrl(url), {
             credentials: 'include',
             headers: {
                 'Accept': 'application/json',
@@ -1014,7 +1077,7 @@
         try {
             const session = await fetchJSON(`${API_BASE}/session.php`);
             if (!session.user || session.user.role !== 'admin') {
-                window.location.href = 'dashboard.php';
+                window.location.href = ROUTE_DASHBOARD;
                 return;
             }
             state.currentUser = session.user;
@@ -1060,7 +1123,7 @@
             }
         } catch (error) {
             alert(error.message || '加载管理信息失败');
-            window.location.href = 'index.php';
+            window.location.href = ROUTE_LOGIN;
         }
     }
 
@@ -1783,11 +1846,11 @@
         } catch (error) {
             console.error(error);
         }
-        window.location.href = 'index.php';
+        window.location.href = ROUTE_LOGIN;
     });
 
     backButton.addEventListener('click', () => {
-        window.location.href = 'dashboard.php';
+        window.location.href = ROUTE_DASHBOARD;
     });
 
     loadInitialData();
