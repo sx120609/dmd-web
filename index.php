@@ -181,7 +181,7 @@
             <div class="message login-message" id="loginMessage" aria-live="polite"></div>
         </form>
         <footer>
-            首次部署？请先访问 <a href="install.php">安装向导</a>，完成数据库及管理员初始化。
+            如需开通账号或重置密码，请联系课堂管理员。
         </footer>
     </section>
 </main>

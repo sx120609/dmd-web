@@ -10,53 +10,10 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
     <style>
-        .course-header {
-            display: flex;
-            flex-direction: column;
-            gap: 0.85rem;
-            margin-bottom: 2.25rem;
-        }
-
-        .course-header h1 {
-            margin: 0;
-            font-size: 2rem;
-            letter-spacing: -0.02em;
-        }
-
-        .course-header p {
-            margin: 0;
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-
-        .course-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            align-items: center;
-        }
-
-        .course-meta .badge {
-            background: rgba(79, 70, 229, 0.12);
-            color: var(--brand-color-strong);
-        }
-
-        .lesson-card footer {
-            margin-top: 1rem;
-            display: flex;
-            justify-content: flex-end;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .course-list-container {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .course-empty {
+        .course-empty,
+        .lesson-empty {
             border-radius: var(--radius-md);
-            padding: 1.75rem;
+            padding: 1.4rem;
             text-align: center;
             color: var(--text-secondary);
             background: rgba(148, 163, 184, 0.08);
@@ -68,7 +25,7 @@
             background: linear-gradient(90deg, rgba(226, 232, 240, 0.5), rgba(226, 232, 240, 0.2), rgba(226, 232, 240, 0.5));
             background-size: 400% 400%;
             animation: shimmer 1.5s ease infinite;
-            height: 64px;
+            height: 56px;
         }
 
         @keyframes shimmer {
@@ -91,26 +48,50 @@
         </div>
     </div>
 </header>
-<main class="app-main split-2">
-    <aside class="sidebar card">
-        <h2>我的课程</h2>
-        <p class="text-muted" style="margin-top: -0.35rem;">选择课程查看详细课节与录播内容。</p>
-        <div class="course-list-container" id="courseList">
+<main class="app-main layered-layout">
+    <nav class="card rail-card" aria-label="学习模块">
+        <h2>学习模块</h2>
+        <div class="rail-menu">
+            <button type="button" class="rail-item active" data-section="courses">
+                <strong>网课</strong>
+                <small>查看已分配课程</small>
+            </button>
+        </div>
+    </nav>
+    <section class="card pane" aria-label="课程列表">
+        <header>
+            <h2>课程</h2>
+            <p>选择课程后继续挑选课节。</p>
+        </header>
+        <div class="nav-list" id="courseList">
             <div class="skeleton"></div>
             <div class="skeleton" style="width: 80%;"></div>
             <div class="skeleton" style="width: 65%;"></div>
         </div>
-    </aside>
-    <section class="card surface-section">
-        <div class="course-header">
-            <h1 id="courseTitle">欢迎来到课堂</h1>
-            <p id="courseDescription">从左侧选择课程开始观看您的录播内容。</p>
-            <div class="course-meta" id="courseMeta" hidden>
-                <span class="badge" id="lessonCount"></span>
-            </div>
+    </section>
+    <section class="card pane" aria-label="课节列表">
+        <header>
+            <h2 id="lessonPaneTitle">课节</h2>
+            <p id="lessonPaneHint">先选择课程以加载课节。</p>
+        </header>
+        <div class="nav-list" id="lessonList">
+            <div class="lesson-empty">暂未选择课程。</div>
         </div>
-        <div class="lesson-list" id="lessonList">
-            <div class="empty-state">暂未选择课程。</div>
+    </section>
+    <section class="card content-pane" aria-live="polite">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <span>网课</span>
+        </div>
+        <header>
+            <h1 id="lessonTitle">欢迎来到课堂</h1>
+            <p id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
+        </header>
+        <div class="lesson-meta" id="lessonMeta" hidden>
+            <span class="badge" id="courseBadge"></span>
+            <span class="badge" id="lessonBadge"></span>
+        </div>
+        <div class="player" id="playerHost">
+            <div class="empty-state">尚未选择课节。</div>
         </div>
     </section>
 </main>
@@ -118,11 +99,16 @@
 <script>
     const API_BASE = 'api';
     const courseListEl = document.getElementById('courseList');
-    const courseTitleEl = document.getElementById('courseTitle');
-    const courseDescriptionEl = document.getElementById('courseDescription');
     const lessonListEl = document.getElementById('lessonList');
-    const lessonCountEl = document.getElementById('lessonCount');
-    const courseMetaEl = document.getElementById('courseMeta');
+    const lessonPaneTitleEl = document.getElementById('lessonPaneTitle');
+    const lessonPaneHintEl = document.getElementById('lessonPaneHint');
+    const breadcrumbsEl = document.getElementById('breadcrumbs');
+    const lessonTitleEl = document.getElementById('lessonTitle');
+    const lessonDescriptionEl = document.getElementById('lessonDescription');
+    const lessonMetaEl = document.getElementById('lessonMeta');
+    const courseBadgeEl = document.getElementById('courseBadge');
+    const lessonBadgeEl = document.getElementById('lessonBadge');
+    const playerHostEl = document.getElementById('playerHost');
     const welcomeTextEl = document.getElementById('welcomeText');
     const userChipEl = document.getElementById('userChip');
     const logoutButton = document.getElementById('logoutButton');
@@ -130,6 +116,9 @@
 
     let currentUser = null;
     let currentCourseId = null;
+    let currentLessonId = null;
+    let currentLessons = [];
+    let currentCourse = null;
     let players = [];
 
     function showWelcome(user) {
@@ -228,52 +217,55 @@
         return { wrapper, video };
     }
 
-    function renderLessons(lessons) {
-        clearPlayers();
-        lessonListEl.innerHTML = '';
-        if (!lessons || lessons.length === 0) {
-            const empty = document.createElement('div');
-            empty.className = 'empty-state';
-            empty.textContent = '该课程暂时还没有课节内容。';
-            lessonListEl.appendChild(empty);
-            courseMetaEl.hidden = true;
-            return;
+    function updateBreadcrumbs(course, lesson) {
+        const fragments = ['<span>网课</span>'];
+        if (course) {
+            fragments.push('<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4l6 6-6 6"/></svg>');
+            fragments.push(`<span class="current">${course.title || '未命名课程'}</span>`);
         }
-        lessonCountEl.textContent = `${lessons.length} 个课节`;
-        courseMetaEl.hidden = false;
-        lessons.forEach((lesson, index) => {
-            const card = document.createElement('article');
-            card.className = 'lesson-card fade-in';
-            const heading = document.createElement('h3');
-            heading.textContent = lesson.title || `课节 ${index + 1}`;
-            const media = buildPlayer(lesson.video_url || '');
-            media.wrapper.style.minHeight = '260px';
-            const footer = document.createElement('footer');
-            footer.textContent = `课节 ${index + 1}`;
-            card.appendChild(heading);
-            card.appendChild(media.wrapper);
-            card.appendChild(footer);
-            lessonListEl.appendChild(card);
-            if (media.video) {
-                const player = new Plyr(media.video, {
-                    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
-                    settings: ['speed', 'quality'],
-                    ratio: '16:9'
-                });
-                players.push(player);
-            }
-        });
+        if (lesson) {
+            fragments.push('<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4l6 6-6 6"/></svg>');
+            fragments.push(`<span class="current">${lesson.title || '课节'}</span>`);
+        }
+        breadcrumbsEl.innerHTML = fragments.join('');
     }
 
-    function updateCourseHeader(course) {
-        if (!course) {
-            courseTitleEl.textContent = '欢迎来到课堂';
-            courseDescriptionEl.textContent = '从左侧选择课程开始观看您的录播内容。';
-            courseMetaEl.hidden = true;
+    function renderLessonList(lessons, course) {
+        currentCourse = course || null;
+        currentLessons = lessons || [];
+        currentLessonId = null;
+        clearPlayers();
+        playerHostEl.innerHTML = '<div class="empty-state">尚未选择课节。</div>';
+        lessonListEl.innerHTML = '';
+        if (!currentLessons.length) {
+            lessonBadgeEl.textContent = '0 个课节';
+            courseBadgeEl.textContent = currentCourse ? `课程 · ${currentCourse.title || '未命名课程'}` : '课程';
+            const empty = document.createElement('div');
+            empty.className = 'lesson-empty';
+            empty.textContent = '该课程暂时还没有课节内容。';
+            lessonListEl.appendChild(empty);
+            lessonPaneHintEl.textContent = '等待添加课节后即可在此选择。';
+            lessonMetaEl.hidden = true;
+            lessonTitleEl.textContent = currentCourse ? currentCourse.title || '未命名课程' : '欢迎来到课堂';
+            lessonDescriptionEl.textContent = currentCourse && currentCourse.description ? currentCourse.description : '请等待老师发布课节内容。';
+            updateBreadcrumbs(currentCourse);
             return;
         }
-        courseTitleEl.textContent = course.title || '未命名课程';
-        courseDescriptionEl.textContent = course.description ? course.description : '该课程暂无详细介绍。';
+        lessonPaneHintEl.textContent = '选择一个课节即可开始观看。';
+        lessonMetaEl.hidden = false;
+        courseBadgeEl.textContent = currentCourse ? `课程 · ${currentCourse.title || '未命名课程'}` : '课程';
+        lessonBadgeEl.textContent = `${currentLessons.length} 个课节`;
+        currentLessons.forEach((lesson, index) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'fade-in';
+            button.dataset.lessonId = lesson.id;
+            button.innerHTML = `<strong style="display:block; font-size:0.95rem;">${lesson.title || `课节 ${index + 1}`}</strong>` +
+                `<span class="text-muted" style="font-size:0.82rem;">${lesson.description || '点击查看详情'}</span>`;
+            button.addEventListener('click', () => selectLesson(lesson.id));
+            lessonListEl.appendChild(button);
+        });
+        selectLesson(currentLessons[0].id);
     }
 
     function renderCourseList(courses) {
@@ -281,23 +273,40 @@
         if (!courses || courses.length === 0) {
             const empty = document.createElement('div');
             empty.className = 'course-empty';
-            empty.innerHTML = '暂未为您分配课程，请联系管理员。';
+            empty.textContent = '暂未为您分配课程，请联系管理员。';
             courseListEl.appendChild(empty);
-            updateCourseHeader();
-            lessonListEl.innerHTML = '<div class="empty-state">暂无课程内容</div>';
+            lessonPaneTitleEl.textContent = '课节';
+            lessonPaneHintEl.textContent = '先选择课程以加载课节。';
+            lessonListEl.innerHTML = '<div class="lesson-empty">暂未选择课程。</div>';
+            lessonMetaEl.hidden = true;
+            courseBadgeEl.textContent = '课程';
+            lessonBadgeEl.textContent = '0 个课节';
+            lessonTitleEl.textContent = '欢迎来到课堂';
+            lessonDescriptionEl.textContent = '从左侧依次选择课程与课节即可开始学习。';
+            updateBreadcrumbs();
             return;
         }
-        courses.forEach((course, index) => {
+        courses.forEach((course) => {
             const item = document.createElement('button');
             item.type = 'button';
-            item.className = 'course-item';
+            item.className = 'rail-item';
             item.dataset.courseId = course.id;
-            item.innerHTML = `<strong>${course.title}</strong><div class="text-muted" style="margin-top:0.35rem;">${course.description || '暂无描述'}</div>`;
+            item.innerHTML = `<strong>${course.title}</strong><small>${course.description || '暂无描述'}</small>`;
             item.addEventListener('click', () => selectCourse(course.id));
             courseListEl.appendChild(item);
-            if (index === 0) {
-                selectCourse(course.id);
-            }
+        });
+        selectCourse(courses[0].id);
+    }
+
+    function highlightCourse(courseId) {
+        document.querySelectorAll('#courseList .rail-item').forEach((el) => {
+            el.classList.toggle('active', Number(el.dataset.courseId) === courseId);
+        });
+    }
+
+    function highlightLesson(lessonId) {
+        document.querySelectorAll('#lessonList button').forEach((el) => {
+            el.classList.toggle('active', Number(el.dataset.lessonId) === lessonId);
         });
     }
 
@@ -319,20 +328,55 @@
     }
 
     async function selectCourse(courseId) {
-        if (courseId === currentCourseId) {
+        const normalizedCourseId = Number(courseId);
+        if (normalizedCourseId === currentCourseId) {
             return;
         }
-        currentCourseId = courseId;
-        document.querySelectorAll('.course-item').forEach((el) => {
-            el.classList.toggle('active', Number(el.dataset.courseId) === courseId);
-        });
+        currentCourseId = normalizedCourseId;
+        highlightCourse(normalizedCourseId);
         try {
-            const data = await fetchJSON(`${API_BASE}/courses.php?id=${courseId}`);
-            updateCourseHeader(data.course);
-            renderLessons(data.lessons || []);
+            const data = await fetchJSON(`${API_BASE}/courses.php?id=${normalizedCourseId}`);
+            currentCourse = data.course || null;
+            lessonPaneTitleEl.textContent = currentCourse?.title ? `${currentCourse.title} 的课节` : '课节';
+            updateBreadcrumbs(currentCourse);
+            renderLessonList(data.lessons || [], currentCourse);
         } catch (error) {
-            updateCourseHeader();
-            lessonListEl.innerHTML = `<div class="empty-state">加载课程内容失败：${error.message}</div>`;
+            currentCourse = null;
+            lessonListEl.innerHTML = `<div class="lesson-empty">加载课程内容失败：${error.message}</div>`;
+            lessonMetaEl.hidden = true;
+            lessonTitleEl.textContent = '课程加载失败';
+            lessonDescriptionEl.textContent = '请稍后再试，或联系管理员排查问题。';
+        }
+    }
+
+    function selectLesson(lessonId) {
+        const normalizedLessonId = Number(lessonId);
+        if (!currentLessons.length) {
+            return;
+        }
+        if (normalizedLessonId === currentLessonId) {
+            return;
+        }
+        const lesson = currentLessons.find((item) => Number(item.id) === normalizedLessonId);
+        if (!lesson) {
+            return;
+        }
+        currentLessonId = normalizedLessonId;
+        highlightLesson(currentLessonId);
+        clearPlayers();
+        const { wrapper, video } = buildPlayer(lesson.video_url || '');
+        playerHostEl.innerHTML = '';
+        playerHostEl.appendChild(wrapper);
+        lessonTitleEl.textContent = lesson.title || '课节';
+        lessonDescriptionEl.textContent = lesson.description || '该课节暂无详细介绍。';
+        updateBreadcrumbs(currentCourse, lesson);
+        if (video) {
+            const player = new Plyr(video, {
+                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
+                settings: ['speed', 'quality'],
+                ratio: '16:9'
+            });
+            players.push(player);
         }
     }
 
@@ -342,8 +386,13 @@
             renderCourseList(data.courses || []);
         } catch (error) {
             courseListEl.innerHTML = `<div class="course-empty">无法加载课程列表：${error.message}</div>`;
-            updateCourseHeader();
-            lessonListEl.innerHTML = '<div class="empty-state">请稍后再试</div>';
+            lessonPaneTitleEl.textContent = '课节';
+            lessonPaneHintEl.textContent = '请稍后再试加载课程。';
+            lessonListEl.innerHTML = '<div class="lesson-empty">暂无课程内容</div>';
+            lessonMetaEl.hidden = true;
+            lessonTitleEl.textContent = '课程加载失败';
+            lessonDescriptionEl.textContent = '无法获取课程列表，请稍后重试。';
+            updateBreadcrumbs();
         }
     }
 
