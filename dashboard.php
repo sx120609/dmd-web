@@ -56,66 +56,62 @@
 </section>
 
 <main class="dashboard-main container-xxl px-3 px-lg-4 pb-5">
-    <div class="card floating-card border-0">
-        <div class="card-body p-0">
-            <div class="dashboard-split">
-                <section class="split-sidebar">
-                    <div class="sidebar-section">
-                        <div class="sidebar-heading">
-                            <h2>我的课程</h2>
-                            <p>挑选一个课程继续学习。</p>
+    <div class="dashboard-split">
+        <section class="split-sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-heading">
+                    <h2>我的课程</h2>
+                    <p>挑选一个课程继续学习。</p>
+                </div>
+                <div class="sidebar-body">
+                    <div class="panel-list" id="courseList">
+                        <div class="panel-list-item">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-10"></span>
+                            </div>
                         </div>
-                        <div class="sidebar-body">
-                            <div class="panel-list" id="courseList">
-                                <div class="panel-list-item">
-                                    <div class="placeholder-glow">
-                                        <span class="placeholder col-10"></span>
-                                    </div>
-                                </div>
-                                <div class="panel-list-item">
-                                    <div class="placeholder-glow">
-                                        <span class="placeholder col-7"></span>
-                                    </div>
-                                </div>
-                                <div class="panel-list-item">
-                                    <div class="placeholder-glow">
-                                        <span class="placeholder col-5"></span>
-                                    </div>
-                                </div>
+                        <div class="panel-list-item">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-7"></span>
+                            </div>
+                        </div>
+                        <div class="panel-list-item">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-5"></span>
                             </div>
                         </div>
                     </div>
-                    <div class="sidebar-section">
-                        <div class="sidebar-heading">
-                            <h3 id="lessonPaneTitle">课节</h3>
-                            <p id="lessonPaneHint">先选择课程以加载课节。</p>
-                        </div>
-                        <div class="sidebar-body">
-                            <div class="panel-list" id="lessonList">
-                                <div class="panel-empty">暂未选择课程。</div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <section class="split-stage">
-                    <div class="stage-surface">
-                        <header class="stage-header">
-                            <div class="breadcrumbs" id="breadcrumbs"><span>网课</span></div>
-                            <h2 class="stage-title" id="lessonTitle">欢迎来到课堂</h2>
-                            <p class="stage-subtitle" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
-                            <div class="stage-meta" id="lessonMeta" hidden>
-                                <span class="chip" id="courseBadge"></span>
-                                <span class="chip subtle" id="lessonBadge"></span>
-                            </div>
-                        </header>
-                        <div class="stage-hint" id="stageHint">尚未选择课节。</div>
-                        <div class="player-stage" id="playerHost">
-                            <div class="empty-state">尚未选择课节。</div>
-                        </div>
-                    </div>
-                </section>
+                </div>
             </div>
-        </div>
+            <div class="sidebar-section">
+                <div class="sidebar-heading">
+                    <h3 id="lessonPaneTitle">课节</h3>
+                    <p id="lessonPaneHint">先选择课程以加载课节。</p>
+                </div>
+                <div class="sidebar-body">
+                    <div class="panel-list" id="lessonList">
+                        <div class="panel-empty">暂未选择课程。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="split-stage">
+            <header class="stage-header">
+                <div class="breadcrumbs" id="breadcrumbs"><span>网课</span></div>
+                <h2 class="stage-title" id="lessonTitle">欢迎来到课堂</h2>
+                <p class="stage-subtitle" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
+                <div class="stage-meta" id="lessonMeta" hidden>
+                    <span class="chip" id="courseBadge"></span>
+                    <span class="chip subtle" id="lessonBadge"></span>
+                </div>
+            </header>
+            <div class="stage-content">
+                <div class="stage-hint" id="stageHint">尚未选择课节。</div>
+                <div class="player-stage" id="playerHost">
+                    <div class="empty-state">尚未选择课节。</div>
+                </div>
+            </div>
+        </section>
     </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
