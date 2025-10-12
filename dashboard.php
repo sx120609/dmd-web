@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
 </head>
@@ -154,6 +155,7 @@
     const courseSummaryDescriptionEl = document.getElementById('courseSummaryDescription');
     const courseLessonCountEl = document.getElementById('courseLessonCount');
     const courseStatusChipEl = document.getElementById('courseStatusChip');
+    const courseProgressBarEl = document.getElementById('courseProgressBar');
     const stageHintEl = document.getElementById('stageHint');
     const drawerBackdrop = document.getElementById('drawerBackdrop');
     const courseDrawerToggle = document.getElementById('courseDrawerToggle');
@@ -206,7 +208,13 @@
     function showWelcome(user) {
         welcomeTextEl.textContent = user ? `欢迎回来，${user.display_name || user.username}` : '欢迎来到课堂';
         if (userChipEl) {
-            userChipEl.textContent = user ? `${user.display_name || user.username} · ${user.role === 'admin' ? '管理员' : '学员'}` : '';
+            if (user) {
+                userChipEl.textContent = `${user.display_name || user.username} · ${user.role === 'admin' ? '管理员' : '学员'}`;
+                userChipEl.style.display = 'inline-flex';
+            } else {
+                userChipEl.textContent = '';
+                userChipEl.style.display = 'none';
+            }
         }
     }
 
@@ -352,12 +360,12 @@
 
     function updateCourseSummary(course, lessonCount = 0) {
         if (!course) {
-            setCourseSummary('暂无课程', '暂未为您分配课程，请联系管理员。', '0 个课节', '待分配');
+            setCourseSummary('暂无课程', '暂未为您分配课程，请联系管理员。', '0 个课节', '待分配', 0);
             return;
         }
         const description = course.description && course.description.trim() ? course.description : '该课程暂无简介。';
         const statusText = lessonCount > 0 ? '学习中' : '准备中';
-        setCourseSummary(course.title || '未命名课程', description, `${lessonCount} 个课节`, statusText);
+        setCourseSummary(course.title || '未命名课程', description, `${lessonCount} 个课节`, statusText, lessonCount);
     }
 
     function setStageHint(message, hidden = false) {
@@ -375,6 +383,7 @@
         playerHostEl.innerHTML = '<div class="empty-state">尚未选择课节。</div>';
         lessonListEl.innerHTML = '';
         updateCourseSummary(currentCourse, currentLessons.length);
+        setCourseProgress(0, currentLessons.length);
         workspaceHeadingEl.textContent = currentCourse ? (currentCourse.title || '未命名课程') : '我的课堂';
         if (!currentLessons.length) {
             lessonBadgeEl.textContent = '0 个课节';
@@ -435,7 +444,7 @@
             lessonDescriptionEl.textContent = '待分配课程后将在此显示课节内容。';
             workspaceHeadingEl.textContent = '我的课堂';
             workspaceIntroEl.textContent = '暂无课程，联系管理员开通访问。';
-            setCourseSummary('暂无课程', '暂未为您分配课程，请联系管理员。', '0 个课节', '待分配');
+            setCourseSummary('暂无课程', '暂未为您分配课程，请联系管理员。', '0 个课节', '待分配', 0);
             setStageHint('等待分配课程。', false);
             updateBreadcrumbs();
             return;
@@ -507,7 +516,7 @@
             lessonDescriptionEl.textContent = '请稍后重试或联系管理员排查问题。';
             workspaceHeadingEl.textContent = '课程加载失败';
             workspaceIntroEl.textContent = '课程内容暂时不可用，请稍后刷新。';
-            setCourseSummary('课程加载失败', '无法加载课程详情，请稍后重试。', '0 个课节', '加载失败');
+            setCourseSummary('课程加载失败', '无法加载课程详情，请稍后重试。', '0 个课节', '加载失败', 0);
             setStageHint('课程内容暂时不可用，请稍后重试。', false);
             closeAllDrawers();
         }
@@ -537,6 +546,8 @@
         workspaceIntroEl.textContent = `正在观看「${lesson.title || '课节'}」`;
         updateBreadcrumbs(currentCourse, lesson);
         setStageHint('', true);
+        const lessonIndex = currentLessons.findIndex((item) => Number(item.id) === currentLessonId);
+        setCourseProgress(lessonIndex + 1, currentLessons.length);
         if (video) {
             const player = new Plyr(video, {
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
@@ -561,7 +572,7 @@
             lessonDescriptionEl.textContent = '无法获取课程列表，请稍后重试。';
             workspaceHeadingEl.textContent = '课程加载失败';
             workspaceIntroEl.textContent = '课程列表暂时不可用，请稍后刷新。';
-            setCourseSummary('课程加载失败', '无法获取课程列表，请稍后重试。', '0 个课节', '加载失败');
+            setCourseSummary('课程加载失败', '无法获取课程列表，请稍后重试。', '0 个课节', '加载失败', 0);
             setStageHint('课程列表暂时不可用，请稍后重试。', false);
             updateBreadcrumbs();
             closeAllDrawers();
