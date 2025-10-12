@@ -245,7 +245,7 @@
                 <div class="user-management-primary">
                     <div class="card list-card user-list-card">
                         <div class="panel-header">
-                            <h3>现有用户</h3>
+                            <h3 class="text-nowrap">现有用户</h3>
                             <p class="hint">点击用户即可查看详情、修改信息或重置密码。</p>
                         </div>
                         <ul class="table-list user-table" id="userList"></ul>
