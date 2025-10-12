@@ -66,14 +66,16 @@
         </div>
     </div>
 </header>
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
 <main class="dashboard-main">
     <div class="dashboard-layout">
-        <aside class="dashboard-sidebar glass-panel" aria-label="课程导航">
+        <aside class="dashboard-sidebar glass-panel drawer-panel" aria-label="课程导航">
             <header class="panel-header">
                 <div>
                     <h2>我的课程</h2>
                     <p>挑选一个课程继续学习。</p>
                 </div>
+                <button type="button" class="drawer-close" id="courseDrawerClose">关闭</button>
             </header>
             <div class="nav-list" id="courseList">
                 <div class="skeleton"></div>
@@ -82,6 +84,10 @@
             </div>
         </aside>
         <section class="workspace">
+            <div class="mobile-controls">
+                <button type="button" class="mobile-drawer-trigger" id="courseDrawerToggle" data-drawer="course">选择课程</button>
+                <button type="button" class="mobile-drawer-trigger" id="lessonDrawerToggle" data-drawer="lesson">选择课节</button>
+            </div>
             <section class="lesson-overview glass-panel">
                 <div class="overview-top">
                     <div class="breadcrumbs" id="breadcrumbs">
@@ -104,12 +110,13 @@
                 </div>
             </section>
             <div class="lesson-columns lesson-deck">
-                <section class="lesson-panel glass-panel" aria-label="课节导航">
+                <section class="lesson-panel glass-panel drawer-panel" aria-label="课节导航">
                     <header class="panel-header">
                         <div>
                             <h3 id="lessonPaneTitle">课节</h3>
                             <p id="lessonPaneHint">先选择课程以加载课节。</p>
                         </div>
+                        <button type="button" class="drawer-close" id="lessonDrawerClose">关闭</button>
                     </header>
                     <div class="nav-list" id="lessonList">
                         <div class="lesson-empty">暂未选择课程。</div>
@@ -167,6 +174,12 @@
     const courseLessonCountEl = document.getElementById('courseLessonCount');
     const courseStatusChipEl = document.getElementById('courseStatusChip');
     const stageHintEl = document.getElementById('stageHint');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const courseDrawerToggle = document.getElementById('courseDrawerToggle');
+    const lessonDrawerToggle = document.getElementById('lessonDrawerToggle');
+    const courseDrawerClose = document.getElementById('courseDrawerClose');
+    const lessonDrawerClose = document.getElementById('lessonDrawerClose');
+    const mobileQuery = window.matchMedia('(max-width: 768px)');
 
     let currentUser = null;
     let currentCourseId = null;
@@ -174,6 +187,40 @@
     let currentLessons = [];
     let currentCourse = null;
     let players = [];
+
+    function closeAllDrawers() {
+        document.body.classList.remove('course-drawer-open', 'lesson-drawer-open');
+    }
+
+    function openDrawer(type) {
+        closeAllDrawers();
+        document.body.classList.add(`${type}-drawer-open`);
+    }
+
+    const handleDesktopSwitch = (event) => {
+        if (!event.matches) {
+            closeAllDrawers();
+        }
+    };
+
+    if (mobileQuery?.addEventListener) {
+        mobileQuery.addEventListener('change', handleDesktopSwitch);
+    } else if (mobileQuery?.addListener) {
+        mobileQuery.addListener(handleDesktopSwitch);
+    }
+
+    courseDrawerToggle?.addEventListener('click', () => openDrawer('course'));
+    lessonDrawerToggle?.addEventListener('click', () => openDrawer('lesson'));
+    courseDrawerClose?.addEventListener('click', closeAllDrawers);
+    lessonDrawerClose?.addEventListener('click', closeAllDrawers);
+    drawerBackdrop?.addEventListener('click', closeAllDrawers);
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && (document.body.classList.contains('course-drawer-open') || document.body.classList.contains('lesson-drawer-open'))) {
+            event.preventDefault();
+            closeAllDrawers();
+        }
+    });
 
     function showWelcome(user) {
         welcomeTextEl.textContent = user ? `欢迎回来，${user.display_name || user.username}` : '欢迎来到课堂';
@@ -309,6 +356,7 @@
     }
 
     function renderLessonList(lessons, course) {
+        closeAllDrawers();
         currentCourse = course || null;
         currentLessons = lessons || [];
         currentLessonId = null;
@@ -359,6 +407,7 @@
     }
 
     function renderCourseList(courses) {
+        closeAllDrawers();
         courseListEl.innerHTML = '';
         if (!courses || courses.length === 0) {
             const empty = document.createElement('div');
@@ -451,6 +500,7 @@
             workspaceIntroEl.textContent = '课程内容暂时不可用，请稍后刷新。';
             setCourseSummary('课程加载失败', '无法加载课程详情，请稍后重试。', '0 个课节', '加载失败');
             setStageHint('课程内容暂时不可用，请稍后重试。', false);
+            closeAllDrawers();
         }
     }
 
@@ -466,6 +516,7 @@
         if (!lesson) {
             return;
         }
+        closeAllDrawers();
         currentLessonId = normalizedLessonId;
         highlightLesson(currentLessonId);
         clearPlayers();
@@ -504,6 +555,7 @@
             setCourseSummary('课程加载失败', '无法获取课程列表，请稍后重试。', '0 个课节', '加载失败');
             setStageHint('课程列表暂时不可用，请稍后重试。', false);
             updateBreadcrumbs();
+            closeAllDrawers();
         }
     }
 
