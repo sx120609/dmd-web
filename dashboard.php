@@ -196,6 +196,123 @@
         }
     }
 
+    function parseDateValue(value) {
+        if (!value) return null;
+        const normalized = String(value).replace(' ', 'T');
+        const date = new Date(normalized);
+        if (Number.isNaN(date.getTime())) {
+            return null;
+        }
+        return date;
+    }
+
+    function formatDateTimeDisplay(value) {
+        const date = parseDateValue(value);
+        if (!date) return '';
+        return date.toLocaleString('zh-CN', { hour12: false });
+    }
+
+    function describeLiveStatus(lesson) {
+        const start = parseDateValue(lesson.live_start_at);
+        const end = parseDateValue(lesson.live_end_at);
+        const now = new Date();
+        const startText = formatDateTimeDisplay(lesson.live_start_at);
+        const endText = formatDateTimeDisplay(lesson.live_end_at);
+        let state = 'open';
+        let badge = '直播课';
+        let message = '点击下方按钮进入直播教室。';
+        if (lesson.live_url === '') {
+            message = '直播链接尚未发布，请稍后查看或联系老师。';
+            state = 'info';
+        }
+        if (start && now < start) {
+            badge = '未开始';
+            message = startText ? `直播将在 ${startText} 开始，请提前确认设备。` : '直播即将开始，请关注开播时间。';
+            state = 'upcoming';
+        } else if (start && now >= start && (!end || now <= end)) {
+            badge = '直播中';
+            message = '直播正在进行中，点击下方按钮立即加入教室。';
+            state = 'live';
+        } else if (end && now > end) {
+            badge = '已结束';
+            message = endText ? `直播已于 ${endText} 结束，如需回放请联系老师。` : '直播已结束，如需回看请联系老师。';
+            state = 'ended';
+        }
+        return {
+            badge,
+            message,
+            state,
+            startText,
+            endText
+        };
+    }
+
+    function renderLiveStage(lesson) {
+        const status = describeLiveStatus(lesson);
+        const container = document.createElement('div');
+        container.className = `live-card ${status.state ? `live-card-${status.state}` : ''}`.trim();
+        const badge = document.createElement('div');
+        badge.className = 'live-card-badge';
+        const indicator = document.createElement('span');
+        indicator.className = 'live-indicator';
+        badge.appendChild(indicator);
+        const badgeText = document.createElement('strong');
+        badgeText.textContent = status.badge;
+        badge.appendChild(badgeText);
+        container.appendChild(badge);
+
+        const message = document.createElement('p');
+        message.className = 'live-card-message';
+        message.textContent = status.message;
+        container.appendChild(message);
+
+        if (status.startText || status.endText) {
+            const schedule = document.createElement('div');
+            schedule.className = 'live-card-schedule';
+            if (status.startText) {
+                const row = document.createElement('div');
+                const label = document.createElement('span');
+                label.textContent = '开始时间';
+                const value = document.createElement('strong');
+                value.textContent = status.startText;
+                row.appendChild(label);
+                row.appendChild(value);
+                schedule.appendChild(row);
+            }
+            if (status.endText) {
+                const row = document.createElement('div');
+                const label = document.createElement('span');
+                label.textContent = '结束时间';
+                const value = document.createElement('strong');
+                value.textContent = status.endText;
+                row.appendChild(label);
+                row.appendChild(value);
+                schedule.appendChild(row);
+            }
+            container.appendChild(schedule);
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'live-card-actions';
+        if (lesson.live_url) {
+            const joinButton = document.createElement('a');
+            joinButton.href = lesson.live_url;
+            joinButton.target = '_blank';
+            joinButton.rel = 'noopener noreferrer';
+            joinButton.className = 'primary-button live-join-button';
+            joinButton.textContent = status.state === 'live' ? '立即进入直播' : '进入直播教室';
+            actions.appendChild(joinButton);
+        } else {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'live-card-placeholder';
+            placeholder.textContent = '直播链接尚未发布。';
+            actions.appendChild(placeholder);
+        }
+        container.appendChild(actions);
+
+        return { container, status };
+    }
+
     function buildPlayer(url) {
         const wrapper = document.createElement('div');
         wrapper.className = 'player';
@@ -301,7 +418,17 @@
 
     function renderLessonList(lessons, course) {
         currentCourse = course || null;
-        currentLessons = lessons || [];
+        const normalizedLessons = Array.isArray(lessons)
+            ? lessons.map((lesson) => ({
+                ...lesson,
+                type: lesson.type === 'live' ? 'live' : 'recorded',
+                live_url: lesson.live_url || '',
+                live_start_at: lesson.live_start_at || null,
+                live_end_at: lesson.live_end_at || null,
+                video_url: lesson.video_url || ''
+            }))
+            : [];
+        currentLessons = normalizedLessons;
         currentLessonId = null;
         clearPlayers();
         playerHostEl.innerHTML = '<div class="empty-state">尚未选择课节。</div>';
@@ -334,18 +461,28 @@
             button.type = 'button';
             button.className = 'nav-button fade-in';
             button.dataset.lessonId = lesson.id;
+            if (lesson.type === 'live') {
+                button.classList.add('nav-button-live');
+            }
             const order = String(index + 1).padStart(2, '0');
+            let description = lesson.description || '';
+            if (lesson.type === 'live') {
+                const startText = formatDateTimeDisplay(lesson.live_start_at);
+                description = startText ? `直播开始时间：${startText}` : '直播课 · 点击查看详情';
+            } else if (!description) {
+                description = lesson.video_url ? '录播课 · 支持在线播放' : '录播课 · 内容准备中';
+            }
             button.innerHTML = `
                 <div class="nav-button-head">
                     <span class="nav-index">${order}</span>
                     <strong>${lesson.title || `课节 ${index + 1}`}</strong>
                 </div>
-                <div class="nav-desc">${lesson.description || '点击查看详情'}</div>
+                <div class="nav-desc">${description}</div>
             `;
             button.addEventListener('click', () => selectLesson(lesson.id));
             lessonListEl.appendChild(button);
         });
-        setStageHint('选择左侧课节播放视频。');
+        setStageHint('选择左侧课节查看详情。');
         selectLesson(currentLessons[0].id);
     }
 
@@ -460,21 +597,36 @@
         currentLessonId = normalizedLessonId;
         highlightLesson(currentLessonId);
         clearPlayers();
-        const { wrapper, video } = buildPlayer(lesson.video_url || '');
         playerHostEl.innerHTML = '';
-        playerHostEl.appendChild(wrapper);
         lessonTitleEl.textContent = lesson.title || '课节';
-        lessonDescriptionEl.textContent = lesson.description || '该课节暂无详细介绍。';
-        workspaceIntroEl.textContent = `正在观看「${lesson.title || '课节'}」`;
         updateBreadcrumbs(currentCourse, lesson);
-        setStageHint('', true);
-        if (video) {
-            const player = new Plyr(video, {
-                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
-                settings: ['speed', 'quality'],
-                ratio: '16:9'
-            });
-            players.push(player);
+        const lessonDescription = (lesson.description || '').trim();
+        if (lesson.type === 'live') {
+            const { container, status } = renderLiveStage(lesson);
+            playerHostEl.appendChild(container);
+            lessonDescriptionEl.textContent = lessonDescription || status.message;
+            workspaceIntroEl.textContent = '这是直播课，查看时间与入口即可加入。';
+            setStageHint(status.badge, false);
+        } else {
+            const { wrapper, video } = buildPlayer(lesson.video_url || '');
+            playerHostEl.appendChild(wrapper);
+            if (lessonDescription) {
+                lessonDescriptionEl.textContent = lessonDescription;
+            } else if (lesson.video_url) {
+                lessonDescriptionEl.textContent = '播放下方录播课即可开始学习。';
+            } else {
+                lessonDescriptionEl.textContent = '该课节尚未提供视频链接。';
+            }
+            workspaceIntroEl.textContent = `正在观看「${lesson.title || '课节'}」`;
+            setStageHint('', true);
+            if (video) {
+                const player = new Plyr(video, {
+                    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
+                    settings: ['speed', 'quality'],
+                    ratio: '16:9'
+                });
+                players.push(player);
+            }
         }
     }
 

@@ -373,9 +373,30 @@
                         <input id="lessonTitle" placeholder="例如：第一讲 极限的概念" required>
                     </div>
                     <div>
+                        <label for="lessonType">课节类型</label>
+                        <select id="lessonType">
+                            <option value="recorded">录播课</option>
+                            <option value="live">直播课</option>
+                        </select>
+                    </div>
+                    <div data-lesson-field="recorded">
                         <label for="lessonVideo">视频链接</label>
                         <input id="lessonVideo" placeholder="支持本地文件链接或哔哩哔哩地址">
                         <p class="hint">示例：<code>https://example.com/video.mp4</code> 或 <code>https://www.bilibili.com/video/BVxxxx</code></p>
+                    </div>
+                    <div data-lesson-field="live" hidden>
+                        <label for="lessonLiveUrl">直播地址</label>
+                        <input id="lessonLiveUrl" placeholder="输入直播间链接或会议加入地址">
+                        <p class="hint">可填写腾讯会议、飞书会议或直播平台链接，学员可一键进入。</p>
+                    </div>
+                    <div data-lesson-field="live" hidden>
+                        <label for="lessonLiveStart">直播开始时间</label>
+                        <input id="lessonLiveStart" type="datetime-local">
+                        <p class="hint">用于显示提醒，选填。示例：<code>2024-05-01T19:30</code></p>
+                    </div>
+                    <div data-lesson-field="live" hidden>
+                        <label for="lessonLiveEnd">直播结束时间</label>
+                        <input id="lessonLiveEnd" type="datetime-local">
                     </div>
                     <button type="submit" class="primary-button">添加课节</button>
                     <div class="message inline" id="createLessonMessage" hidden></div>
@@ -400,8 +421,27 @@
                             <input id="editLessonTitle" placeholder="请输入课节名称" required>
                         </div>
                         <div>
+                            <label for="editLessonType">课节类型</label>
+                            <select id="editLessonType">
+                                <option value="recorded">录播课</option>
+                                <option value="live">直播课</option>
+                            </select>
+                        </div>
+                        <div data-lesson-field="recorded">
                             <label for="editLessonVideo">视频链接</label>
                             <input id="editLessonVideo" placeholder="支持本地文件链接或哔哩哔哩地址">
+                        </div>
+                        <div data-lesson-field="live" hidden>
+                            <label for="editLessonLiveUrl">直播地址</label>
+                            <input id="editLessonLiveUrl" placeholder="输入直播间链接或会议加入地址">
+                        </div>
+                        <div data-lesson-field="live" hidden>
+                            <label for="editLessonLiveStart">直播开始时间</label>
+                            <input id="editLessonLiveStart" type="datetime-local">
+                        </div>
+                        <div data-lesson-field="live" hidden>
+                            <label for="editLessonLiveEnd">直播结束时间</label>
+                            <input id="editLessonLiveEnd" type="datetime-local">
                         </div>
                         <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
                             <button type="submit" class="primary-button">保存课节</button>
@@ -502,6 +542,17 @@
     const editLessonCourseSelect = document.getElementById('editLessonCourseSelect');
     const editLessonTitleInput = document.getElementById('editLessonTitle');
     const editLessonVideoInput = document.getElementById('editLessonVideo');
+    const lessonTypeSelect = document.getElementById('lessonType');
+    const lessonVideoInput = document.getElementById('lessonVideo');
+    const lessonLiveUrlInput = document.getElementById('lessonLiveUrl');
+    const lessonLiveStartInput = document.getElementById('lessonLiveStart');
+    const lessonLiveEndInput = document.getElementById('lessonLiveEnd');
+    const editLessonTypeSelect = document.getElementById('editLessonType');
+    const editLessonLiveUrlInput = document.getElementById('editLessonLiveUrl');
+    const editLessonLiveStartInput = document.getElementById('editLessonLiveStart');
+    const editLessonLiveEndInput = document.getElementById('editLessonLiveEnd');
+    const createLessonFieldGroups = document.querySelectorAll('#createLessonForm [data-lesson-field]');
+    const editLessonFieldGroups = document.querySelectorAll('#updateLessonForm [data-lesson-field]');
     const cancelLessonEditButton = document.getElementById('cancelLessonEdit');
 
     if (cancelCourseEditButton) {
@@ -516,6 +567,24 @@
             if (currentCourseId && Array.isArray(state.lessons[currentCourseId])) {
                 renderLessons(currentCourseId, state.lessons[currentCourseId]);
             }
+        });
+    }
+
+    if (lessonTypeSelect) {
+        const initialType = lessonTypeSelect.value || 'recorded';
+        syncLessonFieldGroups(createLessonFieldGroups, initialType);
+        lessonTypeSelect.addEventListener('change', () => {
+            const type = lessonTypeSelect.value || 'recorded';
+            syncLessonFieldGroups(createLessonFieldGroups, type);
+        });
+    }
+
+    if (editLessonTypeSelect) {
+        const initialEditType = editLessonTypeSelect.value || 'recorded';
+        syncLessonFieldGroups(editLessonFieldGroups, initialEditType);
+        editLessonTypeSelect.addEventListener('change', () => {
+            const type = editLessonTypeSelect.value || 'recorded';
+            syncLessonFieldGroups(editLessonFieldGroups, type);
         });
     }
 
@@ -802,6 +871,10 @@
             updateLessonForm.hidden = true;
             updateLessonForm.reset();
         }
+        if (editLessonTypeSelect) {
+            editLessonTypeSelect.value = 'recorded';
+            syncLessonFieldGroups(editLessonFieldGroups, 'recorded');
+        }
         setMessage(updateLessonMessage);
     }
 
@@ -829,6 +902,19 @@
         if (editLessonVideoInput) {
             editLessonVideoInput.value = target.video_url || '';
         }
+        if (editLessonTypeSelect) {
+            editLessonTypeSelect.value = target.type === 'live' ? 'live' : 'recorded';
+            syncLessonFieldGroups(editLessonFieldGroups, editLessonTypeSelect.value);
+        }
+        if (editLessonLiveUrlInput) {
+            editLessonLiveUrlInput.value = target.live_url || '';
+        }
+        if (editLessonLiveStartInput) {
+            editLessonLiveStartInput.value = toDateTimeLocalValue(target.live_start_at || '');
+        }
+        if (editLessonLiveEndInput) {
+            editLessonLiveEndInput.value = toDateTimeLocalValue(target.live_end_at || '');
+        }
         setMessage(updateLessonMessage);
         renderLessons(courseId, lessons);
     }
@@ -842,6 +928,49 @@
             return clean;
         }
         return `${clean.slice(0, maxLength)}…`;
+    }
+
+    function formatDateTimeDisplay(value) {
+        if (!value) {
+            return '';
+        }
+        const normalized = String(value).replace(' ', 'T');
+        const date = new Date(normalized);
+        if (Number.isNaN(date.getTime())) {
+            return '';
+        }
+        return date.toLocaleString('zh-CN', { hour12: false });
+    }
+
+    function toDateTimeLocalValue(value) {
+        if (!value) {
+            return '';
+        }
+        const normalized = String(value).replace(' ', 'T');
+        const date = new Date(normalized);
+        if (Number.isNaN(date.getTime())) {
+            return '';
+        }
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function syncLessonFieldGroups(nodes, activeType) {
+        if (!nodes) {
+            return;
+        }
+        nodes.forEach((node) => {
+            const role = node.getAttribute('data-lesson-field');
+            if (!role) {
+                return;
+            }
+            const shouldShow = role === activeType;
+            node.hidden = !shouldShow;
+        });
     }
 
     function generateTemporaryPassword(length = 10) {
@@ -888,6 +1017,10 @@
             if (state.selectedLessonId === lesson.id) {
                 item.classList.add('active');
             }
+            const lessonType = lesson.type === 'live' ? 'live' : 'recorded';
+            if (lessonType === 'live') {
+                item.classList.add('lesson-live');
+            }
 
             const info = document.createElement('div');
             info.style.flex = '1';
@@ -897,8 +1030,19 @@
             const meta = document.createElement('div');
             meta.className = 'text-muted';
             meta.style.fontSize = '0.85rem';
-            const videoText = summarize(lesson.video_url || '', 70);
-            meta.textContent = videoText ? `课节ID：${lesson.id} · ${videoText}` : `课节ID：${lesson.id}`;
+            const metaParts = [`课节ID：${lesson.id}`, lessonType === 'live' ? '直播课' : '录播课'];
+            if (lessonType === 'live') {
+                const startText = formatDateTimeDisplay(lesson.live_start_at);
+                if (startText) {
+                    metaParts.push(`开始 ${startText}`);
+                }
+            } else {
+                const videoText = summarize(lesson.video_url || '', 70);
+                if (videoText) {
+                    metaParts.push(videoText);
+                }
+            }
+            meta.textContent = metaParts.join(' · ');
             info.appendChild(meta);
             item.appendChild(info);
 
@@ -942,7 +1086,13 @@
             const data = await fetchJSON(`${API_BASE}/courses.php?id=${courseId}`);
             const lessons = (data.lessons || []).map((lesson) => ({
                 ...lesson,
-                id: Number(lesson.id)
+                id: Number(lesson.id),
+                course_id: Number(courseId),
+                type: lesson.type === 'live' ? 'live' : 'recorded',
+                live_url: lesson.live_url || '',
+                live_start_at: lesson.live_start_at || null,
+                live_end_at: lesson.live_end_at || null,
+                video_url: lesson.video_url || ''
             }));
             state.lessons[courseId] = lessons;
             renderLessons(courseId, lessons);
@@ -1559,11 +1709,22 @@
         const payload = {
             course_id: parseInt(lessonCourseSelect.value, 10),
             title: document.getElementById('lessonTitle').value.trim(),
-            video_url: document.getElementById('lessonVideo').value.trim()
+            type: (lessonTypeSelect?.value || 'recorded')
         };
         if (!payload.course_id || !payload.title) {
             setMessage(createLessonMessage, '请选择课程并填写课节标题', 'error');
             return;
+        }
+        if (payload.type === 'live') {
+            payload.live_url = (lessonLiveUrlInput?.value || '').trim();
+            payload.live_start_at = (lessonLiveStartInput?.value || '').trim();
+            payload.live_end_at = (lessonLiveEndInput?.value || '').trim();
+            if (!payload.live_url) {
+                setMessage(createLessonMessage, '请填写直播地址', 'error');
+                return;
+            }
+        } else {
+            payload.video_url = (lessonVideoInput?.value || '').trim();
         }
         setMessage(createLessonMessage, '正在添加课节...');
         try {
@@ -1572,13 +1733,18 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
+            const selectedCourseId = payload.course_id;
             createLessonForm.reset();
+            if (lessonTypeSelect) {
+                lessonTypeSelect.value = 'recorded';
+                syncLessonFieldGroups(createLessonFieldGroups, 'recorded');
+            }
             const selectedCourseAfterCreate = populateSelect(
                 lessonCourseSelect,
                 state.courses,
                 'id',
                 'title',
-                payload.course_id
+                selectedCourseId
             );
             setMessage(createLessonMessage, '课节添加成功', 'success');
             setMessage(lessonListMessage);
@@ -1602,11 +1768,22 @@
                 lesson_id: state.selectedLessonId,
                 course_id: parseInt(editLessonCourseSelect.value, 10),
                 title: editLessonTitleInput.value.trim(),
-                video_url: editLessonVideoInput.value.trim()
+                type: (editLessonTypeSelect?.value || 'recorded')
             };
             if (!payload.course_id || !payload.title) {
                 setMessage(updateLessonMessage, '请选择课程并填写课节标题', 'error');
                 return;
+            }
+            if (payload.type === 'live') {
+                payload.live_url = (editLessonLiveUrlInput?.value || '').trim();
+                payload.live_start_at = (editLessonLiveStartInput?.value || '').trim();
+                payload.live_end_at = (editLessonLiveEndInput?.value || '').trim();
+                if (!payload.live_url) {
+                    setMessage(updateLessonMessage, '请填写直播地址', 'error');
+                    return;
+                }
+            } else {
+                payload.video_url = editLessonVideoInput.value.trim();
             }
             setMessage(updateLessonMessage, '正在保存课节，请稍候...');
             try {
@@ -1618,7 +1795,12 @@
                 const updatedLesson = {
                     ...result.lesson,
                     id: Number(result.lesson.id),
-                    course_id: Number(result.lesson.course_id)
+                    course_id: Number(result.lesson.course_id),
+                    type: result.lesson.type === 'live' ? 'live' : 'recorded',
+                    live_url: result.lesson.live_url || '',
+                    live_start_at: result.lesson.live_start_at || null,
+                    live_end_at: result.lesson.live_end_at || null,
+                    video_url: result.lesson.video_url || ''
                 };
                 const previousCourseId = state.editingLessonOriginalCourseId;
                 state.selectedLessonId = updatedLesson.id;
