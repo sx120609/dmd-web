@@ -7,135 +7,115 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
-    <style>
-        .course-empty,
-        .lesson-empty {
-            border-radius: 18px;
-            padding: 1.1rem 1.35rem;
-            color: var(--text-secondary);
-            background: rgba(255, 255, 255, 0.78);
-            border: 1px dashed rgba(148, 163, 184, 0.32);
-            line-height: 1.6;
-        }
-
-        .lesson-empty {
-            text-align: center;
-        }
-
-        .skeleton {
-            border-radius: 16px;
-            background: linear-gradient(90deg, rgba(226, 232, 240, 0.55), rgba(226, 232, 240, 0.18), rgba(226, 232, 240, 0.55));
-            background-size: 400% 400%;
-            animation: shimmer 1.6s ease infinite;
-            height: 52px;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: 100% 0;
-            }
-            100% {
-                background-position: 0 0;
-            }
-        }
-
-        .workspace-lead.glass-panel {
-            padding: 1.5rem 1.6rem;
-        }
-
-        .workspace-lead p {
-            margin: 0;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-    </style>
 </head>
-<body class="dashboard-shell">
-<header class="topbar">
-    <div class="topbar-inner">
-        <div class="topbar-branding">
-            <div class="brand">智能录播课堂</div>
-            <p class="text-muted" id="welcomeText">正在加载...</p>
+<body class="bg-body-tertiary">
+<nav class="navbar navbar-expand-lg bg-white shadow-sm sticky-top">
+    <div class="container-fluid py-2 px-3 px-lg-4">
+        <div class="d-flex flex-column">
+            <span class="navbar-brand p-0 m-0 fw-semibold">智能录播课堂</span>
+            <small class="text-secondary" id="welcomeText">正在加载...</small>
         </div>
-        <div class="topbar-actions">
-            <div class="user-chip" id="userChip"></div>
-            <button class="ghost-button" id="adminButton" style="display:none;">进入管理后台</button>
-            <button class="ghost-button" id="logoutButton">退出登录</button>
+        <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
+            <div class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="userChip"></div>
+            <button class="btn btn-outline-primary btn-sm" id="adminButton" style="display:none;">进入管理后台</button>
+            <button class="btn btn-outline-secondary btn-sm" id="logoutButton">退出登录</button>
         </div>
     </div>
-</header>
-<main class="dashboard-main">
-    <div class="dashboard-layout">
-        <aside class="dashboard-sidebar glass-panel" aria-label="课程导航">
-            <header class="panel-header">
-                <div>
-                    <h2>我的课程</h2>
-                    <p>挑选一个课程继续学习。</p>
+</nav>
+<main class="container-fluid py-4 px-3 px-lg-4">
+    <div class="row g-4 align-items-start">
+        <div class="col-12 col-xl-4 col-xxl-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body pb-0">
+                    <h2 class="h5 mb-1">我的课程</h2>
+                    <p class="text-secondary small">挑选一个课程继续学习。</p>
                 </div>
-            </header>
-            <div class="nav-list" id="courseList">
-                <div class="skeleton"></div>
-                <div class="skeleton" style="width: 82%;"></div>
-                <div class="skeleton" style="width: 65%;"></div>
+                <div class="list-group list-group-flush" id="courseList">
+                    <div class="list-group-item bg-transparent">
+                        <div class="placeholder-glow">
+                            <span class="placeholder col-10"></span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent">
+                        <div class="placeholder-glow">
+                            <span class="placeholder col-7"></span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent">
+                        <div class="placeholder-glow">
+                            <span class="placeholder col-5"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </aside>
-        <section class="workspace">
-            <section class="lesson-overview glass-panel">
-                <div class="overview-top">
-                    <div class="breadcrumbs" id="breadcrumbs">
-                        <span>网课</span>
-                    </div>
-                    <div class="overview-heading">
-                        <h1 id="workspaceHeading">我的课堂</h1>
-                        <p id="workspaceIntro">从左侧选择课程，即可在右侧查看课节详情。</p>
-                    </div>
-                </div>
-                <div class="overview-bottom">
-                    <div class="overview-info">
-                        <h3 id="courseSummaryTitle">尚未选择课程</h3>
-                        <p id="courseSummaryDescription">从左侧课程列表中选择一个课程开始学习。</p>
-                    </div>
-                    <div class="course-summary-meta">
-                        <span class="chip" id="courseLessonCount">0 个课节</span>
-                        <span class="chip subtle" id="courseStatusChip" hidden>待选课</span>
-                    </div>
-                </div>
-            </section>
-            <div class="lesson-columns lesson-deck">
-                <section class="lesson-panel glass-panel" aria-label="课节导航">
-                    <header class="panel-header">
+            <div class="card shadow-sm">
+                <div class="card-body pb-0">
+                    <div class="d-flex align-items-start justify-content-between">
                         <div>
-                            <h3 id="lessonPaneTitle">课节</h3>
-                            <p id="lessonPaneHint">先选择课程以加载课节。</p>
+                            <h3 class="h6 mb-1" id="lessonPaneTitle">课节</h3>
+                            <p class="text-secondary small mb-0" id="lessonPaneHint">先选择课程以加载课节。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush" id="lessonList">
+                    <div class="list-group-item text-center text-secondary small">暂未选择课程。</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-8 col-xxl-9">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="small text-secondary mb-3 breadcrumbs" id="breadcrumbs"><span>网课</span></div>
+                    <h1 class="h4 mb-2" id="workspaceHeading">我的课堂</h1>
+                    <p class="text-secondary mb-4" id="workspaceIntro">从左侧选择课程，即可在右侧查看课节详情。</p>
+                    <div class="d-flex flex-column flex-lg-row gap-3 align-items-start align-items-lg-center justify-content-between">
+                        <div>
+                            <h2 class="h5 mb-1" id="courseSummaryTitle">尚未选择课程</h2>
+                            <p class="text-secondary mb-0" id="courseSummaryDescription">从左侧课程列表中选择一个课程开始学习。</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="courseLessonCount">0 个课节</span>
+                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis" id="courseStatusChip" hidden>待选课</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <header class="mb-3">
+                        <h2 class="h4 mb-2" id="lessonTitle">欢迎来到课堂</h2>
+                        <p class="text-secondary mb-3" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
+                        <div class="d-flex flex-wrap gap-2" id="lessonMeta" hidden>
+                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis" id="courseBadge"></span>
+                            <span class="badge rounded-pill bg-info-subtle text-info-emphasis" id="lessonBadge"></span>
                         </div>
                     </header>
-                    <div class="nav-list" id="lessonList">
-                        <div class="lesson-empty">暂未选择课程。</div>
-                    </div>
-                </section>
-                <article class="lesson-stage glass-panel" aria-live="polite">
-                    <header class="stage-header">
-                        <h1 id="lessonTitle">欢迎来到课堂</h1>
-                        <p id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
-                    </header>
-                    <div class="stage-meta" id="lessonMeta" hidden>
-                        <span class="badge" id="courseBadge"></span>
-                        <span class="badge" id="lessonBadge"></span>
-                    </div>
-                    <p class="stage-hint" id="stageHint">尚未选择课节。</p>
+                    <div class="alert alert-info" id="stageHint">尚未选择课节。</div>
                     <div class="player-stage" id="playerHost">
                         <div class="empty-state">尚未选择课节。</div>
                     </div>
-                </article>
+                </div>
             </div>
-        </section>
+        </div>
     </div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 <script>
     const API_BASE = 'api';
+
+    function normalizeApiUrl(url) {
+        if (url.startsWith(`${API_BASE}/`)) {
+            const [path, query] = url.split('?');
+            const sanitizedPath = path.replace(/\.php$/, '');
+            return query ? `${sanitizedPath}?${query}` : sanitizedPath;
+        }
+        return url;
+    }
+
     const courseListEl = document.getElementById('courseList');
     const lessonListEl = document.getElementById('lessonList');
     const lessonPaneTitleEl = document.getElementById('lessonPaneTitle');
@@ -168,8 +148,8 @@
 
     function showWelcome(user) {
         welcomeTextEl.textContent = user ? `欢迎回来，${user.display_name || user.username}` : '欢迎来到课堂';
-        if (user) {
-            userChipEl.textContent = `${user.display_name || user.username} · ${user.role === 'admin' ? '管理员' : '学员'}`;
+        if (userChipEl) {
+            userChipEl.textContent = user ? `${user.display_name || user.username} · ${user.role === 'admin' ? '管理员' : '学员'}` : '';
         }
     }
 
@@ -196,10 +176,33 @@
         }
     }
 
+    function tuneBilibiliUrl(url, page) {
+        try {
+            const urlObj = new URL(url, window.location.origin);
+            if (page) {
+                urlObj.searchParams.set('page', String(page));
+            }
+            urlObj.searchParams.set('as_wide', '1');
+            urlObj.searchParams.set('high_quality', '1');
+            urlObj.searchParams.set('autoplay', '0');
+            urlObj.searchParams.set('danmaku', '0');
+            urlObj.searchParams.set('muted', '0');
+            return urlObj.toString();
+        } catch (error) {
+            return url;
+        }
+    }
+
     function buildPlayer(url) {
         const wrapper = document.createElement('div');
         wrapper.className = 'player';
-        if (!url) {
+        const wrapInFrame = (element) => {
+            const frame = document.createElement('div');
+            frame.className = 'ratio ratio-16x9 player-frame';
+            frame.appendChild(element);
+            wrapper.appendChild(frame);
+        };
+        if (!url || !url.trim()) {
             const placeholder = document.createElement('div');
             placeholder.className = 'empty-state';
             placeholder.style.margin = 0;
@@ -208,45 +211,42 @@
             return { wrapper };
         }
         const trimmed = url.trim();
-        if (!trimmed) {
-            const placeholder = document.createElement('div');
-            placeholder.className = 'empty-state';
-            placeholder.style.margin = 0;
-            placeholder.textContent = '该课节尚未提供视频链接';
-            wrapper.appendChild(placeholder);
-            return { wrapper };
-        }
         const bilibiliEmbedRegex = /player\.bilibili\.com/i;
         const bilibiliBvMatch = trimmed.match(/bilibili\.com\/video\/(BV[\w]+)/i);
         const bilibiliAvMatch = trimmed.match(/bilibili\.com\/video\/av(\d+)/i);
+        let page = 1;
+        try {
+            const urlObj = new URL(trimmed, window.location.href);
+            const pageParam = parseInt(urlObj.searchParams.get('p'), 10);
+            if (!Number.isNaN(pageParam) && pageParam > 0) {
+                page = pageParam;
+            }
+        } catch (error) {
+            // ignore malformed url
+        }
         if (bilibiliEmbedRegex.test(trimmed) || bilibiliBvMatch || bilibiliAvMatch) {
             let embedUrl = trimmed;
-            let page = 1;
-            try {
-                const urlObj = new URL(trimmed, window.location.href);
-                const pageParam = parseInt(urlObj.searchParams.get('p'), 10);
-                if (!Number.isNaN(pageParam) && pageParam > 0) {
-                    page = pageParam;
-                }
-            } catch (error) {
-                // ignore
-            }
             if (bilibiliBvMatch) {
                 const bvid = bilibiliBvMatch[1];
-                embedUrl = `https://player.bilibili.com/player.html?bvid=${encodeURIComponent(bvid)}&page=${page}&high_quality=1&autoplay=0`;
+                embedUrl = `https://player.bilibili.com/player.html?bvid=${encodeURIComponent(bvid)}`;
             } else if (bilibiliAvMatch) {
                 const aid = bilibiliAvMatch[1];
-                embedUrl = `https://player.bilibili.com/player.html?aid=${encodeURIComponent(aid)}&page=${page}&high_quality=1&autoplay=0`;
+                embedUrl = `https://player.bilibili.com/player.html?aid=${encodeURIComponent(aid)}`;
             }
+            embedUrl = tuneBilibiliUrl(embedUrl, page);
             const iframe = document.createElement('iframe');
             iframe.src = embedUrl;
+            iframe.className = 'player-embed';
             iframe.allowFullscreen = true;
             iframe.referrerPolicy = 'no-referrer';
             iframe.setAttribute('allow', 'fullscreen; picture-in-picture');
-            wrapper.appendChild(iframe);
+            iframe.setAttribute('loading', 'lazy');
+            iframe.title = 'Bilibili 播放器';
+            wrapInFrame(iframe);
             return { wrapper };
         }
         const video = document.createElement('video');
+        video.className = 'player-media';
         video.setAttribute('playsinline', '');
         video.setAttribute('controls', '');
         video.setAttribute('preload', 'metadata');
@@ -258,7 +258,7 @@
             source.type = mime;
         }
         video.appendChild(source);
-        wrapper.appendChild(video);
+        wrapInFrame(video);
         return { wrapper, video };
     }
 
@@ -272,7 +272,9 @@
             fragments.push('<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4l6 6-6 6"/></svg>');
             fragments.push(`<span class="current">${lesson.title || '课节'}</span>`);
         }
-        breadcrumbsEl.innerHTML = fragments.join('');
+        if (breadcrumbsEl) {
+            breadcrumbsEl.innerHTML = fragments.join('');
+        }
     }
 
     function setCourseSummary(title, description, lessonCountText = '0 个课节', statusText = '') {
@@ -312,7 +314,7 @@
             lessonBadgeEl.textContent = '0 个课节';
             courseBadgeEl.textContent = currentCourse ? `课程 · ${currentCourse.title || '未命名课程'}` : '课程';
             const empty = document.createElement('div');
-            empty.className = 'lesson-empty';
+            empty.className = 'list-group-item text-center text-secondary small';
             empty.textContent = '课程内容准备中。';
             lessonListEl.appendChild(empty);
             lessonPaneHintEl.textContent = '老师正在准备课节内容。';
@@ -332,15 +334,15 @@
         currentLessons.forEach((lesson, index) => {
             const button = document.createElement('button');
             button.type = 'button';
-            button.className = 'nav-button fade-in';
+            button.className = 'list-group-item list-group-item-action d-flex flex-column gap-1';
             button.dataset.lessonId = lesson.id;
             const order = String(index + 1).padStart(2, '0');
             button.innerHTML = `
-                <div class="nav-button-head">
-                    <span class="nav-index">${order}</span>
-                    <strong>${lesson.title || `课节 ${index + 1}`}</strong>
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="fw-semibold">${lesson.title || `课节 ${index + 1}`}</span>
+                    <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">${order}</span>
                 </div>
-                <div class="nav-desc">${lesson.description || '点击查看详情'}</div>
+                <div class="text-secondary small">${lesson.description || '点击查看详情'}</div>
             `;
             button.addEventListener('click', () => selectLesson(lesson.id));
             lessonListEl.appendChild(button);
@@ -353,12 +355,12 @@
         courseListEl.innerHTML = '';
         if (!courses || courses.length === 0) {
             const empty = document.createElement('div');
-            empty.className = 'course-empty';
+            empty.className = 'list-group-item text-center text-secondary small';
             empty.textContent = '暂未为您分配课程，请联系管理员。';
             courseListEl.appendChild(empty);
             lessonPaneTitleEl.textContent = '课节';
             lessonPaneHintEl.textContent = '等待分配课程后即可在此查看课节。';
-            lessonListEl.innerHTML = '<div class="lesson-empty">暂无课程。</div>';
+            lessonListEl.innerHTML = '<div class="list-group-item text-center text-secondary small">暂无课程。</div>';
             lessonMetaEl.hidden = true;
             courseBadgeEl.textContent = '课程';
             lessonBadgeEl.textContent = '0 个课节';
@@ -376,13 +378,11 @@
         courses.forEach((course) => {
             const item = document.createElement('button');
             item.type = 'button';
-            item.className = 'nav-button course-button';
+            item.className = 'list-group-item list-group-item-action course-button';
             item.dataset.courseId = course.id;
             item.innerHTML = `
-                <div class="nav-button-head">
-                    <strong>${course.title}</strong>
-                </div>
-                <div class="nav-desc">${course.description || '暂无描述'}</div>
+                <div class="fw-semibold">${course.title}</div>
+                <div class="text-secondary small">${course.description || '暂无描述'}</div>
             `;
             item.addEventListener('click', () => selectCourse(course.id));
             courseListEl.appendChild(item);
@@ -391,19 +391,19 @@
     }
 
     function highlightCourse(courseId) {
-        document.querySelectorAll('#courseList .nav-button').forEach((el) => {
+        document.querySelectorAll('#courseList .list-group-item-action').forEach((el) => {
             el.classList.toggle('active', Number(el.dataset.courseId) === courseId);
         });
     }
 
     function highlightLesson(lessonId) {
-        document.querySelectorAll('#lessonList .nav-button').forEach((el) => {
+        document.querySelectorAll('#lessonList .list-group-item-action').forEach((el) => {
             el.classList.toggle('active', Number(el.dataset.lessonId) === lessonId);
         });
     }
 
     async function fetchJSON(url, options = {}) {
-        const response = await fetch(url, {
+        const response = await fetch(normalizeApiUrl(url), {
             credentials: 'include',
             headers: {
                 'Accept': 'application/json',
@@ -434,7 +434,7 @@
             renderLessonList(data.lessons || [], currentCourse);
         } catch (error) {
             currentCourse = null;
-            lessonListEl.innerHTML = `<div class="lesson-empty">加载课程内容失败：${error.message}</div>`;
+            lessonListEl.innerHTML = `<div class="list-group-item text-center text-secondary small">加载课程内容失败：${error.message}</div>`;
             lessonMetaEl.hidden = true;
             lessonTitleEl.textContent = '课程加载失败';
             lessonDescriptionEl.textContent = '请稍后重试或联系管理员排查问题。';
@@ -483,10 +483,10 @@
             const data = await fetchJSON(`${API_BASE}/courses.php`);
             renderCourseList(data.courses || []);
         } catch (error) {
-            courseListEl.innerHTML = `<div class="course-empty">无法加载课程列表：${error.message}</div>`;
+            courseListEl.innerHTML = `<div class="list-group-item text-center text-secondary small">无法加载课程列表：${error.message}</div>`;
             lessonPaneTitleEl.textContent = '课节';
             lessonPaneHintEl.textContent = '请稍后刷新重试。';
-            lessonListEl.innerHTML = '<div class="lesson-empty">暂无课程内容</div>';
+            lessonListEl.innerHTML = '<div class="list-group-item text-center text-secondary small">暂无课程内容</div>';
             lessonMetaEl.hidden = true;
             lessonTitleEl.textContent = '课程加载失败';
             lessonDescriptionEl.textContent = '无法获取课程列表，请稍后重试。';
@@ -502,7 +502,7 @@
         try {
             const data = await fetchJSON(`${API_BASE}/session.php`);
             if (!data.user) {
-                window.location.href = 'index.php';
+                window.location.href = 'login';
                 return;
             }
             currentUser = data.user;
@@ -512,7 +512,7 @@
             }
             await loadCourses();
         } catch (error) {
-            window.location.href = 'index.php';
+            window.location.href = 'login';
         }
     }
 
@@ -522,11 +522,11 @@
         } catch (error) {
             console.error(error);
         }
-        window.location.href = 'index.php';
+        window.location.href = 'login';
     });
 
     adminButton.addEventListener('click', () => {
-        window.location.href = 'admin.php';
+        window.location.href = 'admin';
     });
 
     loadSession();
