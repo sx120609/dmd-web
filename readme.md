@@ -9,7 +9,7 @@
 
 ## 快速开始
 
-1. 将项目放置在支持 PHP 与 `mod_rewrite` 的服务器上，保持根目录中的 `.htaccess` 生效以启用伪静态路由。
+1. 将项目放置在支持 PHP 与 URL 重写的服务器上，保持根目录中的 `.htaccess` 生效以启用伪静态路由（Apache 环境）。如使用 Nginx，可参考下方示例配置重写规则。
 2. 首次部署后访问 `/install`（或直接访问 `install.php`），按照页面提示填写数据库与管理员信息，脚本会自动：
    - 创建（如不存在）并初始化数据库表结构；
    - 生成 `config.php` 配置文件；
@@ -26,6 +26,57 @@
 - `/api/<name>` → `api/<name>.php`
 
 如需手动部署或二次配置，可参考 `config.example.php` 与 `database.sql` 获取所需配置和建表语句。
+
+### Apache 伪静态示例
+
+在 Apache 环境下，可将以下内容保存为项目根目录的 `.htaccess`，以便自动重写常用页面与 API：
+
+```apacheconf
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 允许直接访问已有文件或目录
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 顶级页面的友好路由
+    RewriteRule ^$ index.php [L,QSA]
+    RewriteRule ^login/?$ index.php [L,QSA]
+    RewriteRule ^dashboard/?$ dashboard.php [L,QSA]
+    RewriteRule ^admin/?$ admin.php [L,QSA]
+    RewriteRule ^install/?$ install.php [L,QSA]
+
+    # API 伪静态（如 /api/session -> /api/session.php）
+    RewriteRule ^api/([a-z0-9_]+)/?$ api/$1.php [L,QSA,NC]
+</IfModule>
+```
+
+### Nginx 伪静态示例
+
+若使用 Nginx 部署，请在对应的 `server` 区块中添加如下规则来模拟 `.htaccess` 的伪静态效果：
+
+```nginx
+location / {
+    try_files $uri $uri/ @rewrite;
+}
+
+location @rewrite {
+    rewrite ^/login/?$ /index.php last;
+    rewrite ^/dashboard/?$ /dashboard.php last;
+    rewrite ^/admin/?$ /admin.php last;
+    rewrite ^/install/?$ /install.php last;
+    rewrite ^/api/([a-z0-9_]+)/?$ /api/$1.php last;
+    rewrite ^/$ /index.php last;
+}
+
+# 静态资源保持默认处理方式
+location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg)$ {
+    try_files $uri =404;
+}
+```
+
+请根据自身 PHP 运行方式（如 PHP-FPM）补充 `fastcgi` 等相关配置。
 
 ## 目录结构
 
