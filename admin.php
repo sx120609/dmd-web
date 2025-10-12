@@ -12,13 +12,34 @@
         .admin-header {
             display: flex;
             flex-direction: column;
-            gap: 0.85rem;
+            gap: 1rem;
+            position: relative;
+            padding: 0.35rem 0.35rem 0.6rem;
+        }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            inset: -1.2rem -1.4rem -1.35rem;
+            background: radial-gradient(circle at 18% 0%, rgba(99, 102, 241, 0.18), transparent 60%),
+                linear-gradient(160deg, rgba(236, 72, 153, 0.18), transparent 65%);
+            border-radius: 26px;
+            opacity: 0.9;
+            pointer-events: none;
+        }
+
+        .admin-header > * {
+            position: relative;
+            z-index: 1;
         }
 
         .admin-header h1 {
             margin: 0;
             font-size: 2rem;
             letter-spacing: -0.02em;
+            background: linear-gradient(120deg, #0f172a 0%, #312e81 48%, #4338ca 100%);
+            -webkit-background-clip: text;
+            color: transparent;
         }
 
         .admin-header p {
@@ -39,7 +60,7 @@
         }
 
         .list-card {
-            padding: 1.75rem;
+            padding: 1.85rem;
         }
 
         .list-card h3 {
@@ -55,12 +76,14 @@
         }
 
         .empty-hint {
-            padding: 1.25rem;
+            padding: 1.35rem;
             border-radius: var(--radius-sm);
-            background: rgba(148, 163, 184, 0.1);
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px dashed rgba(148, 163, 184, 0.28);
             color: var(--text-secondary);
             text-align: center;
             font-size: 0.95rem;
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
         }
 
         .user-management {
@@ -92,12 +115,13 @@
         }
 
         .user-table li {
-            border: none;
-            border-bottom: none;
-            padding: 0.85rem 0.6rem;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            padding: 0.95rem 0.85rem;
             border-radius: var(--radius-md);
-            transition: background 0.2s ease, transform 0.2s ease;
+            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
             gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
         }
 
         .user-table li + li {
@@ -105,13 +129,16 @@
         }
 
         .user-table li:hover {
-            background: rgba(79, 70, 229, 0.1);
-            transform: translateY(-1px);
+            background: linear-gradient(150deg, rgba(99, 102, 241, 0.12), rgba(236, 72, 153, 0.12));
+            border-color: rgba(99, 102, 241, 0.26);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-soft);
         }
 
         .user-table li.active {
-            background: rgba(79, 70, 229, 0.16);
-            box-shadow: inset 0 0 0 1px rgba(79, 70, 229, 0.2);
+            background: linear-gradient(150deg, rgba(99, 102, 241, 0.22), rgba(236, 72, 153, 0.2));
+            box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.35), 0 16px 32px rgba(99, 102, 241, 0.18);
+            color: var(--text-primary);
         }
 
         .user-table li .user-meta {
@@ -133,11 +160,13 @@
             font-size: 0.75rem;
             font-weight: 600;
             white-space: nowrap;
+            border: 1px solid rgba(148, 163, 184, 0.24);
         }
 
         .user-role-tag.is-admin {
-            background: rgba(79, 70, 229, 0.18);
+            background: linear-gradient(120deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.22));
             color: var(--brand-color-strong);
+            border-color: rgba(99, 102, 241, 0.32);
         }
 
         .user-detail-card {
@@ -168,19 +197,23 @@
         .user-detail-chip {
             background: rgba(148, 163, 184, 0.16);
             color: var(--text-secondary);
+            border: 1px solid rgba(148, 163, 184, 0.24);
         }
 
         .user-detail-chip.is-admin {
-            background: rgba(79, 70, 229, 0.18);
+            background: linear-gradient(120deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.24));
             color: var(--brand-color-strong);
+            border-color: rgba(99, 102, 241, 0.28);
         }
 
         .user-detail-empty {
-            padding: 1.2rem 1.4rem;
+            padding: 1.35rem 1.5rem;
             border-radius: var(--radius-md);
-            background: rgba(148, 163, 184, 0.1);
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px dashed rgba(148, 163, 184, 0.24);
             color: var(--text-secondary);
-            line-height: 1.6;
+            line-height: 1.65;
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
         }
 
         .password-inline {
@@ -221,7 +254,7 @@
 <header class="app-header">
     <div class="inner">
         <div class="brand">管理后台</div>
-        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap: wrap;">
+        <div class="topbar-actions">
             <div class="user-chip" id="adminChip"></div>
             <button class="ghost-button" id="backButton">返回课堂</button>
             <button class="ghost-button" id="logoutButton">退出登录</button>
@@ -245,7 +278,7 @@
                 <div class="user-management-primary">
                     <div class="card list-card user-list-card">
                         <div class="panel-header">
-                            <h3>现有用户</h3>
+                            <h3 class="text-nowrap">现有用户</h3>
                             <p class="hint">点击用户即可查看详情、修改信息或重置密码。</p>
                         </div>
                         <ul class="table-list user-table" id="userList"></ul>
