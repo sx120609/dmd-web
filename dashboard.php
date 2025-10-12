@@ -136,6 +136,15 @@
 <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 <script>
     const API_BASE = 'api';
+
+    function normalizeApiUrl(url) {
+        if (url.startsWith(`${API_BASE}/`)) {
+            const [path, query] = url.split('?');
+            const sanitizedPath = path.replace(/\.php$/, '');
+            return query ? `${sanitizedPath}?${query}` : sanitizedPath;
+        }
+        return url;
+    }
     const courseListEl = document.getElementById('courseList');
     const lessonListEl = document.getElementById('lessonList');
     const lessonPaneTitleEl = document.getElementById('lessonPaneTitle');
@@ -403,7 +412,7 @@
     }
 
     async function fetchJSON(url, options = {}) {
-        const response = await fetch(url, {
+        const response = await fetch(normalizeApiUrl(url), {
             credentials: 'include',
             headers: {
                 'Accept': 'application/json',
@@ -502,7 +511,7 @@
         try {
             const data = await fetchJSON(`${API_BASE}/session.php`);
             if (!data.user) {
-                window.location.href = 'index.php';
+                window.location.href = 'login';
                 return;
             }
             currentUser = data.user;
@@ -512,7 +521,7 @@
             }
             await loadCourses();
         } catch (error) {
-            window.location.href = 'index.php';
+            window.location.href = 'login';
         }
     }
 
@@ -522,11 +531,11 @@
         } catch (error) {
             console.error(error);
         }
-        window.location.href = 'index.php';
+        window.location.href = 'login';
     });
 
     adminButton.addEventListener('click', () => {
-        window.location.href = 'admin.php';
+        window.location.href = 'admin';
     });
 
     loadSession();

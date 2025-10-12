@@ -451,6 +451,17 @@
 </main>
 <script>
     const API_BASE = 'api';
+    const ROUTE_LOGIN = 'login';
+    const ROUTE_DASHBOARD = 'dashboard';
+
+    function normalizeApiUrl(url) {
+        if (url.startsWith(`${API_BASE}/`)) {
+            const [path, query] = url.split('?');
+            const sanitizedPath = path.replace(/\.php$/, '');
+            return query ? `${sanitizedPath}?${query}` : sanitizedPath;
+        }
+        return url;
+    }
     const logoutButton = document.getElementById('logoutButton');
     const backButton = document.getElementById('backButton');
     const adminChip = document.getElementById('adminChip');
@@ -551,7 +562,7 @@
     }
 
     async function fetchJSON(url, options = {}) {
-        const response = await fetch(url, {
+        const response = await fetch(normalizeApiUrl(url), {
             credentials: 'include',
             headers: {
                 'Accept': 'application/json',
@@ -1014,7 +1025,7 @@
         try {
             const session = await fetchJSON(`${API_BASE}/session.php`);
             if (!session.user || session.user.role !== 'admin') {
-                window.location.href = 'dashboard.php';
+                window.location.href = ROUTE_DASHBOARD;
                 return;
             }
             state.currentUser = session.user;
@@ -1060,7 +1071,7 @@
             }
         } catch (error) {
             alert(error.message || '加载管理信息失败');
-            window.location.href = 'index.php';
+            window.location.href = ROUTE_LOGIN;
         }
     }
 
@@ -1783,11 +1794,11 @@
         } catch (error) {
             console.error(error);
         }
-        window.location.href = 'index.php';
+        window.location.href = ROUTE_LOGIN;
     });
 
     backButton.addEventListener('click', () => {
-        window.location.href = 'dashboard.php';
+        window.location.href = ROUTE_DASHBOARD;
     });
 
     loadInitialData();
