@@ -326,22 +326,20 @@
         }
     }
 
-    function setCourseSummary(title, description, lessonCountText = '0 个课节', statusText = '', lessonCountNumber = 0) {
-        courseSummaryTitleEl.textContent = title;
-        courseSummaryDescriptionEl.textContent = description;
-        courseLessonCountEl.textContent = lessonCountText;
-        courseStatusChipEl.textContent = statusText;
-        courseStatusChipEl.hidden = !statusText;
-        setCourseProgress(0, lessonCountNumber);
-    }
-
-    function setCourseProgress(completed, total) {
-        if (!courseProgressBarEl) return;
-        const safeTotal = Number.isFinite(total) && total > 0 ? total : 0;
-        const safeCompleted = Math.max(0, Math.min(Number(completed) || 0, safeTotal));
-        const progress = safeTotal === 0 ? 0 : Math.round((safeCompleted / safeTotal) * 100);
-        courseProgressBarEl.style.width = `${progress}%`;
-        courseProgressBarEl.setAttribute('aria-valuenow', String(progress));
+    function setCourseSummary(title, description, lessonCountText = '0 个课节', statusText = '') {
+        if (courseSummaryTitleEl) {
+            courseSummaryTitleEl.textContent = title;
+        }
+        if (courseSummaryDescriptionEl) {
+            courseSummaryDescriptionEl.textContent = description;
+        }
+        if (courseLessonCountEl) {
+            courseLessonCountEl.textContent = lessonCountText;
+        }
+        if (courseStatusChipEl) {
+            courseStatusChipEl.textContent = statusText;
+            courseStatusChipEl.hidden = !statusText;
+        }
     }
 
     function updateCourseSummary(course, lessonCount = 0) {
