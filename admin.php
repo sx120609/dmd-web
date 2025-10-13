@@ -288,7 +288,7 @@
     function normalizeApiUrl(url) {
         if (url.startsWith(`${API_BASE}/`)) {
             const [path, query] = url.split('?');
-            const sanitizedPath = path.replace(/\.php$/, '');
+            const sanitizedPath = path.replace(/\/{2,}/g, '/');
             return query ? `${sanitizedPath}?${query}` : sanitizedPath;
         }
         return url;
@@ -408,7 +408,7 @@
         });
         const data = await response.json().catch(() => null);
         if (!response.ok) {
-            const message = data?.message || data?.error || '请求失败';
+            const message = (data && (data.message || data.error)) || '请求失败';
             throw new Error(message);
         }
         return data;
@@ -998,7 +998,7 @@
                 return;
             }
             const course = state.courses.find((item) => item.id === courseId);
-            const courseLabel = course?.title ? `课程「${course.title}」` : '该课程';
+            const courseLabel = course && course.title ? `课程「${course.title}」` : '该课程';
             if (!window.confirm(`确定删除${courseLabel}？删除后将同步移除课节与课程分配。`)) {
                 return;
             }

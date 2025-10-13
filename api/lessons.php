@@ -3,6 +3,8 @@ require __DIR__ . '/bootstrap.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+ensure_lessons_description_column($mysqli);
+
 if ($method === 'POST') {
     require_admin($mysqli);
     $input = get_json_input();
@@ -12,16 +14,17 @@ if ($method === 'POST') {
     $courseId = (int) ($input['course_id'] ?? 0);
     $title = trim($input['title'] ?? '');
     $videoUrl = trim($input['video_url'] ?? '');
+    $description = trim($input['description'] ?? '');
 
     if ($courseId <= 0 || $title === '') {
         error_response('课程和课节标题不能为空');
     }
 
-    $stmt = $mysqli->prepare('INSERT INTO lessons (course_id, title, video_url) VALUES (?, ?, ?)');
+    $stmt = $mysqli->prepare('INSERT INTO lessons (course_id, title, video_url, description) VALUES (?, ?, ?, ?)');
     if (!$stmt) {
         error_response('无法创建课节');
     }
-    $stmt->bind_param('iss', $courseId, $title, $videoUrl);
+    $stmt->bind_param('isss', $courseId, $title, $videoUrl, $description);
     if (!$stmt->execute()) {
         $stmt->close();
         error_response('创建课节失败');
@@ -29,7 +32,15 @@ if ($method === 'POST') {
     $lessonId = $stmt->insert_id;
     $stmt->close();
 
-    json_response(['lesson' => ['id' => (int) $lessonId, 'course_id' => $courseId, 'title' => $title, 'video_url' => $videoUrl]]);
+    json_response([
+        'lesson' => [
+            'id' => (int) $lessonId,
+            'course_id' => $courseId,
+            'title' => $title,
+            'video_url' => $videoUrl,
+            'description' => $description,
+        ],
+    ]);
 } elseif ($method === 'PATCH' || $method === 'PUT') {
     require_admin($mysqli);
     $input = get_json_input();
@@ -48,7 +59,7 @@ if ($method === 'POST') {
         error_response('课节ID无效');
     }
 
-    $stmt = $mysqli->prepare('SELECT id, course_id, title, video_url FROM lessons WHERE id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT id, course_id, title, video_url, description FROM lessons WHERE id = ? LIMIT 1');
     if (!$stmt) {
         error_response('无法获取课节信息');
     }
@@ -65,6 +76,9 @@ if ($method === 'POST') {
     $courseId = array_key_exists('course_id', $input) ? (int) $input['course_id'] : (int) $current['course_id'];
     $title = array_key_exists('title', $input) ? trim((string) $input['title']) : ($current['title'] ?? '');
     $videoUrl = array_key_exists('video_url', $input) ? trim((string) $input['video_url']) : ($current['video_url'] ?? '');
+    $description = array_key_exists('description', $input)
+        ? trim((string) $input['description'])
+        : ($current['description'] ?? '');
 
     if ($courseId <= 0) {
         error_response('课程ID无效');
@@ -89,18 +103,26 @@ if ($method === 'POST') {
         }
     }
 
-    $stmt = $mysqli->prepare('UPDATE lessons SET course_id = ?, title = ?, video_url = ? WHERE id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('UPDATE lessons SET course_id = ?, title = ?, video_url = ?, description = ? WHERE id = ? LIMIT 1');
     if (!$stmt) {
         error_response('无法更新课节');
     }
-    $stmt->bind_param('issi', $courseId, $title, $videoUrl, $lessonId);
+    $stmt->bind_param('isssi', $courseId, $title, $videoUrl, $description, $lessonId);
     if (!$stmt->execute()) {
         $stmt->close();
         error_response('更新课节失败');
     }
     $stmt->close();
 
-    json_response(['lesson' => ['id' => (int) $lessonId, 'course_id' => (int) $courseId, 'title' => $title, 'video_url' => $videoUrl]]);
+    json_response([
+        'lesson' => [
+            'id' => (int) $lessonId,
+            'course_id' => (int) $courseId,
+            'title' => $title,
+            'video_url' => $videoUrl,
+            'description' => $description,
+        ],
+    ]);
 } elseif ($method === 'DELETE') {
     require_admin($mysqli);
     $input = get_json_input();

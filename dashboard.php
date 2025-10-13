@@ -175,17 +175,27 @@
         }
     };
 
-    if (mobileQuery?.addEventListener) {
+    if (mobileQuery && typeof mobileQuery.addEventListener === 'function') {
         mobileQuery.addEventListener('change', handleDesktopSwitch);
-    } else if (mobileQuery?.addListener) {
+    } else if (mobileQuery && typeof mobileQuery.addListener === 'function') {
         mobileQuery.addListener(handleDesktopSwitch);
     }
 
-    courseDrawerToggle?.addEventListener('click', () => openDrawer('course'));
-    lessonDrawerToggle?.addEventListener('click', () => openDrawer('lesson'));
-    courseDrawerClose?.addEventListener('click', closeAllDrawers);
-    lessonDrawerClose?.addEventListener('click', closeAllDrawers);
-    drawerBackdrop?.addEventListener('click', closeAllDrawers);
+    if (courseDrawerToggle) {
+        courseDrawerToggle.addEventListener('click', () => openDrawer('course'));
+    }
+    if (lessonDrawerToggle) {
+        lessonDrawerToggle.addEventListener('click', () => openDrawer('lesson'));
+    }
+    if (courseDrawerClose) {
+        courseDrawerClose.addEventListener('click', closeAllDrawers);
+    }
+    if (lessonDrawerClose) {
+        lessonDrawerClose.addEventListener('click', closeAllDrawers);
+    }
+    if (drawerBackdrop) {
+        drawerBackdrop.addEventListener('click', closeAllDrawers);
+    }
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && (document.body.classList.contains('course-drawer-open') || document.body.classList.contains('lesson-drawer-open'))) {
@@ -568,7 +578,7 @@
         });
         const data = await response.json().catch(() => null);
         if (!response.ok) {
-            const message = data?.message || data?.error || '请求失败';
+            const message = (data && (data.message || data.error)) || '请求失败';
             throw new Error(message);
         }
         return data;
@@ -584,7 +594,8 @@
         try {
             const data = await fetchJSON(`${API_BASE}/courses.php?id=${normalizedCourseId}`);
             currentCourse = data.course || null;
-            lessonPaneTitleEl.textContent = currentCourse?.title ? `${currentCourse.title} 的课节` : '课节';
+            const courseTitle = currentCourse && currentCourse.title ? currentCourse.title : '';
+            lessonPaneTitleEl.textContent = courseTitle ? `${courseTitle} 的课节` : '课节';
             updateBreadcrumbs(currentCourse);
             renderLessonList(data.lessons || [], currentCourse);
         } catch (error) {
