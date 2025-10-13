@@ -338,6 +338,9 @@
     const createLessonForm = document.getElementById('createLessonForm');
     const createLessonMessage = document.getElementById('createLessonMessage');
     const lessonCourseSelect = document.getElementById('lessonCourseSelect');
+    const lessonTitleInput = document.getElementById('lessonTitleInput');
+    const lessonVideoInput = document.getElementById('lessonVideoInput');
+    const lessonDescriptionInput = document.getElementById('lessonDescriptionInput');
     const lessonListEl = document.getElementById('lessonList');
     const lessonListMessage = document.getElementById('lessonListMessage');
     const updateLessonForm = document.getElementById('updateLessonForm');
@@ -345,6 +348,7 @@
     const editLessonCourseSelect = document.getElementById('editLessonCourseSelect');
     const editLessonTitleInput = document.getElementById('editLessonTitle');
     const editLessonVideoInput = document.getElementById('editLessonVideo');
+    const editLessonDescriptionInput = document.getElementById('editLessonDescription');
     const cancelLessonEditButton = document.getElementById('cancelLessonEdit');
 
     if (cancelCourseEditButton) {
@@ -671,6 +675,9 @@
         }
         if (editLessonVideoInput) {
             editLessonVideoInput.value = target.video_url || '';
+        }
+        if (editLessonDescriptionInput) {
+            editLessonDescriptionInput.value = target.description || '';
         }
         setMessage(updateLessonMessage);
         renderLessons(courseId, lessons);
@@ -1404,8 +1411,9 @@
         event.preventDefault();
         const payload = {
             course_id: parseInt(lessonCourseSelect.value, 10),
-            title: document.getElementById('lessonTitle').value.trim(),
-            video_url: document.getElementById('lessonVideo').value.trim()
+            title: lessonTitleInput ? lessonTitleInput.value.trim() : '',
+            video_url: lessonVideoInput ? lessonVideoInput.value.trim() : '',
+            description: lessonDescriptionInput ? lessonDescriptionInput.value.trim() : ''
         };
         if (!payload.course_id || !payload.title) {
             setMessage(createLessonMessage, '请选择课程并填写课节标题', 'error');
@@ -1426,6 +1434,9 @@
                 'title',
                 payload.course_id
             );
+            if (lessonDescriptionInput) {
+                lessonDescriptionInput.value = '';
+            }
             setMessage(createLessonMessage, '课节添加成功', 'success');
             setMessage(lessonListMessage);
             const refreshedCourseId = parseInt(selectedCourseAfterCreate, 10);
@@ -1448,7 +1459,8 @@
                 lesson_id: state.selectedLessonId,
                 course_id: parseInt(editLessonCourseSelect.value, 10),
                 title: editLessonTitleInput.value.trim(),
-                video_url: editLessonVideoInput.value.trim()
+                video_url: editLessonVideoInput.value.trim(),
+                description: editLessonDescriptionInput ? editLessonDescriptionInput.value.trim() : ''
             };
             if (!payload.course_id || !payload.title) {
                 setMessage(updateLessonMessage, '请选择课程并填写课节标题', 'error');
