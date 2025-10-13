@@ -250,7 +250,7 @@
         });
         const data = await response.json().catch(() => null);
         if (!response.ok) {
-            const message = data?.message || data?.error || '请求失败，请稍后重试';
+            const message = (data && (data.message || data.error)) || '请求失败，请稍后重试';
             throw new Error(message);
         }
         return data;
@@ -259,7 +259,7 @@
     async function checkSession() {
         try {
             const data = await fetchJSON(`${API_BASE}/session.php`, { method: 'GET' });
-            if (data?.user) {
+            if (data && data.user) {
                 window.location.href = 'dashboard';
             }
         } catch (error) {
@@ -270,8 +270,9 @@
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const formData = new FormData(loginForm);
+        const rawUsername = formData.get('username');
         const payload = {
-            username: formData.get('username')?.trim(),
+            username: rawUsername ? rawUsername.trim() : '',
             password: formData.get('password')
         };
         if (!payload.username || !payload.password) {
