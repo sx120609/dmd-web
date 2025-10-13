@@ -3,6 +3,8 @@ require __DIR__ . '/bootstrap.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+ensure_lessons_description_column($mysqli);
+
 if ($method === 'GET') {
     $user = require_login($mysqli);
 
@@ -34,7 +36,7 @@ if ($method === 'GET') {
             error_response('课程不存在或无访问权限', 404);
         }
 
-        $stmt = $mysqli->prepare('SELECT id, title, video_url FROM lessons WHERE course_id = ? ORDER BY id ASC');
+        $stmt = $mysqli->prepare('SELECT id, title, video_url, description FROM lessons WHERE course_id = ? ORDER BY id ASC');
         if (!$stmt) {
             error_response('无法获取课节列表');
         }
@@ -106,15 +108,16 @@ if ($method === 'GET') {
     $stmt->close();
 
     if (!empty($input['lessons']) && is_array($input['lessons'])) {
-        $lessonStmt = $mysqli->prepare('INSERT INTO lessons (course_id, title, video_url) VALUES (?, ?, ?)');
+        $lessonStmt = $mysqli->prepare('INSERT INTO lessons (course_id, title, video_url, description) VALUES (?, ?, ?, ?)');
         if ($lessonStmt) {
             foreach ($input['lessons'] as $lesson) {
                 $lessonTitle = trim($lesson['title'] ?? '');
                 $videoUrl = trim($lesson['video_url'] ?? '');
+                $lessonDescription = trim($lesson['description'] ?? '');
                 if ($lessonTitle === '') {
                     continue;
                 }
-                $lessonStmt->bind_param('iss', $courseId, $lessonTitle, $videoUrl);
+                $lessonStmt->bind_param('isss', $courseId, $lessonTitle, $videoUrl, $lessonDescription);
                 $lessonStmt->execute();
             }
             $lessonStmt->close();

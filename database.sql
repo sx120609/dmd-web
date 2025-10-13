@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS lessons (
     course_id INT NOT NULL,
     title VARCHAR(200) NOT NULL,
     video_url VARCHAR(500) DEFAULT NULL,
+    description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_lessons_course FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -38,6 +38,28 @@ if (!empty($config['db']['charset'])) {
     $mysqli->set_charset($config['db']['charset']);
 }
 
+function ensure_lessons_description_column(mysqli $mysqli): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $result = $mysqli->query("SHOW COLUMNS FROM `lessons` LIKE 'description'");
+    if ($result instanceof mysqli_result) {
+        $hasColumn = $result->num_rows > 0;
+        $result->free();
+        if ($hasColumn) {
+            return;
+        }
+    } else {
+        return;
+    }
+
+    $mysqli->query("ALTER TABLE `lessons` ADD COLUMN `description` TEXT AFTER `video_url`");
+}
+
 function json_response($data, int $status = 200): void
 {
     http_response_code($status);
