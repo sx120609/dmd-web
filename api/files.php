@@ -80,11 +80,62 @@ function stream_file_download(array $file, string $storageDir): void
     if (!is_file($path)) {
         error_response('文件已不存在', 404);
     }
+
+    $size = (int) $file['size_bytes'];
+    $mime = $file['mime_type'] ?: 'application/octet-stream';
+    $start = 0;
+    $end = $size - 1;
+    $httpStatus = 200;
+
+    if (isset($_SERVER['HTTP_RANGE'])) {
+        $rangeHeader = $_SERVER['HTTP_RANGE'];
+        if (preg_match('/bytes=(\d*)-(\d*)/', $rangeHeader, $matches)) {
+            if ($matches[1] !== '') {
+                $start = (int) $matches[1];
+            }
+            if ($matches[2] !== '') {
+                $end = (int) $matches[2];
+            }
+            if ($end < $start || $start >= $size) {
+                header('Content-Range: bytes */' . $size);
+                http_response_code(416);
+                exit;
+            }
+            $httpStatus = 206;
+        }
+    }
+
+    $length = $end - $start + 1;
+
     header_remove('Content-Type');
-    header('Content-Type: ' . ($file['mime_type'] ?: 'application/octet-stream'));
-    header('Content-Disposition: attachment; filename="' . rawurlencode($file['original_name']) . '"');
-    header('Content-Length: ' . $file['size_bytes']);
-    readfile($path);
+    http_response_code($httpStatus);
+    header('Content-Type: ' . $mime);
+    header('Content-Disposition: inline; filename="' . rawurlencode($file['original_name']) . '"');
+    header('Accept-Ranges: bytes');
+    header('Content-Length: ' . $length);
+    if ($httpStatus === 206) {
+        header("Content-Range: bytes {$start}-{$end}/{$size}");
+    }
+
+    $fp = fopen($path, 'rb');
+    if ($fp === false) {
+        error_response('无法读取文件', 500);
+    }
+    if ($start > 0) {
+        fseek($fp, $start);
+    }
+    $bufferSize = 8192;
+    $bytesLeft = $length;
+    while ($bytesLeft > 0 && !feof($fp)) {
+        $chunk = fread($fp, min($bufferSize, $bytesLeft));
+        if ($chunk === false) {
+            break;
+        }
+        echo $chunk;
+        flush();
+        $bytesLeft -= strlen($chunk);
+    }
+    fclose($fp);
     exit;
 }
 
@@ -128,14 +179,14 @@ if (isset($_GET['token'])) {
 // Admin-only actions below
 $currentUser = require_admin($mysqli);
 
-if ($method === 'GET' && isset($_GET['id'], $_GET['download'])) {
-    $id = (int) $_GET['id'];
-    $file = fetch_file_by_id($mysqli, $id);
-    if (!$file || (int) $file['user_id'] !== (int) $currentUser['id']) {
-        error_response('文件不存在或无权限', 404);
+    if ($method === 'GET' && isset($_GET['id'], $_GET['download'])) {
+        $id = (int) $_GET['id'];
+        $file = fetch_file_by_id($mysqli, $id);
+        if (!$file || (int) $file['user_id'] !== (int) $currentUser['id']) {
+            error_response('文件不存在或无权限', 404);
+        }
+        stream_file_download($file, $storageDir);
     }
-    stream_file_download($file, $storageDir);
-}
 
 switch ($method) {
     case 'GET':
