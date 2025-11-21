@@ -60,6 +60,11 @@
         .pill-badge.muted {
             background: rgba(148, 163, 184, 0.2);
         }
+        .upload-progress {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
         @media (max-width: 960px) {
             .file-actions {
                 display: grid;
@@ -122,6 +127,12 @@
                             <label for="fileInput" class="form-label">选择文件</label>
                             <input class="form-control" type="file" id="fileInput" name="file" required>
                         </div>
+                        <div class="upload-progress" hidden id="uploadProgressWrap">
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar" role="progressbar" id="uploadProgressBar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="small text-secondary" id="uploadProgressText"></div>
+                        </div>
                         <button type="submit" class="primary-button" id="uploadButton">上传文件</button>
                         <div class="message" id="uploadMessage" hidden></div>
                     </form>
@@ -174,6 +185,9 @@
     const userChip = document.getElementById('userChip');
     const logoutButton = document.getElementById('logoutButton');
     const dashboardButton = document.getElementById('dashboardButton');
+    const uploadProgressWrap = document.getElementById('uploadProgressWrap');
+    const uploadProgressBar = document.getElementById('uploadProgressBar');
+    const uploadProgressText = document.getElementById('uploadProgressText');
 
     function normalizeApiUrl(url) {
         if (url.startsWith(`${API_BASE}/`)) {
@@ -218,6 +232,30 @@
             throw new Error(message);
         }
         return data;
+    }
+
+    function setUploadProgress(value, text = '') {
+        if (!uploadProgressWrap || !uploadProgressBar) return;
+        const pct = Math.min(100, Math.max(0, Math.round(value)));
+        uploadProgressBar.style.width = `${pct}%`;
+        uploadProgressBar.setAttribute('aria-valuenow', String(pct));
+        if (uploadProgressText) {
+            uploadProgressText.textContent = text || `${pct}%`;
+        }
+        uploadProgressWrap.hidden = false;
+    }
+
+    function resetUploadProgress() {
+        if (uploadProgressWrap) {
+            uploadProgressWrap.hidden = true;
+        }
+        if (uploadProgressBar) {
+            uploadProgressBar.style.width = '0%';
+            uploadProgressBar.setAttribute('aria-valuenow', '0');
+        }
+        if (uploadProgressText) {
+            uploadProgressText.textContent = '';
+        }
     }
 
     function renderFiles(files = []) {
@@ -321,20 +359,43 @@
         const formData = new FormData();
         formData.append('file', fileInput.files[0]);
         uploadButton.disabled = true;
+        resetUploadProgress();
+        setUploadProgress(0, '正在上传...');
         setMessage(uploadMessage, '正在上传，请稍候...');
-        try {
-            await fetchJSON(filesEndpoint, {
-                method: 'POST',
-                body: formData
-            });
-            setMessage(uploadMessage, '上传成功', 'success');
-            uploadForm.reset();
-            await loadFiles();
-        } catch (error) {
-            setMessage(uploadMessage, error.message || '上传失败', 'error');
-        } finally {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', normalizeApiUrl(filesEndpoint), true);
+        xhr.withCredentials = true;
+        xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+                const pct = Math.round((e.loaded / e.total) * 100);
+                setUploadProgress(pct, `已上传 ${pct}%`);
+            }
+        };
+        xhr.onerror = () => {
+            setMessage(uploadMessage, '上传失败，请检查网络', 'error');
+            resetUploadProgress();
             uploadButton.disabled = false;
-        }
+        };
+        xhr.onload = async () => {
+            uploadButton.disabled = false;
+            let responseData = null;
+            try {
+                responseData = JSON.parse(xhr.responseText || '{}');
+            } catch (err) {
+                // ignore parse error
+            }
+            if (xhr.status >= 200 && xhr.status < 300) {
+                setMessage(uploadMessage, '上传成功', 'success');
+                resetUploadProgress();
+                uploadForm.reset();
+                await loadFiles();
+            } else {
+                const message = (responseData && (responseData.message || responseData.error)) || `上传失败（${xhr.status}）`;
+                setMessage(uploadMessage, message, 'error');
+                resetUploadProgress();
+            }
+        };
+        xhr.send(formData);
     });
 
     logoutButton.addEventListener('click', async () => {

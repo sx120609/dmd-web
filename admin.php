@@ -204,7 +204,11 @@
                             </div>
                             <div>
                                 <label for="lessonVideoInput">视频地址</label>
-                                <input id="lessonVideoInput" name="video_url" placeholder="支持哔哩哔哩链接或本地视频文件路径">
+                                <div class="input-group">
+                                    <input id="lessonVideoInput" name="video_url" class="form-control" placeholder="支持哔哩哔哩链接或本地视频文件路径">
+                                    <button type="button" class="btn btn-outline-secondary cloud-picker-button" data-target-input="lessonVideoInput">云盘选择</button>
+                                </div>
+                                <p class="hint">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
                             </div>
                             <div>
                                 <label for="lessonDescriptionInput">课节简介</label>
@@ -235,7 +239,11 @@
                             </div>
                             <div>
                                 <label for="editLessonVideo">视频地址</label>
-                                <input id="editLessonVideo" placeholder="支持哔哩哔哩链接或本地视频文件路径">
+                                <div class="input-group">
+                                    <input id="editLessonVideo" class="form-control" placeholder="支持哔哩哔哩链接或本地视频文件路径">
+                                    <button type="button" class="btn btn-outline-secondary cloud-picker-button" data-target-input="editLessonVideo">云盘选择</button>
+                                </div>
+                                <p class="hint">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
                             </div>
                             <div>
                                 <label for="editLessonDescription">课节简介</label>
@@ -280,12 +288,43 @@
         </div>
     </div>
 </main>
+<!-- 云盘选择弹窗 -->
+<div class="modal fade" id="cloudPickerModal" tabindex="-1" aria-labelledby="cloudPickerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cloudPickerModalLabel">从云盘选择文件</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="message" id="cloudPickerMessage" hidden></div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                        <tr>
+                            <th>文件名</th>
+                            <th>大小</th>
+                            <th>外链</th>
+                            <th class="text-end">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="cloudPickerBody">
+                        <tr><td colspan="4" class="text-secondary text-center py-4">正在加载...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 
     const API_BASE = 'api';
     const ROUTE_LOGIN = 'login';
     const ROUTE_DASHBOARD = 'dashboard';
+    const FILES_ENDPOINT = `${API_BASE}/files.php`;
 
     function normalizeApiUrl(url) {
         if (url.startsWith(`${API_BASE}/`)) {
@@ -299,6 +338,9 @@
     const logoutButton = document.getElementById('logoutButton');
     const backButton = document.getElementById('backButton');
     const adminChip = document.getElementById('adminChip');
+    const cloudPickerModalEl = document.getElementById('cloudPickerModal');
+    const cloudPickerBody = document.getElementById('cloudPickerBody');
+    const cloudPickerMessage = document.getElementById('cloudPickerMessage');
 
     const tabButtons = document.querySelectorAll('.pill-tabs button');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -373,6 +415,9 @@
     const assignUserSelect = document.getElementById('assignUserSelect');
     const assignCourseSelect = document.getElementById('assignCourseSelect');
     const assignmentListEl = document.getElementById('assignmentList');
+    let cloudPickerModal = null;
+    let cloudFiles = [];
+    let activeCloudTargetInputId = null;
 
     let state = {
         users: [],
@@ -399,6 +444,14 @@
         }
     }
 
+    function formatSize(bytes) {
+        if (!bytes) return '0 B';
+        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
+        const size = bytes / Math.pow(1024, i);
+        return `${size.toFixed(size >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+    }
+
     async function fetchJSON(url, options = {}) {
         const response = await fetch(normalizeApiUrl(url), {
             credentials: 'include',
@@ -414,6 +467,109 @@
             throw new Error(message);
         }
         return data;
+    }
+
+    async function fetchCloudFiles() {
+        setMessage(cloudPickerMessage);
+        cloudPickerBody.innerHTML = '<tr><td colspan="4" class="text-secondary text-center py-4">正在加载云盘文件...</td></tr>';
+        try {
+            const data = await fetchJSON(FILES_ENDPOINT);
+            cloudFiles = data.files || [];
+            renderCloudPicker();
+        } catch (error) {
+            setMessage(cloudPickerMessage, error.message || '无法加载云盘文件', 'error');
+            cloudPickerBody.innerHTML = '<tr><td colspan="4" class="text-secondary text-center py-4">云盘文件加载失败</td></tr>';
+        }
+    }
+
+    function renderCloudPicker() {
+        cloudPickerBody.innerHTML = '';
+        if (!cloudFiles.length) {
+            cloudPickerBody.innerHTML = '<tr><td colspan="4" class="text-secondary text-center py-4">云盘暂无文件，请先上传。</td></tr>';
+            return;
+        }
+        cloudFiles.forEach((file) => {
+            const tr = document.createElement('tr');
+            const status = file.is_public ? '<span class="badge bg-success-subtle text-success">已开启</span>' : '<span class="badge bg-secondary">关闭</span>';
+            tr.innerHTML = `
+                <td>
+                    <div class="fw-semibold">${file.original_name}</div>
+                    <div class="text-secondary small">${file.mime_type || '未知类型'} · ${file.created_at}</div>
+                </td>
+                <td>${formatSize(file.size_bytes)}</td>
+                <td>${status}</td>
+                <td class="text-end">
+                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <button class="btn btn-sm btn-outline-primary" data-cloud-insert="internal" data-file-id="${file.id}">插入内部链接</button>
+                        <button class="btn btn-sm btn-outline-success" data-cloud-insert="public" data-file-id="${file.id}">插入外链</button>
+                    </div>
+                </td>
+            `;
+            const internalBtn = tr.querySelector('[data-cloud-insert="internal"]');
+            const publicBtn = tr.querySelector('[data-cloud-insert="public"]');
+            internalBtn.addEventListener('click', () => insertFromCloud(file.id, 'internal'));
+            publicBtn.addEventListener('click', () => insertFromCloud(file.id, 'public'));
+            cloudPickerBody.appendChild(tr);
+        });
+    }
+
+    async function ensurePublic(file) {
+        if (file.is_public) {
+            return file;
+        }
+        const data = await fetchJSON(FILES_ENDPOINT, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: file.id, is_public: true })
+        });
+        const updated = data.file || file;
+        cloudFiles = cloudFiles.map((item) => (item.id === updated.id ? updated : item));
+        return updated;
+    }
+
+    async function insertFromCloud(fileId, mode = 'internal') {
+        if (!activeCloudTargetInputId) {
+            setMessage(cloudPickerMessage, '未找到目标输入框', 'error');
+            return;
+        }
+        const targetInput = document.getElementById(activeCloudTargetInputId);
+        if (!targetInput) {
+            setMessage(cloudPickerMessage, '输入框不存在或未渲染', 'error');
+            return;
+        }
+        const file = cloudFiles.find((item) => Number(item.id) === Number(fileId));
+        if (!file) {
+            setMessage(cloudPickerMessage, '文件不存在', 'error');
+            return;
+        }
+        let finalFile = file;
+        if (mode === 'public') {
+            try {
+                setMessage(cloudPickerMessage, '正在开启外链...', 'success');
+                finalFile = await ensurePublic(file);
+            } catch (error) {
+                setMessage(cloudPickerMessage, error.message || '外链开启失败', 'error');
+                return;
+            }
+        }
+        const origin = window.location.origin;
+        const value = mode === 'public'
+            ? `${origin}${finalFile.share_url}`
+            : `${origin}${finalFile.download_url}`;
+        targetInput.value = value;
+        setMessage(cloudPickerMessage, `已插入${mode === 'public' ? '外链' : '内部链接'}：${finalFile.original_name}`, 'success');
+        if (cloudPickerModal) {
+            cloudPickerModal.hide();
+        }
+    }
+
+    async function openCloudPicker(targetInputId) {
+        activeCloudTargetInputId = targetInputId;
+        if (!cloudPickerModal) {
+            cloudPickerModal = new bootstrap.Modal(cloudPickerModalEl);
+        }
+        await fetchCloudFiles();
+        cloudPickerModal.show();
     }
 
     function refreshUserList() {
@@ -1647,6 +1803,16 @@
             console.error(error);
         }
         window.location.href = ROUTE_LOGIN;
+    });
+
+    document.querySelectorAll('.cloud-picker-button').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const target = btn.dataset.targetInput;
+            if (!target) {
+                return;
+            }
+            await openCloudPicker(target);
+        });
     });
 
     backButton.addEventListener('click', () => {
