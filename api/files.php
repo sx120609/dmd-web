@@ -33,6 +33,18 @@ function ensure_storage_dir(string $dir): void
 
 ensure_storage_dir($storageDir);
 
+function short_size(int $bytes): string
+{
+    if ($bytes <= 0) {
+        return '0 B';
+    }
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $i = (int) floor(log($bytes, 1024));
+    $i = max(0, min($i, count($units) - 1));
+    $val = $bytes / (1024 ** $i);
+    return sprintf('%s %s', $val >= 10 || $i === 0 ? round($val) : round($val, 1), $units[$i]);
+}
+
 function file_payload(array $row): array
 {
     return [
@@ -74,6 +86,22 @@ function stream_file_download(array $file, string $storageDir): void
     header('Content-Length: ' . $file['size_bytes']);
     readfile($path);
     exit;
+}
+
+function upload_error_text(int $errorCode): string
+{
+    $uploadMax = ini_get('upload_max_filesize') ?: '—';
+    $postMax = ini_get('post_max_size') ?: '—';
+    return match ($errorCode) {
+        UPLOAD_ERR_INI_SIZE => "文件大小超过服务器 upload_max_filesize 限制（当前约 {$uploadMax}），请压缩后再试或调大限制。",
+        UPLOAD_ERR_FORM_SIZE => '文件大小超过表单允许的最大值。',
+        UPLOAD_ERR_PARTIAL => '文件仅上传了一部分，请重试。',
+        UPLOAD_ERR_NO_FILE => "未收到文件，可能请求体超过 post_max_size（当前约 {$postMax}）或网络中断。",
+        UPLOAD_ERR_NO_TMP_DIR => '服务器临时目录不存在，请联系管理员检查 upload_tmp_dir 权限。',
+        UPLOAD_ERR_CANT_WRITE => '服务器无法写入文件，请联系管理员检查磁盘权限/配额。',
+        UPLOAD_ERR_EXTENSION => '上传被扩展中断，请联系管理员确认配置。',
+        default => '上传失败，请重试。',
+    };
 }
 
 // Public download by token
@@ -127,8 +155,9 @@ switch ($method) {
         break;
 
     case 'POST':
-        if (empty($_FILES['file'])) {
-            error_response('请提供文件');
+        if (empty($_FILES) || empty($_FILES['file'])) {
+            $postMax = ini_get('post_max_size') ?: '服务器限制未知';
+            error_response("未收到文件，可能超过 post_max_size（当前约 {$postMax}）或请求格式异常");
         }
         $file = $_FILES['file'];
         if (!is_dir($storageDir) && !@mkdir($storageDir, 0775, true) && !is_dir($storageDir)) {
@@ -138,7 +167,7 @@ switch ($method) {
             error_response('文件目录不可写，请检查权限');
         }
         if ($file['error'] !== UPLOAD_ERR_OK) {
-            error_response('上传失败，错误码: ' . $file['error']);
+            error_response(upload_error_text((int) $file['error']));
         }
         $maxSize = 200 * 1024 * 1024; // 200MB
         if ((int) $file['size'] > $maxSize) {
