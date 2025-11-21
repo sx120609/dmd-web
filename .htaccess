@@ -17,3 +17,11 @@
     # Pseudo-static API endpoints (e.g. /api/session -> /api/session.php)
     RewriteRule ^api/([a-z0-9_]+)/?$ api/$1.php [L,QSA,NC]
 </IfModule>
+
+# Increase upload limits for cloud drive uploads (mod_php environments)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 200M
+    php_value post_max_size 220M
+</IfModule>
+# Allow larger request bodies at the web server level
+LimitRequestBody 0
