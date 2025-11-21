@@ -22,6 +22,7 @@
         </div>
         <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
             <div class="user-chip" id="adminChip" style="display:none;"></div>
+            <a class="btn btn-outline-secondary btn-sm" href="/">返回首页</a>
             <button class="btn btn-outline-secondary btn-sm" id="backButton">返回课堂</button>
             <button class="btn btn-outline-danger btn-sm" id="logoutButton">退出登录</button>
         </div>

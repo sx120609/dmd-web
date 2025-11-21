@@ -27,6 +27,7 @@
                 <div class="welcome-text" id="welcomeText">正在加载...</div>
             </div>
             <div class="user-chip" id="userChip"></div>
+            <a class="btn btn-outline-secondary btn-sm" href="/">返回首页</a>
             <button class="btn btn-outline-primary btn-sm" id="adminButton" style="display:none;">进入管理后台</button>
             <button class="btn btn-outline-secondary btn-sm" id="logoutButton">退出登录</button>
         </div>
