@@ -155,48 +155,80 @@ switch ($method) {
         break;
 
     case 'POST':
+        // DELETE fallback via POST {action: delete, id: ...}
+        $input = get_json_input();
+        if (($input['action'] ?? '') === 'delete') {
+            $deleteId = isset($input['id']) ? (int) $input['id'] : 0;
+            if ($deleteId <= 0) {
+                error_response('缺少文件ID');
+            }
+            $file = fetch_file_by_id($mysqli, $deleteId);
+            if (!$file || (int) $file['user_id'] !== (int) $currentUser['id']) {
+                error_response('文件不存在或无权限', 404);
+            }
+            $path = $storageDir . '/' . $file['stored_name'];
+            $stmtDel = $mysqli->prepare('DELETE FROM cloud_files WHERE id = ?');
+            if (!$stmtDel) {
+                error_response('无法删除文件记录');
+            }
+            $stmtDel->bind_param('i', $deleteId);
+            $stmtDel->execute();
+            $stmtDel->close();
+            if (is_file($path)) {
+                @unlink($path);
+            }
+            json_response(['success' => true]);
+        }
         if (empty($_FILES) || empty($_FILES['file'])) {
             $postMax = ini_get('post_max_size') ?: '服务器限制未知';
             error_response("未收到文件，可能超过 post_max_size（当前约 {$postMax}）或请求格式异常");
         }
-        $file = $_FILES['file'];
         if (!is_dir($storageDir) && !@mkdir($storageDir, 0775, true) && !is_dir($storageDir)) {
             error_response('无法创建文件目录');
         }
         if (!is_writable($storageDir)) {
             error_response('文件目录不可写，请检查权限');
         }
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            error_response(upload_error_text((int) $file['error']));
-        }
         $maxSize = 200 * 1024 * 1024; // 200MB
-        if ((int) $file['size'] > $maxSize) {
-            error_response('文件过大，单个文件不超过 200MB');
-        }
-        $originalName = basename($file['name']);
-        $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-        $storedName = bin2hex(random_bytes(16)) . ($ext ? '.' . $ext : '');
-        $mimeType = $file['type'] ?: (function_exists('mime_content_type') ? mime_content_type($file['tmp_name']) : 'application/octet-stream');
-        $sizeBytes = (int) $file['size'];
-        $shareToken = bin2hex(random_bytes(16));
-        $targetPath = $storageDir . '/' . $storedName;
 
-        if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
-            error_response('保存文件失败');
-        }
+        $files = $_FILES['file'];
+        $multi = is_array($files['name']);
+        $count = $multi ? count($files['name']) : 1;
+        $createdEntries = [];
 
-        $stmt = $mysqli->prepare('INSERT INTO cloud_files (user_id, original_name, stored_name, mime_type, size_bytes, is_public, share_token) VALUES (?, ?, ?, ?, ?, 0, ?)');
-        if (!$stmt) {
-            @unlink($targetPath);
-            error_response('无法写入文件记录');
+        for ($i = 0; $i < $count; $i++) {
+            $error = $multi ? (int) $files['error'][$i] : (int) $files['error'];
+            if ($error !== UPLOAD_ERR_OK) {
+                error_response(upload_error_text($error));
+            }
+            $name = $multi ? $files['name'][$i] : $files['name'];
+            $tmpName = $multi ? $files['tmp_name'][$i] : $files['tmp_name'];
+            $size = $multi ? (int) $files['size'][$i] : (int) $files['size'];
+            if ($size > $maxSize) {
+                error_response('文件过大，单个文件不超过 200MB');
+            }
+            $originalName = basename($name);
+            $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+            $storedName = bin2hex(random_bytes(16)) . ($ext ? '.' . $ext : '');
+            $mimeType = ($multi ? $files['type'][$i] : $files['type']) ?: (function_exists('mime_content_type') ? mime_content_type($tmpName) : 'application/octet-stream');
+            $sizeBytes = $size;
+            $shareToken = bin2hex(random_bytes(16));
+            $targetPath = $storageDir . '/' . $storedName;
+            if (!move_uploaded_file($tmpName, $targetPath)) {
+                error_response('保存文件失败');
+            }
+            $stmt = $mysqli->prepare('INSERT INTO cloud_files (user_id, original_name, stored_name, mime_type, size_bytes, is_public, share_token) VALUES (?, ?, ?, ?, ?, 0, ?)');
+            if (!$stmt) {
+                @unlink($targetPath);
+                error_response('无法写入文件记录');
+            }
+            $stmt->bind_param('isssis', $currentUser['id'], $originalName, $storedName, $mimeType, $sizeBytes, $shareToken);
+            $stmt->execute();
+            $newId = $stmt->insert_id;
+            $stmt->close();
+            $createdEntries[] = file_payload(fetch_file_by_id($mysqli, $newId));
         }
-        $stmt->bind_param('isssis', $currentUser['id'], $originalName, $storedName, $mimeType, $sizeBytes, $shareToken);
-        $stmt->execute();
-        $newId = $stmt->insert_id;
-        $stmt->close();
-
-        $created = fetch_file_by_id($mysqli, $newId);
-        json_response(['file' => file_payload($created)], 201);
+        json_response(['files' => $createdEntries], 201);
         break;
 
     case 'PATCH':
@@ -225,7 +257,10 @@ switch ($method) {
         break;
 
     case 'DELETE':
-        $input = get_json_input();
+        $input = $_REQUEST;
+        if (empty($input)) {
+            $input = get_json_input();
+        }
         $id = isset($input['id']) ? (int) $input['id'] : 0;
         if ($id <= 0) {
             error_response('缺少文件ID');

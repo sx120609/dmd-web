@@ -298,6 +298,15 @@
             </div>
             <div class="modal-body">
                 <div class="message" id="cloudPickerMessage" hidden></div>
+                <div class="mb-3">
+                    <label class="form-label">上传文件到云盘（自动开启外链）</label>
+                    <div class="input-group">
+                        <input class="form-control" type="file" id="cloudUploadInput" multiple>
+                        <button class="btn btn-outline-primary" type="button" id="cloudUploadButton">上传</button>
+                    </div>
+                    <div class="small text-secondary mt-1" id="cloudUploadHint">支持批量上传，单文件上限 200MB。</div>
+                    <div class="message mt-2" id="cloudUploadMessage" hidden></div>
+                </div>
                 <div class="table-responsive">
                     <table class="table align-middle">
                         <thead>
@@ -341,6 +350,9 @@
     const cloudPickerModalEl = document.getElementById('cloudPickerModal');
     const cloudPickerBody = document.getElementById('cloudPickerBody');
     const cloudPickerMessage = document.getElementById('cloudPickerMessage');
+    const cloudUploadInput = document.getElementById('cloudUploadInput');
+    const cloudUploadButton = document.getElementById('cloudUploadButton');
+    const cloudUploadMessage = document.getElementById('cloudUploadMessage');
 
     const tabButtons = document.querySelectorAll('.pill-tabs button');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -500,14 +512,11 @@
                 <td>${status}</td>
                 <td class="text-end">
                     <div class="d-flex flex-wrap gap-2 justify-content-end">
-                        <button class="btn btn-sm btn-outline-primary" data-cloud-insert="internal" data-file-id="${file.id}">插入内部链接</button>
                         <button class="btn btn-sm btn-outline-success" data-cloud-insert="public" data-file-id="${file.id}">插入外链</button>
                     </div>
                 </td>
             `;
-            const internalBtn = tr.querySelector('[data-cloud-insert="internal"]');
             const publicBtn = tr.querySelector('[data-cloud-insert="public"]');
-            internalBtn.addEventListener('click', () => insertFromCloud(file.id, 'internal'));
             publicBtn.addEventListener('click', () => insertFromCloud(file.id, 'public'));
             cloudPickerBody.appendChild(tr);
         });
@@ -527,7 +536,7 @@
         return updated;
     }
 
-    async function insertFromCloud(fileId, mode = 'internal') {
+    async function insertFromCloud(fileId, mode = 'public') {
         if (!activeCloudTargetInputId) {
             setMessage(cloudPickerMessage, '未找到目标输入框', 'error');
             return;
@@ -543,21 +552,17 @@
             return;
         }
         let finalFile = file;
-        if (mode === 'public') {
-            try {
-                setMessage(cloudPickerMessage, '正在开启外链...', 'success');
-                finalFile = await ensurePublic(file);
-            } catch (error) {
-                setMessage(cloudPickerMessage, error.message || '外链开启失败', 'error');
-                return;
-            }
+        try {
+            setMessage(cloudPickerMessage, '正在开启外链...', 'success');
+            finalFile = await ensurePublic(file);
+        } catch (error) {
+            setMessage(cloudPickerMessage, error.message || '外链开启失败', 'error');
+            return;
         }
         const origin = window.location.origin;
-        const value = mode === 'public'
-            ? `${origin}${finalFile.share_url}`
-            : `${origin}${finalFile.download_url}`;
+        const value = `${origin}${finalFile.share_url}`;
         targetInput.value = value;
-        setMessage(cloudPickerMessage, `已插入${mode === 'public' ? '外链' : '内部链接'}：${finalFile.original_name}`, 'success');
+        setMessage(cloudPickerMessage, `已插入外链：${finalFile.original_name}`, 'success');
         if (cloudPickerModal) {
             cloudPickerModal.hide();
         }
@@ -570,6 +575,57 @@
         }
         await fetchCloudFiles();
         cloudPickerModal.show();
+    }
+
+    function uploadToCloud(files) {
+        const payloads = Array.from(files || []);
+        if (!payloads.length) {
+            setMessage(cloudUploadMessage, '请选择文件', 'error');
+            return Promise.resolve();
+        }
+        setMessage(cloudUploadMessage, `正在上传 ${payloads.length} 个文件...`);
+        cloudUploadButton.disabled = true;
+        const uploadSingle = (file) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            return fetch(normalizeApiUrl(FILES_ENDPOINT), {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            }).then(async (res) => {
+                let json = null;
+                try {
+                    json = await res.json();
+                } catch (e) { /* ignore */ }
+                if (!res.ok) {
+                    const message = (json && (json.message || json.error)) || `上传失败（${res.status}）`;
+                    throw new Error(message);
+                }
+                return json;
+            });
+        };
+        return payloads.reduce((promise, file) => promise.then(async () => {
+            await uploadSingle(file);
+        }), Promise.resolve()).then(() => {
+            setMessage(cloudUploadMessage, '上传成功，已自动开启外链', 'success');
+            cloudUploadInput.value = '';
+        }).catch((error) => {
+            setMessage(cloudUploadMessage, error.message || '上传失败', 'error');
+        }).finally(async () => {
+            cloudUploadButton.disabled = false;
+            await fetchCloudFiles();
+            // 自动开启外链
+            await Promise.all(cloudFiles.map(async (file) => {
+                if (!file.is_public) {
+                    try {
+                        await ensurePublic(file);
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+            }));
+            await fetchCloudFiles();
+        });
     }
 
     function refreshUserList() {
@@ -1814,6 +1870,12 @@
             await openCloudPicker(target);
         });
     });
+
+    if (cloudUploadButton) {
+        cloudUploadButton.addEventListener('click', async () => {
+            await uploadToCloud(cloudUploadInput.files);
+        });
+    }
 
     backButton.addEventListener('click', () => {
         window.location.href = ROUTE_DASHBOARD;

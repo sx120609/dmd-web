@@ -125,7 +125,8 @@
                     <form id="uploadForm" class="d-flex flex-column gap-3">
                         <div>
                             <label for="fileInput" class="form-label">选择文件</label>
-                            <input class="form-control" type="file" id="fileInput" name="file" required>
+                            <input class="form-control" type="file" id="fileInput" name="file" multiple required>
+                            <div class="form-text">可批量选择文件，单个文件上限 200MB。</div>
                         </div>
                         <div class="upload-progress" hidden id="uploadProgressWrap">
                             <div class="progress" style="height: 10px;">
@@ -324,11 +325,20 @@
         }
         try {
             setMessage(listMessage, '正在删除文件...');
-            await fetchJSON(filesEndpoint, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: file.id })
-            });
+            try {
+                await fetchJSON(filesEndpoint, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: file.id })
+                });
+            } catch (primaryError) {
+                // fallback for环境不允许DELETE
+                await fetchJSON(filesEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', id: file.id })
+                });
+            }
             setMessage(listMessage, '文件已删除', 'success');
             await loadFiles();
         } catch (error) {
@@ -352,50 +362,57 @@
 
     uploadForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        if (!fileInput.files || !fileInput.files[0]) {
+        const files = fileInput.files ? Array.from(fileInput.files) : [];
+        if (!files.length) {
             setMessage(uploadMessage, '请选择文件', 'error');
             return;
         }
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
         uploadButton.disabled = true;
         resetUploadProgress();
-        setUploadProgress(0, '正在上传...');
-        setMessage(uploadMessage, '正在上传，请稍候...');
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', normalizeApiUrl(filesEndpoint), true);
-        xhr.withCredentials = true;
-        xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-                const pct = Math.round((e.loaded / e.total) * 100);
-                setUploadProgress(pct, `已上传 ${pct}%`);
+        setMessage(uploadMessage, `正在上传 ${files.length} 个文件，请稍候...`);
+        const total = files.length;
+        const uploadSingle = (file, index) => new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', normalizeApiUrl(filesEndpoint), true);
+            xhr.withCredentials = true;
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const pct = Math.round((e.loaded / e.total) * 100);
+                    setUploadProgress(pct, `文件 ${index + 1}/${total} · ${pct}%`);
+                }
+            };
+            xhr.onerror = () => reject(new Error('上传失败，请检查网络'));
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve();
+                } else {
+                    let responseData = null;
+                    try {
+                        responseData = JSON.parse(xhr.responseText || '{}');
+                    } catch (err) { /* ignore */ }
+                    const message = (responseData && (responseData.message || responseData.error)) || `上传失败（${xhr.status}）`;
+                    reject(new Error(message));
+                }
+            };
+            xhr.send(formData);
+        });
+
+        try {
+            for (let i = 0; i < files.length; i += 1) {
+                await uploadSingle(files[i], i);
             }
-        };
-        xhr.onerror = () => {
-            setMessage(uploadMessage, '上传失败，请检查网络', 'error');
+            setMessage(uploadMessage, '全部上传成功', 'success');
             resetUploadProgress();
+            uploadForm.reset();
+            await loadFiles();
+        } catch (error) {
+            setMessage(uploadMessage, error.message || '上传失败', 'error');
+            resetUploadProgress();
+        } finally {
             uploadButton.disabled = false;
-        };
-        xhr.onload = async () => {
-            uploadButton.disabled = false;
-            let responseData = null;
-            try {
-                responseData = JSON.parse(xhr.responseText || '{}');
-            } catch (err) {
-                // ignore parse error
-            }
-            if (xhr.status >= 200 && xhr.status < 300) {
-                setMessage(uploadMessage, '上传成功', 'success');
-                resetUploadProgress();
-                uploadForm.reset();
-                await loadFiles();
-            } else {
-                const message = (responseData && (responseData.message || responseData.error)) || `上传失败（${xhr.status}）`;
-                setMessage(uploadMessage, message, 'error');
-                resetUploadProgress();
-            }
-        };
-        xhr.send(formData);
+        }
     });
 
     logoutButton.addEventListener('click', async () => {
