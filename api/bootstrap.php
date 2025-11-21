@@ -60,6 +60,29 @@ function ensure_lessons_description_column(mysqli $mysqli): void
     $mysqli->query("ALTER TABLE `lessons` ADD COLUMN `description` TEXT AFTER `video_url`");
 }
 
+function ensure_cloud_files_table(mysqli $mysqli): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+    $mysqli->query(
+        "CREATE TABLE IF NOT EXISTS `cloud_files` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `user_id` INT NOT NULL,
+            `original_name` VARCHAR(255) NOT NULL,
+            `stored_name` VARCHAR(255) NOT NULL,
+            `mime_type` VARCHAR(150) DEFAULT NULL,
+            `size_bytes` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+            `is_public` TINYINT(1) NOT NULL DEFAULT 0,
+            `share_token` VARCHAR(64) NOT NULL UNIQUE,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT `fk_cf_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+    );
+}
+
 function json_response($data, int $status = 200): void
 {
     http_response_code($status);

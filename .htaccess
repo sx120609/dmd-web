@@ -15,4 +15,5 @@
 
     # Pseudo-static API endpoints (e.g. /api/session -> /api/session.php)
     RewriteRule ^api/([a-z0-9_]+)/?$ api/$1.php [L,QSA,NC]
+    RewriteRule ^cloud/?$ cloud.php [L,QSA]
 </IfModule>

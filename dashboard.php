@@ -28,6 +28,7 @@
             </div>
             <div class="user-chip" id="userChip"></div>
             <a class="btn btn-outline-secondary btn-sm" href="/">返回首页</a>
+            <button class="btn btn-outline-primary btn-sm" id="cloudButton" style="display:none;">云盘</button>
             <button class="btn btn-outline-primary btn-sm" id="adminButton" style="display:none;">进入管理后台</button>
             <button class="btn btn-outline-secondary btn-sm" id="logoutButton">退出登录</button>
         </div>
@@ -138,6 +139,7 @@
     const welcomeTextEl = document.getElementById('welcomeText');
     const userChipEl = document.getElementById('userChip');
     const logoutButton = document.getElementById('logoutButton');
+    const cloudButton = document.getElementById('cloudButton');
     const adminButton = document.getElementById('adminButton');
     const workspaceHeadingEl = document.getElementById('workspaceHeading');
     const workspaceIntroEl = document.getElementById('workspaceIntro');
@@ -680,6 +682,9 @@
             showWelcome(currentUser);
             if (currentUser.role === 'admin') {
                 adminButton.style.display = 'inline-flex';
+                if (cloudButton) {
+                    cloudButton.style.display = 'inline-flex';
+                }
             }
             await loadCourses();
         } catch (error) {
@@ -699,6 +704,12 @@
     adminButton.addEventListener('click', () => {
         window.location.href = 'admin';
     });
+
+    if (cloudButton) {
+        cloudButton.addEventListener('click', () => {
+            window.location.href = 'cloud';
+        });
+    }
 
     loadSession();
 </script>
