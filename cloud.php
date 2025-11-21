@@ -325,20 +325,11 @@
         }
         try {
             setMessage(listMessage, '正在删除文件...');
-            try {
-                await fetchJSON(filesEndpoint, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: file.id })
-                });
-            } catch (primaryError) {
-                // fallback for环境不允许DELETE
-                await fetchJSON(filesEndpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'delete', id: file.id })
-                });
-            }
+            await fetchJSON(filesEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'delete', id: file.id })
+            });
             setMessage(listMessage, '文件已删除', 'success');
             await loadFiles();
         } catch (error) {
