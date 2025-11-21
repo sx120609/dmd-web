@@ -12,8 +12,8 @@
     RewriteRule ^dashboard/?$ dashboard.php [L,QSA]
     RewriteRule ^admin/?$ admin.php [L,QSA]
     RewriteRule ^install/?$ install.php [L,QSA]
+    RewriteRule ^cloud/?$ cloud.php [L,QSA]
 
     # Pseudo-static API endpoints (e.g. /api/session -> /api/session.php)
     RewriteRule ^api/([a-z0-9_]+)/?$ api/$1.php [L,QSA,NC]
-    RewriteRule ^cloud/?$ cloud.php [L,QSA]
 </IfModule>

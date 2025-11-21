@@ -5,6 +5,7 @@
 - **登录页（/login）**：提供现代化的登录体验，完成登录后自动跳转课堂。
 - **课堂页（/dashboard）**：按用户身份展示专属课程，并基于 Plyr 播放器提供流畅的录播观看体验，可识别哔哩哔哩链接。
 - **管理后台（/admin）**：管理员可在独立页面中维护用户、课程、课节以及课程分配。
+- **云盘（/cloud）**：仅管理员可登录的文件空间，支持上传、下载、删除、开启/关闭外链并复制分享链接。
 - **响应式框架**：引入 Bootstrap 5 统一处理桌面与移动端的排版，课堂页面使用卡片式列表堆叠展示课程与课节，后台各模块在手机上会按栅格顺序自动折叠。
 - 后端接口均使用原生 PHP（`mysqli`）实现并返回 JSON 数据供前端调用。
 
@@ -24,6 +25,7 @@
 - `/dashboard` → `dashboard.php`
 - `/admin` → `admin.php`
 - `/install` → `install.php`
+- `/cloud` → `cloud.php`
 - `/api/<name>` → `api/<name>.php`
 
 如需手动部署或二次配置，可参考 `config.example.php` 与 `database.sql` 获取所需配置和建表语句。
@@ -47,6 +49,7 @@
     RewriteRule ^dashboard/?$ dashboard.php [L,QSA]
     RewriteRule ^admin/?$ admin.php [L,QSA]
     RewriteRule ^install/?$ install.php [L,QSA]
+    RewriteRule ^cloud/?$ cloud.php [L,QSA]
 
     # API 伪静态（如 /api/session -> /api/session.php）
     RewriteRule ^api/([a-z0-9_]+)/?$ api/$1.php [L,QSA,NC]
@@ -67,6 +70,7 @@ location @rewrite {
     rewrite ^/dashboard/?$ /dashboard.php last;
     rewrite ^/admin/?$ /admin.php last;
     rewrite ^/install/?$ /install.php last;
+    rewrite ^/cloud/?$ /cloud.php last;
     rewrite ^/api/([a-z0-9_]+)/?$ /api/$1.php last;
     rewrite ^/$ /index.php last;
 }
@@ -86,11 +90,13 @@ location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg)$ {
 index.php             # 登录页面（/login）
 dashboard.php         # 学员课堂页面（/dashboard）
 admin.php             # 管理后台（/admin）
+cloud.php             # 管理员云盘（/cloud）
 assets/
 ├── css/main.css      # 共享样式与主题
 config.php            # 数据库和会话配置（示例已提供）
 api/                  # 登录、课程、用户等接口
 ├── bootstrap.php     # 会话和数据库初始化
+├── files.php         # 管理员云盘接口（上传/列表/外链/删除）
 ├── login.php         # 登录接口
 ├── logout.php        # 退出接口
 ├── session.php       # 获取当前登录用户
@@ -99,6 +105,7 @@ api/                  # 登录、课程、用户等接口
 ├── lessons.php       # 添加课节
 └── course_assignments.php # 课程分配
 install.php           # 首次部署安装脚本（/install）
+uploads/files         # 云盘文件存储目录（需可写，按需创建）
 ```
 
 ## 注意事项
