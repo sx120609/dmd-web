@@ -97,8 +97,17 @@ function error_response(string $message, int $status = 400): void
 
 function get_json_input(): array
 {
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+    if (stripos($contentType, 'multipart/form-data') !== false) {
+        // 文件上传时避免读取整段 php://input 造成内存暴涨
+        return [];
+    }
     $raw = file_get_contents('php://input');
     if ($raw === false || $raw === '') {
+        return [];
+    }
+    // 避免过大的请求体占用内存（例如错误的上传请求）
+    if (strlen($raw) > 1024 * 1024 * 2) { // 2MB上限
         return [];
     }
     $data = json_decode($raw, true);
