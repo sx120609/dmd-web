@@ -2,9 +2,36 @@
 require __DIR__ . '/bootstrap.php';
 ensure_cloud_files_table($mysqli);
 
-$storageDir = $rootDir . '/uploads/files';
+$configuredStorage = $config['storage']['cloud_dir'] ?? null;
+if (is_string($configuredStorage) && trim($configuredStorage) !== '') {
+    $storageDir = $configuredStorage;
+    $isAbsolute = ($storageDir[0] ?? '') === '/' || preg_match('~^[A-Za-z]:[\\\\/]~', $storageDir);
+    if (!$isAbsolute) {
+        $storageDir = $rootDir . '/' . ltrim($storageDir, '/');
+    }
+} else {
+    $storageDir = $rootDir . '/uploads/files';
+}
 $baseUrl = '/api/files.php';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+function ensure_storage_dir(string $dir): void
+{
+    $parent = dirname($dir);
+    if (!is_dir($dir)) {
+        if ((!is_dir($parent) || !is_writable($parent)) && !is_writable($parent)) {
+            error_response('文件目录不可写：' . $dir . '。请手动创建该目录并赋予 PHP 进程写权限。', 500);
+        }
+        if (!@mkdir($dir, 0775, true) && !is_dir($dir)) {
+            error_response('无法创建文件目录：' . $dir . '。请手动创建并确认权限。', 500);
+        }
+    }
+    if (!is_writable($dir)) {
+        error_response('文件目录不可写：' . $dir . '。请调整权限后重试。', 500);
+    }
+}
+
+ensure_storage_dir($storageDir);
 
 function file_payload(array $row): array
 {
