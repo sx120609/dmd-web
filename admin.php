@@ -1393,9 +1393,9 @@
             setMessage(courseListMessage, '正在删除课程，请稍候...');
             try {
                 await fetchJSON(`${API_BASE}/courses.php`, {
-                    method: 'DELETE',
+                    method: 'POST', // 一些环境会拦截 DELETE，这里使用 POST + _method 兼容
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ course_id: courseId })
+                    body: JSON.stringify({ course_id: courseId, _method: 'DELETE' })
                 });
                 const previousLessonSelection = lessonCourseSelect.value;
                 const previousAssignSelection = assignCourseSelect.value;

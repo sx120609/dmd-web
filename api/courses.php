@@ -5,6 +5,59 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 ensure_lessons_description_column($mysqli);
 
+$rawOverride = '';
+if ($method === 'POST') {
+    $rawOverride = strtoupper($_POST['_method'] ?? $_GET['_method'] ?? ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? ''));
+    if (in_array($rawOverride, ['DELETE', 'PATCH', 'PUT'], true)) {
+        $method = $rawOverride;
+    }
+}
+
+function delete_course(mysqli $mysqli, int $courseId): void
+{
+    // 显式清理关联记录，兼容未开启级联的旧表结构
+    $mysqli->begin_transaction();
+    try {
+        $stmt = $mysqli->prepare('DELETE FROM lessons WHERE course_id = ?');
+        if (!$stmt) {
+            throw new Exception('无法删除课节');
+        }
+        $stmt->bind_param('i', $courseId);
+        if (!$stmt->execute()) {
+            throw new Exception('删除课节失败');
+        }
+        $stmt->close();
+
+        $stmt = $mysqli->prepare('DELETE FROM user_courses WHERE course_id = ?');
+        if ($stmt) {
+            $stmt->bind_param('i', $courseId);
+            $stmt->execute();
+            $stmt->close();
+        }
+
+        $stmt = $mysqli->prepare('DELETE FROM courses WHERE id = ? LIMIT 1');
+        if (!$stmt) {
+            throw new Exception('无法删除课程');
+        }
+        $stmt->bind_param('i', $courseId);
+        if (!$stmt->execute()) {
+            throw new Exception('删除课程失败');
+        }
+        $affected = $stmt->affected_rows;
+        $stmt->close();
+
+        if ($affected <= 0) {
+            $mysqli->rollback();
+            error_response('课程不存在或已删除', 404);
+        }
+
+        $mysqli->commit();
+    } catch (Exception $e) {
+        $mysqli->rollback();
+        error_response($e->getMessage() ?: '删除课程失败');
+    }
+}
+
 if ($method === 'GET') {
     $user = require_login($mysqli);
 
@@ -88,6 +141,16 @@ if ($method === 'GET') {
     if (empty($input)) {
         $input = $_POST;
     }
+    $methodOverride = strtoupper($input['_method'] ?? $input['method'] ?? $input['action'] ?? '');
+    if ($methodOverride === 'DELETE') {
+        $courseId = (int) ($input['course_id'] ?? $input['id'] ?? 0);
+        if ($courseId <= 0) {
+            error_response('课程ID无效');
+        }
+        delete_course($mysqli, $courseId);
+        json_response(['success' => true]);
+    }
+
     $title = trim($input['title'] ?? '');
     $description = trim($input['description'] ?? '');
 
@@ -194,49 +257,7 @@ if ($method === 'GET') {
         error_response('课程ID无效');
     }
 
-    // 显式清理关联记录，兼容未开启级联的旧表结构
-    $mysqli->begin_transaction();
-    try {
-        $stmt = $mysqli->prepare('DELETE FROM lessons WHERE course_id = ?');
-        if (!$stmt) {
-            throw new Exception('无法删除课节');
-        }
-        $stmt->bind_param('i', $courseId);
-        if (!$stmt->execute()) {
-            throw new Exception('删除课节失败');
-        }
-        $stmt->close();
-
-        $stmt = $mysqli->prepare('DELETE FROM user_courses WHERE course_id = ?');
-        if ($stmt) {
-            $stmt->bind_param('i', $courseId);
-            $stmt->execute();
-            $stmt->close();
-        }
-
-        $stmt = $mysqli->prepare('DELETE FROM courses WHERE id = ? LIMIT 1');
-        if (!$stmt) {
-            throw new Exception('无法删除课程');
-        }
-        $stmt->bind_param('i', $courseId);
-        if (!$stmt->execute()) {
-            throw new Exception('删除课程失败');
-        }
-        $affected = $stmt->affected_rows;
-        $stmt->close();
-
-        if ($affected <= 0) {
-            $mysqli->rollback();
-            error_response('课程不存在或已删除', 404);
-        }
-
-        $mysqli->commit();
-    } catch (Exception $e) {
-        $mysqli->rollback();
-        error_response($e->getMessage() ?: '删除课程失败');
-    }
-
-
+    delete_course($mysqli, $courseId);
     json_response(['success' => true]);
 } else {
     error_response('不支持的请求方法', 405);
