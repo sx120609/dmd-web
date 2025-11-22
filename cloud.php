@@ -306,9 +306,9 @@
         try {
             setMessage(listMessage, '正在更新外链状态...');
             const data = await fetchJSON(filesEndpoint, {
-                method: 'PATCH',
+                method: 'POST', // 兼容防火墙拦截 PATCH
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: file.id, is_public: !file.is_public })
+                body: JSON.stringify({ id: file.id, is_public: !file.is_public, _method: 'PATCH' })
             });
             setMessage(listMessage, '已更新外链状态', 'success');
             const updated = data.file;

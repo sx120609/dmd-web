@@ -14,6 +14,15 @@ if (is_string($configuredStorage) && trim($configuredStorage) !== '') {
 }
 $baseUrl = '/api/files.php';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$jsonInput = get_json_input();
+if ($method === 'POST') {
+    $override = strtoupper(
+        $_POST['_method'] ?? $_GET['_method'] ?? $jsonInput['_method'] ?? ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? '')
+    );
+    if (in_array($override, ['PATCH', 'DELETE'], true)) {
+        $method = $override;
+    }
+}
 
 function ensure_storage_dir(string $dir): void
 {
@@ -207,7 +216,7 @@ switch ($method) {
 
     case 'POST':
         // DELETE fallback via POST {action: delete, id: ...}
-        $input = get_json_input();
+        $input = $jsonInput ?: get_json_input();
         if (($input['action'] ?? '') === 'delete') {
             $deleteId = isset($input['id']) ? (int) $input['id'] : 0;
             if ($deleteId <= 0) {
@@ -283,7 +292,7 @@ switch ($method) {
         break;
 
     case 'PATCH':
-        $input = get_json_input();
+        $input = $jsonInput ?: get_json_input();
         $id = isset($input['id']) ? (int) $input['id'] : 0;
         $isPublic = isset($input['is_public']) && $input['is_public'] ? 1 : 0;
         if ($id <= 0) {
@@ -308,10 +317,7 @@ switch ($method) {
         break;
 
     case 'DELETE':
-        $input = $_REQUEST;
-        if (empty($input)) {
-            $input = get_json_input();
-        }
+        $input = $jsonInput ?: ($_REQUEST ?: get_json_input());
         $id = isset($input['id']) ? (int) $input['id'] : 0;
         if ($id <= 0) {
             error_response('缺少文件ID');

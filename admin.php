@@ -674,9 +674,9 @@
             return file;
         }
         const data = await fetchJSON(FILES_ENDPOINT, {
-            method: 'PATCH',
+            method: 'POST', // 兼容防火墙拦截 PATCH
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: file.id, is_public: true })
+            body: JSON.stringify({ id: file.id, is_public: true, _method: 'PATCH' })
         });
         const updated = data.file || file;
         cloudFiles = cloudFiles.map((item) => (item.id === updated.id ? updated : item));
@@ -1552,9 +1552,9 @@
             button.textContent = '删除中...';
             try {
                 await fetchJSON(`${API_BASE}/lessons.php`, {
-                    method: 'DELETE',
+                    method: 'POST', // 兼容防火墙拦截 DELETE
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ lesson_id: lessonId })
+                    body: JSON.stringify({ lesson_id: lessonId, _method: 'DELETE' })
                 });
                 if (state.selectedLessonId === lessonId) {
                     clearLessonEditor();
@@ -1730,9 +1730,9 @@
             setMessage(updateCourseMessage, '正在保存课程，请稍候...');
             try {
                 const result = await fetchJSON(`${API_BASE}/courses.php`, {
-                    method: 'PATCH',
+                    method: 'POST', // 兼容防火墙拦截 PATCH
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ ...payload, _method: 'PATCH' })
                 });
                 const updatedCourse = {
                     ...result.course,
@@ -1886,9 +1886,9 @@
             setMessage(updateLessonMessage, '正在保存课节，请稍候...');
             try {
                 const result = await fetchJSON(`${API_BASE}/lessons.php`, {
-                    method: 'PATCH',
+                    method: 'POST', // 兼容防火墙拦截 PATCH
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ ...payload, _method: 'PATCH' })
                 });
                 const updatedLesson = {
                     ...result.lesson,
@@ -1940,9 +1940,9 @@
         setMessage(updateUserMessage, '正在保存修改，请稍候...');
         try {
             const result = await fetchJSON(`${API_BASE}/users.php`, {
-                method: 'PATCH',
+                method: 'POST', // 兼容防火墙拦截 PATCH
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ ...payload, _method: 'PATCH' })
             });
             const updatedUser = {
                 ...result.user,
@@ -1991,9 +1991,9 @@
         setMessage(updateUserMessage, '正在重置密码，请稍候...');
         try {
             await fetchJSON(`${API_BASE}/users.php`, {
-                method: 'PATCH',
+                method: 'POST', // 兼容防火墙拦截 PATCH
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: target.id, password: tempPassword })
+                body: JSON.stringify({ id: target.id, password: tempPassword, _method: 'PATCH' })
             });
             editPasswordInput.value = '';
             let copied = false;

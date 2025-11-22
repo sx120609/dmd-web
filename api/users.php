@@ -2,6 +2,15 @@
 require __DIR__ . '/bootstrap.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
+$jsonInput = get_json_input();
+if ($method === 'POST') {
+    $override = strtoupper(
+        $_POST['_method'] ?? $_GET['_method'] ?? $jsonInput['_method'] ?? ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? '')
+    );
+    if (in_array($override, ['PATCH', 'PUT', 'DELETE'], true)) {
+        $method = $override;
+    }
+}
 
 switch ($method) {
     case 'GET':
@@ -19,7 +28,7 @@ switch ($method) {
         break;
     case 'POST':
         require_admin($mysqli);
-        $input = get_json_input();
+        $input = $jsonInput ?: get_json_input();
         if (empty($input)) {
             $input = $_POST;
         }
@@ -98,7 +107,7 @@ switch ($method) {
     case 'PUT':
     case 'PATCH':
         $currentAdmin = require_admin($mysqli);
-        $input = get_json_input();
+        $input = $jsonInput ?: get_json_input();
         $userId = isset($input['id']) ? (int) $input['id'] : 0;
         if ($userId <= 0) {
             error_response('缺少用户ID');
@@ -215,7 +224,7 @@ switch ($method) {
         break;
     case 'DELETE':
         $currentAdmin = require_admin($mysqli);
-        $input = get_json_input();
+        $input = $jsonInput ?: get_json_input();
         $userId = 0;
         if (!empty($input['id'])) {
             $userId = (int) $input['id'];

@@ -2,12 +2,23 @@
 require __DIR__ . '/bootstrap.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
+$jsonInput = get_json_input();
+
+// 部分防火墙/代理会拦截 PUT/PATCH/DELETE，这里支持 _method/头部覆盖
+if ($method === 'POST') {
+    $override = strtoupper(
+        $_POST['_method'] ?? $_GET['_method'] ?? $jsonInput['_method'] ?? ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? '')
+    );
+    if (in_array($override, ['PUT', 'PATCH', 'DELETE'], true)) {
+        $method = $override;
+    }
+}
 
 ensure_lessons_description_column($mysqli);
 
 if ($method === 'POST') {
     require_admin($mysqli);
-    $input = get_json_input();
+    $input = $jsonInput ?: get_json_input();
     if (empty($input)) {
         $input = $_POST;
     }
@@ -43,7 +54,7 @@ if ($method === 'POST') {
     ]);
 } elseif ($method === 'PATCH' || $method === 'PUT') {
     require_admin($mysqli);
-    $input = get_json_input();
+    $input = $jsonInput ?: get_json_input();
     if (empty($input)) {
         $raw = file_get_contents('php://input');
         if ($raw) {
@@ -125,7 +136,7 @@ if ($method === 'POST') {
     ]);
 } elseif ($method === 'DELETE') {
     require_admin($mysqli);
-    $input = get_json_input();
+    $input = $jsonInput ?: get_json_input();
     if (empty($input)) {
         $raw = file_get_contents('php://input');
         if ($raw) {

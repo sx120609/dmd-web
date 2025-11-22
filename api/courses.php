@@ -2,12 +2,15 @@
 require __DIR__ . '/bootstrap.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
+$jsonInput = get_json_input();
 
 ensure_lessons_description_column($mysqli);
 
 $rawOverride = '';
 if ($method === 'POST') {
-    $rawOverride = strtoupper($_POST['_method'] ?? $_GET['_method'] ?? ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? ''));
+    $rawOverride = strtoupper(
+        $_POST['_method'] ?? $_GET['_method'] ?? $jsonInput['_method'] ?? ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? '')
+    );
     if (in_array($rawOverride, ['DELETE', 'PATCH', 'PUT'], true)) {
         $method = $rawOverride;
     }
@@ -137,7 +140,7 @@ if ($method === 'GET') {
     }
 } elseif ($method === 'POST') {
     require_admin($mysqli);
-    $input = get_json_input();
+    $input = $jsonInput ?: get_json_input();
     if (empty($input)) {
         $input = $_POST;
     }
@@ -190,7 +193,7 @@ if ($method === 'GET') {
     json_response(['course' => ['id' => (int) $courseId, 'title' => $title, 'description' => $description]]);
 } elseif ($method === 'PATCH' || $method === 'PUT') {
     require_admin($mysqli);
-    $input = get_json_input();
+    $input = $jsonInput ?: get_json_input();
     if (empty($input)) {
         $raw = file_get_contents('php://input');
         if ($raw) {
@@ -241,7 +244,7 @@ if ($method === 'GET') {
     json_response(['course' => ['id' => (int) $courseId, 'title' => $title, 'description' => $description]]);
 } elseif ($method === 'DELETE') {
     require_admin($mysqli);
-    $input = get_json_input();
+    $input = $jsonInput ?: get_json_input();
     if (empty($input)) {
         $raw = file_get_contents('php://input');
         if ($raw) {
