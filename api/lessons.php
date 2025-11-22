@@ -2,6 +2,7 @@
 require __DIR__ . '/bootstrap.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
+ensure_teacher_role_enum($mysqli);
 $jsonInput = get_json_input();
 
 // 部分防火墙/代理会拦截 PUT/PATCH/DELETE，这里支持 _method/头部覆盖

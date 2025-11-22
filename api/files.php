@@ -13,6 +13,7 @@ if (is_string($configuredStorage) && trim($configuredStorage) !== '') {
     $storageDir = $rootDir . '/uploads/files';
 }
 $baseUrl = '/api/files.php';
+ensure_teacher_role_enum($mysqli);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $jsonInput = get_json_input();
 if ($method === 'POST') {

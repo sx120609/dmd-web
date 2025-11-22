@@ -150,6 +150,16 @@ function ensure_course_owner_column(mysqli $mysqli): void
     }
 }
 
+function ensure_teacher_role_enum(mysqli $mysqli): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+    $mysqli->query("ALTER TABLE `users` MODIFY `role` ENUM('student','admin','teacher') NOT NULL DEFAULT 'student'");
+}
+
 function json_response($data, int $status = 200): void
 {
     http_response_code($status);

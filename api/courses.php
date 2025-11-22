@@ -2,6 +2,7 @@
 require __DIR__ . '/bootstrap.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
+ensure_teacher_role_enum($mysqli);
 $jsonInput = get_json_input();
 
 ensure_lessons_description_column($mysqli);
