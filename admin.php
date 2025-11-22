@@ -80,7 +80,7 @@
                                         <h3 class="mb-1">创建用户</h3>
                                         <p class="hint mb-0">单个创建或使用右侧按钮批量导入。</p>
                                     </div>
-                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="openUserImportModal">批量导入</button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="openUserImportModal" data-bs-toggle="modal" data-bs-target="#userImportModal">批量导入</button>
                                 </div>
                             <div>
                                 <label for="newUsername">用户名</label>
@@ -1586,6 +1586,14 @@
 
     if (userImportModalEl && typeof bootstrap !== 'undefined') {
         userImportModal = new bootstrap.Modal(userImportModalEl);
+        userImportModalEl.addEventListener('show.bs.modal', () => {
+            if (userImportMessage) {
+                setMessage(userImportMessage);
+            }
+            if (userImportFileInput) {
+                userImportFileInput.value = '';
+            }
+        });
     }
     if (downloadUserTemplateButton) {
         downloadUserTemplateButton.addEventListener('click', downloadUserTemplate);
@@ -1593,19 +1601,7 @@
     if (userImportButton) {
         userImportButton.addEventListener('click', importUsers);
     }
-    if (openUserImportModalButton) {
-        openUserImportModalButton.addEventListener('click', () => {
-            if (userImportMessage) {
-                setMessage(userImportMessage);
-            }
-            if (userImportFileInput) {
-                userImportFileInput.value = '';
-            }
-            if (userImportModal) {
-                userImportModal.show();
-            }
-        });
-    }
+    // openUserImportModalButton now uses data-bs-toggle; logic handled by modal show event above
 
     createUserForm.addEventListener('submit', async (event) => {
         event.preventDefault();
