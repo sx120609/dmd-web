@@ -155,8 +155,8 @@
                     </div>
                 </div>
             </div>
-            <!-- 批量导入用户 Modal（复用云盘弹窗结构） -->
-            <div class="modal fade" id="userImportModal" tabindex="-1" aria-labelledby="userImportModalLabel" aria-hidden="true">
+            <!-- 批量导入用户 Modal（独立实现，与云盘同级） -->
+            <div class="modal fade" id="userImportModal" tabindex="-1" aria-labelledby="userImportModalLabel" aria-hidden="true" data-bs-backdrop="true">
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -164,19 +164,16 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="message" id="userImportMessage" hidden></div>
-                            <div class="mb-3">
-                                <label class="form-label">下载模板</label>
-                                <div class="d-flex align-items-center gap-2">
-                                    <button type="button" class="btn btn-outline-primary btn-sm" id="downloadUserTemplate">下载模板</button>
-                                    <small class="text-secondary">文件大小限制 5MB</small>
-                                </div>
-                                <p class="hint mt-2 mb-0">模板字段：username, display_name, password, role（角色支持 student/admin）。</p>
+                            <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role（student/admin）。</p>
+                            <div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="downloadUserTemplate">下载模板</button>
+                                <small class="text-secondary">文件大小限制 5MB</small>
                             </div>
                             <div class="mb-3">
                                 <label for="userImportFile" class="form-label">上传填写好的 CSV</label>
                                 <input id="userImportFile" type="file" accept=".csv,text/csv" class="form-control">
                             </div>
+                            <div class="message" id="userImportMessage" hidden></div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
