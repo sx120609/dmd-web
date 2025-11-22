@@ -129,6 +129,9 @@
                     <span class="chip" id="courseBadge"></span>
                     <span class="chip subtle" id="lessonBadge"></span>
                 </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+                    <button class="btn btn-outline-secondary btn-sm" id="markCompleteButton" disabled>标记已完成</button>
+                </div>
             </header>
             <div class="stage-content">
                 <div class="stage-hint" id="stageHint">尚未选择课节。</div>
@@ -183,6 +186,7 @@
     const courseInstructorFilter = document.getElementById('courseInstructorFilter');
     const courseProgressFilter = document.getElementById('courseProgressFilter');
     const courseSortSelect = document.getElementById('courseSortSelect');
+    const markCompleteButton = document.getElementById('markCompleteButton');
 
     let currentUser = null;
     let currentCourseId = null;
@@ -551,11 +555,14 @@
     function markLessonVisited(courseId, lessonId, totalLessons = 0) {
         if (!courseId || !lessonId) return;
         if (!progressStore[courseId]) {
-            progressStore[courseId] = { visited: [], total: totalLessons || 0 };
+            progressStore[courseId] = { visited: [], completed: [], total: totalLessons || 0 };
         }
         const record = progressStore[courseId];
         if (!Array.isArray(record.visited)) {
             record.visited = [];
+        }
+        if (!Array.isArray(record.completed)) {
+            record.completed = [];
         }
         if (!record.visited.includes(lessonId)) {
             record.visited.push(lessonId);
@@ -572,7 +579,7 @@
     function updateCourseTotalLessons(courseId, lessonCount) {
         if (!courseId) return;
         if (!progressStore[courseId]) {
-            progressStore[courseId] = { visited: [], total: lessonCount || 0 };
+            progressStore[courseId] = { visited: [], completed: [], total: lessonCount || 0 };
         } else if (lessonCount > 0) {
             progressStore[courseId].total = lessonCount;
         }
@@ -580,18 +587,46 @@
     }
 
     function getCourseProgress(courseId, lessonCount = 0) {
-        const record = progressStore[courseId] || { visited: [], total: lessonCount || 0 };
+        const record = progressStore[courseId] || { visited: [], completed: [], total: lessonCount || 0 };
         const total = lessonCount || record.total || 0;
         const visitedCount = Array.isArray(record.visited) ? record.visited.length : 0;
+        const completedCount = Array.isArray(record.completed) ? record.completed.length : 0;
+        const effectiveVisited = Math.max(visitedCount, completedCount);
         const safeVisited = Math.min(visitedCount, total || visitedCount);
-        const pct = total > 0 ? Math.round((safeVisited / total) * 100) : 0;
+        const pct = total > 0 ? Math.round((Math.min(effectiveVisited, total) / total) * 100) : 0;
         let status = 'unstarted';
         if (pct >= 100 && total > 0) {
             status = 'completed';
         } else if (pct > 0) {
             status = 'in_progress';
         }
-        return { total, visited: safeVisited, percentage: pct, status };
+        return { total, visited: safeVisited, completed: completedCount, percentage: pct, status };
+    }
+
+    function setLessonCompleted(courseId, lessonId, isCompleted = true) {
+        if (!courseId || !lessonId) return;
+        if (!progressStore[courseId]) {
+            progressStore[courseId] = { visited: [], completed: [], total: currentLessons.length || 0 };
+        }
+        const record = progressStore[courseId];
+        if (!Array.isArray(record.completed)) {
+            record.completed = [];
+        }
+        if (!Array.isArray(record.visited)) {
+            record.visited = [];
+        }
+        if (isCompleted) {
+            if (!record.completed.includes(lessonId)) {
+                record.completed.push(lessonId);
+            }
+            if (!record.visited.includes(lessonId)) {
+                record.visited.push(lessonId);
+            }
+        } else {
+            record.completed = record.completed.filter((id) => id !== lessonId);
+        }
+        progressStore[courseId] = record;
+        saveProgressStore();
     }
 
     function renderLessonList(lessons, course) {
@@ -883,6 +918,7 @@
         setCourseProgress(lessonIndex + 1, currentLessons.length);
         markLessonVisited(currentCourseId, currentLessonId, currentLessons.length);
         renderCourseList(allCourses);
+        syncMarkCompleteButton();
         if (video) {
             const player = new Plyr(video, {
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
@@ -890,6 +926,19 @@
             });
             players.push(player);
         }
+    }
+
+    function syncMarkCompleteButton() {
+        if (!markCompleteButton) return;
+        if (!currentCourseId || !currentLessonId) {
+            markCompleteButton.disabled = true;
+            markCompleteButton.textContent = '标记已完成';
+            return;
+        }
+        const record = progressStore[currentCourseId] || { completed: [] };
+        const isDone = Array.isArray(record.completed) && record.completed.includes(currentLessonId);
+        markCompleteButton.disabled = false;
+        markCompleteButton.textContent = isDone ? '取消已完成' : '标记已完成';
     }
 
     async function loadCourses() {
@@ -957,6 +1006,21 @@
     if (cloudButton) {
         cloudButton.addEventListener('click', () => {
             window.location.href = 'cloud';
+        });
+    }
+
+    if (markCompleteButton) {
+        markCompleteButton.addEventListener('click', () => {
+            if (!currentCourseId || !currentLessonId) {
+                return;
+            }
+            const record = progressStore[currentCourseId] || { completed: [] };
+            const isDone = Array.isArray(record.completed) && record.completed.includes(currentLessonId);
+            setLessonCompleted(currentCourseId, currentLessonId, !isDone);
+            syncMarkCompleteButton();
+            renderCourseList(allCourses);
+            const lessonIndex = currentLessons.findIndex((item) => Number(item.id) === currentLessonId);
+            setCourseProgress(lessonIndex + 1, currentLessons.length);
         });
     }
 
