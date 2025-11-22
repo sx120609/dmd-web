@@ -1382,9 +1382,7 @@
                 if (courseTabBtn) courseTabBtn.classList.add('active');
                 document.querySelectorAll('.tab-content').forEach((tab) => tab.classList.remove('active'));
                 const courseTab = document.getElementById('tab-courses');
-                const lessonTab = document.getElementById('tab-lessons');
                 if (courseTab) courseTab.classList.add('active');
-                if (lessonTab) lessonTab.classList.add('active');
                 renderAssignmentPlaceholder('教师无用户管理权限');
             }
 
@@ -1398,13 +1396,10 @@
             }
 
             const initialCourseId = parseInt(selectedLessonCourse, 10);
-            if (initialCourseId) {
-                loadLessonsForCourse(initialCourseId);
-            } else if (!state.courses.length) {
+            if (!initialCourseId && !state.courses.length) {
                 renderLessonPlaceholder('暂无课程，请先创建。');
-            } else {
-                renderLessonPlaceholder('请选择课程查看课节');
             }
+            renderLessonPlaceholder('请选择课程查看课节');
         } catch (error) {
             alert(error.message || '加载管理信息失败');
             window.location.href = ROUTE_LOGIN;
