@@ -155,33 +155,6 @@
                     </div>
                 </div>
             </div>
-            <!-- 批量导入用户弹窗（沿用云盘 Modal 风格） -->
-            <div class="modal fade" id="userImportModal" tabindex="-1" aria-labelledby="userImportModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="userImportModalLabel">批量导入用户</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role（student/admin）。</p>
-                            <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
-                                <button type="button" class="btn btn-outline-primary btn-sm" id="downloadUserTemplate">下载模板</button>
-                                <small class="text-secondary">文件大小限制 5MB</small>
-                            </div>
-                            <div class="mb-3">
-                                <label for="userImportFile" class="form-label">上传填写好的 CSV</label>
-                                <input id="userImportFile" type="file" accept=".csv,text/csv" class="form-control">
-                            </div>
-                            <div class="message" id="userImportMessage" hidden></div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                            <button type="button" class="primary-button" id="userImportButton">导入用户</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="tab-content" id="tab-courses" role="tabpanel">
                 <div class="row g-4 align-items-start">
                     <div class="col-12 col-xl-5 col-xxl-4">
@@ -322,6 +295,33 @@
         </div>
     </div>
 </main>
+<!-- 批量导入用户弹窗（独立挂载到 body 防止被父容器遮挡） -->
+<div class="modal fade" id="userImportModal" tabindex="-1" aria-labelledby="userImportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userImportModalLabel">批量导入用户</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role（student/admin）。</p>
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="downloadUserTemplate">下载模板</button>
+                    <small class="text-secondary">文件大小限制 5MB</small>
+                </div>
+                <div class="mb-3">
+                    <label for="userImportFile" class="form-label">上传填写好的 CSV</label>
+                    <input id="userImportFile" type="file" accept=".csv,text/csv" class="form-control">
+                </div>
+                <div class="message" id="userImportMessage" hidden></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="primary-button" id="userImportButton">导入用户</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- 云盘选择弹窗 -->
 <div class="modal fade" id="cloudPickerModal" tabindex="-1" aria-labelledby="cloudPickerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -521,6 +521,13 @@
         }
     }
 
+    function clearDanglingBackdrops() {
+        document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
+        document.body.style.paddingRight = '';
+    }
+
     function downloadUserTemplate() {
         const content = [
             ['username', 'display_name', 'password', 'role'],
@@ -710,8 +717,12 @@
 
     async function openCloudPicker(targetInputId) {
         activeCloudTargetInputId = targetInputId;
+        clearDanglingBackdrops();
         if (!cloudPickerModal) {
             cloudPickerModal = new bootstrap.Modal(cloudPickerModalEl);
+        }
+        if (cloudPickerModalEl) {
+            cloudPickerModalEl.addEventListener('hidden.bs.modal', clearDanglingBackdrops, { once: true });
         }
         await fetchCloudFiles();
         cloudPickerModal.show();
@@ -1601,6 +1612,7 @@
         userImportModalEl.addEventListener('show.bs.modal', () => {
             resetUserImportModal();
         });
+        userImportModalEl.addEventListener('hidden.bs.modal', clearDanglingBackdrops);
     }
     if (openUserImportModalButton) {
         openUserImportModalButton.addEventListener('click', (event) => {
@@ -1609,6 +1621,7 @@
                 userImportModal = new bootstrap.Modal(userImportModalEl);
             }
             if (userImportModal) {
+                clearDanglingBackdrops();
                 resetUserImportModal();
                 userImportModal.show();
             }
