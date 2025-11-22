@@ -879,8 +879,11 @@
             info.appendChild(metaEl);
             item.appendChild(info);
             const roleTag = document.createElement('span');
+            let roleLabel = '学员';
+            if (user.role === 'admin') roleLabel = '管理员';
+            if (user.role === 'teacher') roleLabel = '老师';
             roleTag.className = 'user-role-tag' + (user.role === 'admin' ? ' is-admin' : '');
-            roleTag.textContent = user.role === 'admin' ? '管理员' : '学员';
+            roleTag.textContent = roleLabel;
             item.appendChild(roleTag);
             userListEl.appendChild(item);
         });
