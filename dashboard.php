@@ -130,7 +130,10 @@
                     <span class="chip subtle" id="lessonBadge"></span>
                 </div>
                 <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
-                    <button class="btn btn-outline-secondary btn-sm" id="markCompleteButton" disabled>标记已完成</button>
+                    <button class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1" id="markCompleteButton" disabled>
+                        <i class="bi bi-check2-circle"></i>
+                        <span>标记已完成</span>
+                    </button>
                 </div>
             </header>
             <div class="stage-content">
@@ -507,10 +510,18 @@
         stageHintEl.hidden = hidden;
     }
 
-    function setCourseProgress(completed = 0, total = 0) {
-        const safeTotal = Math.max(Number(total) || 0, 0);
-        const safeCompleted = Math.min(Math.max(Number(completed) || 0, 0), safeTotal);
-        const percentage = safeTotal > 0 ? Math.round((safeCompleted / safeTotal) * 100) : 0;
+    function setCourseProgress(completed = 0, total = 0, courseId = null) {
+        const baseTotal = Math.max(Number(total) || 0, 0);
+        let resolvedTotal = baseTotal;
+        let resolvedCompleted = Math.max(Number(completed) || 0, 0);
+        if (courseId) {
+            const progress = getCourseProgress(courseId, total);
+            resolvedTotal = progress.total || baseTotal;
+            resolvedCompleted = Math.max(progress.completed || 0, progress.visited || resolvedCompleted);
+        }
+        resolvedTotal = Math.max(resolvedTotal, 0);
+        resolvedCompleted = Math.min(Math.max(resolvedCompleted, 0), resolvedTotal || resolvedCompleted);
+        const percentage = resolvedTotal > 0 ? Math.round((resolvedCompleted / resolvedTotal) * 100) : 0;
 
         if (courseProgressBarEl) {
             courseProgressBarEl.style.setProperty('--progress', `${percentage}%`);
@@ -523,12 +534,12 @@
         }
 
         if (courseLessonCountEl) {
-            if (safeTotal <= 0) {
+            if (resolvedTotal <= 0) {
                 courseLessonCountEl.textContent = '0 个课节';
-            } else if (safeCompleted <= 0) {
-                courseLessonCountEl.textContent = `${safeTotal} 个课节`;
+            } else if (resolvedCompleted <= 0) {
+                courseLessonCountEl.textContent = `${resolvedTotal} 个课节`;
             } else {
-                courseLessonCountEl.textContent = `${safeTotal} 个课节 · 已学 ${safeCompleted}/${safeTotal}`;
+                courseLessonCountEl.textContent = `${resolvedTotal} 个课节 · 已学 ${resolvedCompleted}/${resolvedTotal}`;
             }
         }
     }
@@ -641,7 +652,7 @@
         playerHostEl.innerHTML = '<div class="empty-state">尚未选择课节。</div>';
         lessonListEl.innerHTML = '';
         updateCourseSummary(currentCourse, currentLessons.length);
-        setCourseProgress(0, currentLessons.length);
+        setCourseProgress(0, currentLessons.length, currentCourse ? currentCourse.id : null);
         renderCourseList(allCourses);
         workspaceHeadingEl.textContent = currentCourse ? (currentCourse.title || '未命名课程') : '我的课堂';
         if (!currentLessons.length) {
@@ -915,7 +926,7 @@
         updateBreadcrumbs(currentCourse, lesson);
         setStageHint('', true);
         const lessonIndex = currentLessons.findIndex((item) => Number(item.id) === currentLessonId);
-        setCourseProgress(lessonIndex + 1, currentLessons.length);
+        setCourseProgress(lessonIndex + 1, currentLessons.length, currentCourseId);
         markLessonVisited(currentCourseId, currentLessonId, currentLessons.length);
         renderCourseList(allCourses);
         syncMarkCompleteButton();
@@ -1020,7 +1031,7 @@
             syncMarkCompleteButton();
             renderCourseList(allCourses);
             const lessonIndex = currentLessons.findIndex((item) => Number(item.id) === currentLessonId);
-            setCourseProgress(lessonIndex + 1, currentLessons.length);
+            setCourseProgress(lessonIndex + 1, currentLessons.length, currentCourseId);
         });
     }
 
