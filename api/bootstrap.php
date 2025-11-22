@@ -132,6 +132,24 @@ function ensure_course_metadata_columns(mysqli $mysqli): void
     }
 }
 
+function ensure_course_owner_column(mysqli $mysqli): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $columnCheck = $mysqli->query("SHOW COLUMNS FROM `courses` LIKE 'owner_id'");
+    if ($columnCheck instanceof mysqli_result) {
+        $hasOwner = $columnCheck->num_rows > 0;
+        $columnCheck->free();
+        if (!$hasOwner) {
+            $mysqli->query("ALTER TABLE `courses` ADD COLUMN `owner_id` INT NULL DEFAULT NULL AFTER `tags`");
+        }
+    }
+}
+
 function json_response($data, int $status = 200): void
 {
     http_response_code($status);
@@ -142,6 +160,15 @@ function json_response($data, int $status = 200): void
 function error_response(string $message, int $status = 400): void
 {
     json_response(['error' => $message], $status);
+}
+
+function require_role(mysqli $mysqli, array $roles)
+{
+    $user = require_login($mysqli);
+    if (!in_array($user['role'], $roles, true)) {
+        error_response('权限不足', 403);
+    }
+    return $user;
 }
 
 function get_json_input(): array
@@ -194,9 +221,10 @@ function require_login(mysqli $mysqli): array
 
 function require_admin(mysqli $mysqli): array
 {
-    $user = require_login($mysqli);
-    if (($user['role'] ?? '') !== 'admin') {
-        error_response('仅管理员可执行此操作', 403);
-    }
-    return $user;
+    return require_role($mysqli, ['admin']);
+}
+
+function require_admin_or_teacher(mysqli $mysqli): array
+{
+    return require_role($mysqli, ['admin', 'teacher']);
 }

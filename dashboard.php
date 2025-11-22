@@ -28,9 +28,9 @@
             </div>
             <div class="user-chip" id="userChip"></div>
             <a class="btn btn-outline-secondary btn-sm" href="/">返回首页</a>
-            <button class="btn btn-outline-primary btn-sm" id="cloudButton" style="display:none;">云盘</button>
-            <button class="btn btn-outline-primary btn-sm" id="adminButton" style="display:none;">进入管理后台</button>
-            <button class="btn btn-outline-secondary btn-sm" id="logoutButton">退出登录</button>
+            <button class="btn btn-outline-primary btn-sm rounded-pill" id="cloudButton" style="display:none;">云盘</button>
+            <button class="btn btn-outline-primary btn-sm rounded-pill" id="adminButton" style="display:none;">进入管理后台</button>
+            <button class="btn btn-outline-secondary btn-sm rounded-pill" id="logoutButton">退出登录</button>
         </div>
     </div>
 </nav>
@@ -282,7 +282,10 @@
         welcomeTextEl.textContent = user ? `欢迎回来，${user.display_name || user.username}` : '欢迎来到课堂';
         if (userChipEl) {
             if (user) {
-                userChipEl.textContent = `${user.display_name || user.username} · ${user.role === 'admin' ? '管理员' : '学员'}`;
+                let roleLabel = '学员';
+                if (user.role === 'admin') roleLabel = '管理员';
+                if (user.role === 'teacher') roleLabel = '老师';
+                userChipEl.textContent = `${user.display_name || user.username} · ${roleLabel}`;
                 userChipEl.style.display = 'inline-flex';
             } else {
                 userChipEl.textContent = '';
@@ -1052,7 +1055,7 @@
             currentUser = data.user;
             loadProgressStore(currentUser.id || 'guest');
             showWelcome(currentUser);
-            if (currentUser.role === 'admin') {
+            if (currentUser.role === 'admin' || currentUser.role === 'teacher') {
                 adminButton.style.display = 'inline-flex';
                 if (cloudButton) {
                     cloudButton.style.display = 'inline-flex';

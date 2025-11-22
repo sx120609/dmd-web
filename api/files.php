@@ -186,7 +186,7 @@ if (isset($_GET['token'])) {
 }
 
 // Admin-only actions below
-$currentUser = require_admin($mysqli);
+$currentUser = require_admin_or_teacher($mysqli);
 
     if ($method === 'GET' && isset($_GET['id'], $_GET['download'])) {
         $id = (int) $_GET['id'];

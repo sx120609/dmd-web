@@ -85,7 +85,7 @@ switch ($method) {
         if ($username === '' || $password === '') {
             error_response('用户名和密码不能为空');
         }
-        if (!in_array($role, ['student', 'admin'], true)) {
+        if (!in_array($role, ['student', 'admin', 'teacher'], true)) {
             $role = 'student';
         }
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
@@ -153,7 +153,7 @@ switch ($method) {
         }
 
         if (array_key_exists('role', $input)) {
-            $role = $input['role'] === 'admin' ? 'admin' : 'student';
+            $role = in_array($input['role'], ['admin', 'teacher'], true) ? $input['role'] : 'student';
             if ($existing['role'] === 'admin' && $role !== 'admin') {
                 $countResult = $mysqli->query("SELECT COUNT(*) AS total FROM users WHERE role = 'admin'");
                 if ($countResult) {

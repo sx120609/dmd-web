@@ -98,6 +98,7 @@
                                 <label for="newRole">角色</label>
                                 <select id="newRole" name="role">
                                     <option value="student">学员</option>
+                                    <option value="teacher">老师</option>
                                     <option value="admin">管理员</option>
                                 </select>
                             </div>
@@ -127,10 +128,11 @@
                                 </div>
                                 <div>
                                     <label for="editRole">角色</label>
-                                    <select id="editRole">
-                                        <option value="student">学员</option>
-                                        <option value="admin">管理员</option>
-                                    </select>
+                                <select id="editRole">
+                                    <option value="student">学员</option>
+                                    <option value="teacher">老师</option>
+                                    <option value="admin">管理员</option>
+                                </select>
                                 </div>
                                 <div>
                                     <label for="editPassword">重置密码</label>
@@ -923,7 +925,10 @@
         userDetailTitle.textContent = target.display_name || target.username;
         userDetailSubtitle.textContent = `用户名：${target.username}`;
         userDetailRoleChip.hidden = false;
-        userDetailRoleChip.textContent = target.role === 'admin' ? '管理员' : '学员';
+        let roleLabel = '学员';
+        if (target.role === 'admin') roleLabel = '管理员';
+        if (target.role === 'teacher') roleLabel = '老师';
+        userDetailRoleChip.textContent = roleLabel;
         userDetailRoleChip.classList.toggle('is-admin', target.role === 'admin');
         userDetailEmpty.hidden = true;
         updateUserForm.hidden = false;
@@ -1318,44 +1323,75 @@
     async function loadInitialData() {
         try {
             const session = await fetchJSON(`${API_BASE}/session.php`);
-            if (!session.user || session.user.role !== 'admin') {
+            if (!session.user || (session.user.role !== 'admin' && session.user.role !== 'teacher')) {
                 window.location.href = ROUTE_DASHBOARD;
                 return;
             }
             state.currentUser = session.user;
             if (adminChip) {
-                adminChip.textContent = `${session.user.display_name || session.user.username} · 管理员`;
+                const roleLabel = session.user.role === 'teacher' ? '老师' : '管理员';
+                adminChip.textContent = `${session.user.display_name || session.user.username} · ${roleLabel}`;
                 adminChip.style.display = 'inline-flex';
             }
-            const [usersData, coursesData] = await Promise.all([
-                fetchJSON(`${API_BASE}/users.php`),
-                fetchJSON(`${API_BASE}/courses.php?all=1`)
-            ]);
-            state.users = (usersData.users || []).map((user) => ({
-                ...user,
-                id: Number(user.id)
-            }));
-            state.users.sort((a, b) => a.id - b.id);
+            let usersData = null;
+            let coursesData = null;
+            if (session.user.role === 'admin') {
+                [usersData, coursesData] = await Promise.all([
+                    fetchJSON(`${API_BASE}/users.php`),
+                    fetchJSON(`${API_BASE}/courses.php?all=1`)
+                ]);
+            } else {
+                coursesData = await fetchJSON(`${API_BASE}/courses.php?all=1`);
+            }
+
+            if (session.user.role === 'admin') {
+                state.users = (usersData.users || []).map((user) => ({
+                    ...user,
+                    id: Number(user.id)
+                }));
+                state.users.sort((a, b) => a.id - b.id);
+                state.selectedUserId = state.users.length ? state.users[0].id : null;
+                refreshUserList();
+                const selectedUserOption = populateSelect(
+                    assignUserSelect,
+                    state.users,
+                    'id',
+                    (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
+                    state.selectedUserId
+                );
+                const normalizedUserId = parseInt(selectedUserOption, 10);
+                if (!Number.isNaN(normalizedUserId) && normalizedUserId > 0) {
+                    selectUser(normalizedUserId);
+                } else {
+                    selectUser(state.selectedUserId);
+                }
+            } else {
+                state.users = [];
+                // hide user/assignment tabs
+                ['users', 'assignments'].forEach((target) => {
+                    const btn = document.querySelector(`.pill-tabs button[data-target="${target}"]`);
+                    const tab = document.getElementById(`tab-${target}`);
+                    if (btn) btn.style.display = 'none';
+                    if (tab) tab.style.display = 'none';
+                });
+                const courseTabBtn = document.querySelector('.pill-tabs button[data-target="courses"]');
+                document.querySelectorAll('.pill-tabs button').forEach((btn) => btn.classList.remove('active'));
+                if (courseTabBtn) courseTabBtn.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach((tab) => tab.classList.remove('active'));
+                const courseTab = document.getElementById('tab-courses');
+                const lessonTab = document.getElementById('tab-lessons');
+                if (courseTab) courseTab.classList.add('active');
+                if (lessonTab) lessonTab.classList.add('active');
+                renderAssignmentPlaceholder('教师无用户管理权限');
+            }
+
             state.courses = coursesData.courses || [];
-            state.selectedUserId = state.users.length ? state.users[0].id : null;
-            refreshUserList();
             refreshCourseList();
-            const selectedUserOption = populateSelect(
-                assignUserSelect,
-                state.users,
-                'id',
-                (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
-                state.selectedUserId
-            );
-            populateSelect(assignCourseSelect, state.courses, 'id', 'title');
             const selectedLessonCourse = populateSelect(lessonCourseSelect, state.courses, 'id', 'title');
             populateSelect(editLessonCourseSelect, state.courses, 'id', 'title');
 
-            const normalizedUserId = parseInt(selectedUserOption, 10);
-            if (!Number.isNaN(normalizedUserId) && normalizedUserId > 0) {
-                selectUser(normalizedUserId);
-            } else {
-                selectUser(state.selectedUserId);
+            if (session.user.role === 'admin') {
+                populateSelect(assignCourseSelect, state.courses, 'id', 'title');
             }
 
             const initialCourseId = parseInt(selectedLessonCourse, 10);

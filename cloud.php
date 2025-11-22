@@ -487,12 +487,13 @@
     async function loadSession() {
         try {
             const data = await fetchJSON(sessionEndpoint);
-            if (!data.user || data.user.role !== 'admin') {
+            if (!data.user || (data.user.role !== 'admin' && data.user.role !== 'teacher')) {
                 window.location.href = 'login';
                 return;
             }
             const name = data.user.display_name || data.user.username || '';
-            userChip.textContent = `${name} · 管理员`;
+            const roleLabel = data.user.role === 'teacher' ? '老师' : '管理员';
+            userChip.textContent = `${name} · ${roleLabel}`;
             userChip.style.display = 'inline-flex';
             await loadFiles(1);
         } catch (error) {

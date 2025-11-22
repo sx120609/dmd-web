@@ -17,8 +17,27 @@ if ($method === 'POST') {
 ensure_lessons_description_column($mysqli);
 ensure_lesson_attachments_column($mysqli);
 
+function assert_course_access(mysqli $mysqli, int $courseId, array $user): void
+{
+    if (($user['role'] ?? '') !== 'teacher') {
+        return;
+    }
+    $stmt = $mysqli->prepare('SELECT owner_id FROM courses WHERE id = ? LIMIT 1');
+    if (!$stmt) {
+        error_response('无法验证课程权限');
+    }
+    $stmt->bind_param('i', $courseId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+    if (!$row || (int) ($row['owner_id'] ?? 0) !== (int) $user['id']) {
+        error_response('仅课程所属教师可编辑课节', 403);
+    }
+}
+
 if ($method === 'POST') {
-    require_admin($mysqli);
+    $user = require_admin_or_teacher($mysqli);
     $input = $jsonInput ?: get_json_input();
     if (empty($input)) {
         $input = $_POST;
@@ -46,6 +65,7 @@ if ($method === 'POST') {
     if ($courseId <= 0 || $title === '') {
         error_response('课程和课节标题不能为空');
     }
+    assert_course_access($mysqli, $courseId, $user);
 
     $attachmentsJson = $attachments ? json_encode($attachments, JSON_UNESCAPED_UNICODE) : null;
 
@@ -72,7 +92,7 @@ if ($method === 'POST') {
         ],
     ]);
 } elseif ($method === 'PATCH' || $method === 'PUT') {
-    require_admin($mysqli);
+    $user = require_admin_or_teacher($mysqli);
     $input = $jsonInput ?: get_json_input();
     if (empty($input)) {
         $raw = file_get_contents('php://input');
@@ -158,6 +178,7 @@ if ($method === 'POST') {
             error_response('目标课程不存在', 404);
         }
     }
+    assert_course_access($mysqli, $courseId, $user);
 
     $attachmentsJson = $attachments ? json_encode($attachments, JSON_UNESCAPED_UNICODE) : null;
 
@@ -183,7 +204,7 @@ if ($method === 'POST') {
         ],
     ]);
 } elseif ($method === 'DELETE') {
-    require_admin($mysqli);
+    $user = require_admin_or_teacher($mysqli);
     $input = $jsonInput ?: get_json_input();
     if (empty($input)) {
         $raw = file_get_contents('php://input');
@@ -198,6 +219,17 @@ if ($method === 'POST') {
     $lessonId = (int) ($input['lesson_id'] ?? 0);
     if ($lessonId <= 0) {
         error_response('课节ID无效');
+    }
+
+    $courseCheck = $mysqli->prepare('SELECT course_id FROM lessons WHERE id = ? LIMIT 1');
+    if ($courseCheck) {
+        $courseCheck->bind_param('i', $lessonId);
+        $courseCheck->execute();
+        $res = $courseCheck->get_result()->fetch_assoc();
+        $courseCheck->close();
+        if ($res && isset($res['course_id'])) {
+            assert_course_access($mysqli, (int) $res['course_id'], $user);
+        }
     }
 
     $stmt = $mysqli->prepare('DELETE FROM lessons WHERE id = ? LIMIT 1');
