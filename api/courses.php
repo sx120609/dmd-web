@@ -5,6 +5,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $jsonInput = get_json_input();
 
 ensure_lessons_description_column($mysqli);
+ensure_lesson_attachments_column($mysqli);
 ensure_course_metadata_columns($mysqli);
 
 $rawOverride = '';
@@ -15,6 +16,19 @@ if ($method === 'POST') {
     if (in_array($rawOverride, ['DELETE', 'PATCH', 'PUT'], true)) {
         $method = $rawOverride;
     }
+
+    $normalizeAttachments = static function ($raw) {
+        if (is_array($raw)) {
+            return $raw;
+        }
+        if (is_string($raw) && trim($raw) !== '') {
+            $decoded = json_decode($raw, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded;
+            }
+        }
+        return [];
+    };
 }
 
 function delete_course(mysqli $mysqli, int $courseId): void
@@ -103,6 +117,7 @@ if ($method === 'GET') {
         $lessons = [];
         while ($row = $lessonsResult->fetch_assoc()) {
             $row['id'] = (int) $row['id'];
+            $row['attachments'] = $normalizeAttachments($row['attachments'] ?? []);
             $lessons[] = $row;
         }
         $stmt->close();
@@ -136,6 +151,7 @@ if ($method === 'GET') {
         $courses = [];
         while ($row = $result->fetch_assoc()) {
             $row['id'] = (int) $row['id'];
+            $row['attachments'] = isset($row['attachments']) ? $normalizeAttachments($row['attachments']) : [];
             $courses[] = $row;
         }
         if (!$all && isset($stmt) && $stmt) {
