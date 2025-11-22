@@ -1363,20 +1363,16 @@
         button.disabled = true;
         button.textContent = '移除中...';
         try {
-            try {
-                await fetchJSON(`${API_BASE}/course_assignments.php`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userId, course_id: courseId })
-                });
-            } catch (primaryError) {
-                // fallback for environments not allowing DELETE
-                await fetchJSON(`${API_BASE}/course_assignments.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'delete', user_id: userId, course_id: courseId })
-                });
-            }
+            const formBody = new URLSearchParams({
+                action: 'delete',
+                user_id: String(userId),
+                course_id: String(courseId)
+            });
+            await fetchJSON(`${API_BASE}/course_assignments.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formBody.toString()
+            });
             setMessage(assignCourseMessage, '已移除课程', 'success');
             await loadAssignmentsForUser(userId);
         } catch (error) {
