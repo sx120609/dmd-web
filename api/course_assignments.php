@@ -74,11 +74,27 @@ switch ($method) {
         if (empty($input)) {
             $input = $_POST;
         }
+        $action = $input['action'] ?? 'assign';
         $userId = (int) ($input['user_id'] ?? 0);
         $courseId = (int) ($input['course_id'] ?? 0);
 
         if ($userId <= 0 || $courseId <= 0) {
             error_response('请选择有效的用户和课程');
+        }
+
+        if ($action === 'delete' || $action === 'remove') {
+            $stmt = $mysqli->prepare('DELETE FROM user_courses WHERE user_id = ? AND course_id = ?');
+            if (!$stmt) {
+                error_response('无法移除课程分配');
+            }
+            $stmt->bind_param('ii', $userId, $courseId);
+            if (!$stmt->execute()) {
+                $stmt->close();
+                error_response('移除课程分配失败');
+            }
+            $removed = $stmt->affected_rows > 0;
+            $stmt->close();
+            json_response(['success' => true, 'removed' => $removed]);
         }
 
         $stmt = $mysqli->prepare('INSERT IGNORE INTO user_courses (user_id, course_id) VALUES (?, ?)');

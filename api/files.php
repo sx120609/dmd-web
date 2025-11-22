@@ -240,7 +240,7 @@ switch ($method) {
         if (!is_writable($storageDir)) {
             error_response('文件目录不可写，请检查权限');
         }
-        $maxSize = 200 * 1024 * 1024; // 200MB
+        $maxSize = 2 * 1024 * 1024 * 1024; // 2GB
 
         $files = $_FILES['file'];
         $multi = is_array($files['name']);
@@ -256,7 +256,7 @@ switch ($method) {
             $tmpName = $multi ? $files['tmp_name'][$i] : $files['tmp_name'];
             $size = $multi ? (int) $files['size'][$i] : (int) $files['size'];
             if ($size > $maxSize) {
-                error_response('文件过大，单个文件不超过 200MB');
+                error_response('文件过大，单个文件不超过 2GB');
             }
             $originalName = basename($name);
             $ext = pathinfo($originalName, PATHINFO_EXTENSION);

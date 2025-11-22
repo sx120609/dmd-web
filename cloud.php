@@ -120,13 +120,13 @@
                             <p class="text-uppercase small text-secondary mb-1">上传文件</p>
                             <h4 class="mb-0">添加新文件</h4>
                         </div>
-                        <span class="pill-badge muted" id="quotaInfo">单文件上限 200MB</span>
+                        <span class="pill-badge muted" id="quotaInfo">单文件上限 2GB</span>
                     </div>
                     <form id="uploadForm" class="d-flex flex-column gap-3">
                         <div>
                             <label for="fileInput" class="form-label">选择文件</label>
                             <input class="form-control" type="file" id="fileInput" name="file" multiple required>
-                            <div class="form-text">可批量选择文件，单个文件上限 200MB。</div>
+                            <div class="form-text">可批量选择文件，单个文件上限 2GB。</div>
                         </div>
                         <div class="upload-progress" hidden id="uploadProgressWrap">
                             <div class="progress" style="height: 10px;">

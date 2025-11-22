@@ -20,8 +20,8 @@
 
 # Increase upload limits for cloud drive uploads (mod_php environments)
 <IfModule mod_php.c>
-    php_value upload_max_filesize 200M
-    php_value post_max_size 220M
+    php_value upload_max_filesize 2048M
+    php_value post_max_size 2050M
 </IfModule>
 # Allow larger request bodies at the web server level
 LimitRequestBody 0

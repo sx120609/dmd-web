@@ -304,8 +304,12 @@
                         <input class="form-control" type="file" id="cloudUploadInput" multiple>
                         <button class="btn btn-outline-primary" type="button" id="cloudUploadButton">上传</button>
                     </div>
-                    <div class="small text-secondary mt-1" id="cloudUploadHint">支持批量上传，单文件上限 200MB。</div>
+                    <div class="small text-secondary mt-1" id="cloudUploadHint">支持批量上传，单文件上限 2GB。</div>
                     <div class="message mt-2" id="cloudUploadMessage" hidden></div>
+                    <div class="progress mt-2" style="height: 10px;" hidden id="cloudUploadProgressWrap">
+                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="cloudUploadProgressBar"></div>
+                    </div>
+                    <div class="small text-secondary mt-1" id="cloudUploadProgressText"></div>
                 </div>
                 <div class="table-responsive">
                     <table class="table align-middle">
@@ -353,6 +357,9 @@
     const cloudUploadInput = document.getElementById('cloudUploadInput');
     const cloudUploadButton = document.getElementById('cloudUploadButton');
     const cloudUploadMessage = document.getElementById('cloudUploadMessage');
+    const cloudUploadProgressWrap = document.getElementById('cloudUploadProgressWrap');
+    const cloudUploadProgressBar = document.getElementById('cloudUploadProgressBar');
+    const cloudUploadProgressText = document.getElementById('cloudUploadProgressText');
 
     const tabButtons = document.querySelectorAll('.pill-tabs button');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -585,27 +592,44 @@
         }
         setMessage(cloudUploadMessage, `正在上传 ${payloads.length} 个文件...`);
         cloudUploadButton.disabled = true;
-        const uploadSingle = (file) => {
+        if (cloudUploadProgressWrap) {
+            cloudUploadProgressWrap.hidden = false;
+            cloudUploadProgressBar.style.width = '0%';
+            cloudUploadProgressBar.setAttribute('aria-valuenow', '0');
+            cloudUploadProgressText.textContent = '';
+        }
+        const uploadSingle = (file, index) => new Promise((resolve, reject) => {
             const formData = new FormData();
             formData.append('file', file);
-            return fetch(normalizeApiUrl(FILES_ENDPOINT), {
-                method: 'POST',
-                credentials: 'include',
-                body: formData
-            }).then(async (res) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', normalizeApiUrl(FILES_ENDPOINT), true);
+            xhr.withCredentials = true;
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const pct = Math.round((e.loaded / e.total) * 100);
+                    cloudUploadProgressBar.style.width = `${pct}%`;
+                    cloudUploadProgressBar.setAttribute('aria-valuenow', String(pct));
+                    cloudUploadProgressText.textContent = `文件 ${index + 1}/${payloads.length} · ${pct}%`;
+                }
+            };
+            xhr.onerror = () => reject(new Error('上传失败，请检查网络'));
+            xhr.onload = () => {
                 let json = null;
                 try {
-                    json = await res.json();
+                    json = JSON.parse(xhr.responseText || '{}');
                 } catch (e) { /* ignore */ }
-                if (!res.ok) {
-                    const message = (json && (json.message || json.error)) || `上传失败（${res.status}）`;
-                    throw new Error(message);
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve(json);
+                } else {
+                    const message = (json && (json.message || json.error)) || `上传失败（${xhr.status}）`;
+                    reject(new Error(message));
                 }
-                return json;
-            });
-        };
-        return payloads.reduce((promise, file) => promise.then(async () => {
-            await uploadSingle(file);
+            };
+            xhr.send(formData);
+        });
+
+        return payloads.reduce((promise, file, idx) => promise.then(async () => {
+            await uploadSingle(file, idx);
         }), Promise.resolve()).then(() => {
             setMessage(cloudUploadMessage, '上传成功，已自动开启外链', 'success');
             cloudUploadInput.value = '';
@@ -613,6 +637,9 @@
             setMessage(cloudUploadMessage, error.message || '上传失败', 'error');
         }).finally(async () => {
             cloudUploadButton.disabled = false;
+            if (cloudUploadProgressWrap) {
+                cloudUploadProgressWrap.hidden = true;
+            }
             await fetchCloudFiles();
             // 自动开启外链
             await Promise.all(cloudFiles.map(async (file) => {
@@ -1336,11 +1363,20 @@
         button.disabled = true;
         button.textContent = '移除中...';
         try {
-            await fetchJSON(`${API_BASE}/course_assignments.php`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, course_id: courseId })
-            });
+            try {
+                await fetchJSON(`${API_BASE}/course_assignments.php`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, course_id: courseId })
+                });
+            } catch (primaryError) {
+                // fallback for environments not allowing DELETE
+                await fetchJSON(`${API_BASE}/course_assignments.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', user_id: userId, course_id: courseId })
+                });
+            }
             setMessage(assignCourseMessage, '已移除课程', 'success');
             await loadAssignmentsForUser(userId);
         } catch (error) {
