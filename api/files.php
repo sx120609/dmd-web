@@ -199,6 +199,50 @@ $currentUser = require_admin($mysqli);
 
 switch ($method) {
     case 'GET':
+        $page = isset($_GET['page']) ? (int) $_GET['page'] : 0;
+        $perPage = isset($_GET['per_page']) ? (int) $_GET['per_page'] : 0;
+        $perPage = $perPage > 0 ? min($perPage, 100) : 0;
+
+        if ($page > 0 && $perPage > 0) {
+            $offset = ($page - 1) * $perPage;
+            $stmt = $mysqli->prepare('SELECT * FROM cloud_files WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?');
+            if (!$stmt) {
+                error_response('无法读取文件列表');
+            }
+            $stmt->bind_param('iii', $currentUser['id'], $perPage, $offset);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $files = [];
+            while ($row = $result->fetch_assoc()) {
+                $files[] = file_payload($row);
+            }
+            $stmt->close();
+
+            $countStmt = $mysqli->prepare('SELECT COUNT(*) AS total FROM cloud_files WHERE user_id = ?');
+            if (!$countStmt) {
+                error_response('无法统计文件数量');
+            }
+            $countStmt->bind_param('i', $currentUser['id']);
+            $countStmt->execute();
+            $countResult = $countStmt->get_result()->fetch_assoc();
+            $countStmt->close();
+            $total = (int) ($countResult['total'] ?? 0);
+            $totalPages = $perPage > 0 ? (int) ceil($total / $perPage) : 1;
+            if ($totalPages < 1) {
+                $totalPages = 1;
+            }
+            json_response([
+                'files' => $files,
+                'pagination' => [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                    'total' => $total,
+                    'total_pages' => $totalPages
+                ]
+            ]);
+            break;
+        }
+
         $stmt = $mysqli->prepare('SELECT * FROM cloud_files WHERE user_id = ? ORDER BY created_at DESC');
         if (!$stmt) {
             error_response('无法读取文件列表');

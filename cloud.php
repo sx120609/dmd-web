@@ -163,6 +163,13 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3" id="paginationControls" hidden>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-secondary" id="prevPage">上一页</button>
+                            <button class="btn btn-sm btn-outline-secondary" id="nextPage">下一页</button>
+                        </div>
+                        <div class="small text-secondary" id="pageSummary"></div>
+                    </div>
                     <div class="message" id="listMessage" hidden></div>
                 </div>
             </div>
@@ -189,6 +196,18 @@
     const uploadProgressWrap = document.getElementById('uploadProgressWrap');
     const uploadProgressBar = document.getElementById('uploadProgressBar');
     const uploadProgressText = document.getElementById('uploadProgressText');
+    const paginationControls = document.getElementById('paginationControls');
+    const prevPageButton = document.getElementById('prevPage');
+    const nextPageButton = document.getElementById('nextPage');
+    const pageSummary = document.getElementById('pageSummary');
+
+    const PAGE_SIZE = 10;
+    let paginationState = {
+        page: 1,
+        per_page: PAGE_SIZE,
+        total: 0,
+        total_pages: 1
+    };
 
     function normalizeApiUrl(url) {
         if (url.startsWith(`${API_BASE}/`)) {
@@ -264,7 +283,8 @@
         if (!files.length) {
             fileTableBody.innerHTML = '<tr><td colspan="4" class="text-secondary text-center py-4">暂无文件，上传后即可在此管理。</td></tr>';
         }
-        fileCountEl.textContent = `${files.length} 个文件`;
+        const totalText = paginationState.total || files.length;
+        fileCountEl.textContent = `${totalText} 个文件`;
         files.forEach((file) => {
             const tr = document.createElement('tr');
             const status = file.is_public ? '<span class="badge text-bg-success-subtle text-success-emphasis">已开启</span>' : '<span class="badge text-bg-secondary">关闭</span>';
@@ -291,14 +311,44 @@
         });
     }
 
-    async function loadFiles() {
+    function updatePaginationControls() {
+        const { page, total_pages: totalPages, total } = paginationState;
+        if (!paginationControls) return;
+        const shouldShow = totalPages > 1;
+        paginationControls.hidden = !shouldShow;
+        if (pageSummary) {
+            pageSummary.textContent = `第 ${page} / ${Math.max(totalPages, 1)} 页 · 共 ${total} 个文件`;
+        }
+        if (prevPageButton) {
+            prevPageButton.disabled = page <= 1;
+        }
+        if (nextPageButton) {
+            nextPageButton.disabled = page >= totalPages;
+        }
+    }
+
+    async function loadFiles(targetPage = paginationState.page || 1) {
         setMessage(listMessage);
         try {
-            const data = await fetchJSON(filesEndpoint);
+            const safePage = Math.max(1, Number(targetPage) || 1);
+            const data = await fetchJSON(`${filesEndpoint}?page=${safePage}&per_page=${PAGE_SIZE}`);
+            if (data.pagination && data.pagination.total_pages && safePage > data.pagination.total_pages && data.pagination.total_pages > 0) {
+                return loadFiles(data.pagination.total_pages);
+            }
+            paginationState = {
+                page: data.pagination?.page || safePage,
+                per_page: data.pagination?.per_page || PAGE_SIZE,
+                total: data.pagination?.total ?? (data.files ? data.files.length : 0),
+                total_pages: data.pagination?.total_pages || 1
+            };
             renderFiles(data.files || []);
+            updatePaginationControls();
         } catch (error) {
             setMessage(listMessage, error.message || '文件列表获取失败', 'error');
             fileTableBody.innerHTML = '<tr><td colspan="4" class="text-secondary text-center py-4">文件列表加载失败</td></tr>';
+            if (paginationControls) {
+                paginationControls.hidden = true;
+            }
         }
     }
 
@@ -312,7 +362,7 @@
             });
             setMessage(listMessage, '已更新外链状态', 'success');
             const updated = data.file;
-            await loadFiles();
+            await loadFiles(paginationState.page);
             return updated;
         } catch (error) {
             setMessage(listMessage, error.message || '更新失败', 'error');
@@ -331,7 +381,7 @@
                 body: JSON.stringify({ action: 'delete', id: file.id })
             });
             setMessage(listMessage, '文件已删除', 'success');
-            await loadFiles();
+            await loadFiles(Math.max(1, paginationState.page));
         } catch (error) {
             setMessage(listMessage, error.message || '删除失败', 'error');
         }
@@ -397,7 +447,7 @@
             setMessage(uploadMessage, '全部上传成功', 'success');
             resetUploadProgress();
             uploadForm.reset();
-            await loadFiles();
+            await loadFiles(paginationState.page || 1);
         } catch (error) {
             setMessage(uploadMessage, error.message || '上传失败', 'error');
             resetUploadProgress();
@@ -419,6 +469,20 @@
         window.location.href = 'dashboard';
     });
 
+    if (prevPageButton) {
+        prevPageButton.addEventListener('click', () => {
+            const targetPage = Math.max(1, (paginationState.page || 1) - 1);
+            loadFiles(targetPage);
+        });
+    }
+
+    if (nextPageButton) {
+        nextPageButton.addEventListener('click', () => {
+            const targetPage = Math.min((paginationState.total_pages || 1), (paginationState.page || 1) + 1);
+            loadFiles(targetPage);
+        });
+    }
+
     async function loadSession() {
         try {
             const data = await fetchJSON(sessionEndpoint);
@@ -429,7 +493,7 @@
             const name = data.user.display_name || data.user.username || '';
             userChip.textContent = `${name} · 管理员`;
             userChip.style.display = 'inline-flex';
-            await loadFiles();
+            await loadFiles(1);
         } catch (error) {
             window.location.href = 'login';
         }
