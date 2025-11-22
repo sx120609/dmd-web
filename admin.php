@@ -155,29 +155,30 @@
                     </div>
                 </div>
             </div>
-            <!-- 批量导入用户弹窗（自定义） -->
-            <div class="overlay-modal" id="userImportOverlay" hidden>
-                <div class="overlay-backdrop" id="userImportOverlayBackdrop"></div>
-                <div class="overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="userImportOverlayTitle">
-                    <div class="overlay-header">
-                        <h5 id="userImportOverlayTitle" class="m-0">批量导入用户</h5>
-                        <button type="button" class="btn-close" id="closeUserImportOverlay" aria-label="关闭"></button>
-                    </div>
-                    <div class="overlay-body">
-                        <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role（student/admin）。</p>
-                        <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="downloadUserTemplate">下载模板</button>
-                            <small class="text-secondary">文件大小限制 5MB</small>
+            <!-- 批量导入用户弹窗（沿用云盘 Modal 风格） -->
+            <div class="modal fade" id="userImportModal" tabindex="-1" aria-labelledby="userImportModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="userImportModalLabel">批量导入用户</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="mb-3">
-                            <label for="userImportFile" class="form-label">上传填写好的 CSV</label>
-                            <input id="userImportFile" type="file" accept=".csv,text/csv" class="form-control">
+                        <div class="modal-body">
+                            <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role（student/admin）。</p>
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="downloadUserTemplate">下载模板</button>
+                                <small class="text-secondary">文件大小限制 5MB</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="userImportFile" class="form-label">上传填写好的 CSV</label>
+                                <input id="userImportFile" type="file" accept=".csv,text/csv" class="form-control">
+                            </div>
+                            <div class="message" id="userImportMessage" hidden></div>
                         </div>
-                        <div class="message" id="userImportMessage" hidden></div>
-                    </div>
-                    <div class="overlay-footer">
-                        <button type="button" class="btn btn-secondary" id="cancelUserImportOverlay">关闭</button>
-                        <button type="button" class="primary-button" id="userImportButton">导入用户</button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                            <button type="button" class="primary-button" id="userImportButton">导入用户</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -403,6 +404,8 @@
     const userImportFileInput = document.getElementById('userImportFile');
     const userImportButton = document.getElementById('userImportButton');
     const userImportMessage = document.getElementById('userImportMessage');
+    const userImportModalEl = document.getElementById('userImportModal');
+    let userImportModal = null;
     const userListEl = document.getElementById('userList');
     const updateUserForm = document.getElementById('updateUserForm');
     const updateUserMessage = document.getElementById('updateUserMessage');
@@ -414,10 +417,6 @@
     const deleteUserButton = document.getElementById('deleteUserButton');
     const deleteUserMessage = document.getElementById('deleteUserMessage');
     const openUserImportModalButton = document.getElementById('openUserImportModal');
-    const userImportOverlay = document.getElementById('userImportOverlay');
-    const userImportOverlayBackdrop = document.getElementById('userImportOverlayBackdrop');
-    const closeUserImportOverlayButton = document.getElementById('closeUserImportOverlay');
-    const cancelUserImportOverlayButton = document.getElementById('cancelUserImportOverlay');
     const userDetailTitle = document.getElementById('userDetailTitle');
     const userDetailSubtitle = document.getElementById('userDetailSubtitle');
     const userDetailRoleChip = document.getElementById('userDetailRoleChip');
@@ -513,29 +512,13 @@
         return `${size.toFixed(size >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
     }
 
-    function resetUserImportOverlay() {
+    function resetUserImportModal() {
         if (userImportMessage) {
             setMessage(userImportMessage);
         }
         if (userImportFileInput) {
             userImportFileInput.value = '';
         }
-    }
-
-    function openUserImportOverlay() {
-        if (!userImportOverlay) return;
-        resetUserImportOverlay();
-        userImportOverlay.hidden = false;
-        userImportOverlay.classList.add('show');
-        document.body.classList.add('modal-open');
-    }
-
-    function closeUserImportOverlay() {
-        if (!userImportOverlay) return;
-        userImportOverlay.classList.remove('show');
-        userImportOverlay.hidden = true;
-        document.body.classList.remove('modal-open');
-        resetUserImportOverlay();
     }
 
     function downloadUserTemplate() {
@@ -1613,26 +1596,24 @@
     if (userImportButton) {
         userImportButton.addEventListener('click', importUsers);
     }
+    if (userImportModalEl && typeof bootstrap !== 'undefined') {
+        userImportModal = new bootstrap.Modal(userImportModalEl);
+        userImportModalEl.addEventListener('show.bs.modal', () => {
+            resetUserImportModal();
+        });
+    }
     if (openUserImportModalButton) {
         openUserImportModalButton.addEventListener('click', (event) => {
             event.preventDefault();
-            openUserImportOverlay();
+            if (!userImportModal && userImportModalEl && typeof bootstrap !== 'undefined') {
+                userImportModal = new bootstrap.Modal(userImportModalEl);
+            }
+            if (userImportModal) {
+                resetUserImportModal();
+                userImportModal.show();
+            }
         });
     }
-    if (closeUserImportOverlayButton) {
-        closeUserImportOverlayButton.addEventListener('click', closeUserImportOverlay);
-    }
-    if (cancelUserImportOverlayButton) {
-        cancelUserImportOverlayButton.addEventListener('click', closeUserImportOverlay);
-    }
-    if (userImportOverlayBackdrop) {
-        userImportOverlayBackdrop.addEventListener('click', closeUserImportOverlay);
-    }
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && userImportOverlay && !userImportOverlay.hidden) {
-            closeUserImportOverlay();
-        }
-    });
 
     createUserForm.addEventListener('submit', async (event) => {
         event.preventDefault();
