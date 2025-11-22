@@ -365,9 +365,6 @@
                     <div class="fw-bold">Rare Light · 罕见病儿童公益</div>
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a class="primary-button" id="classroomCta" data-classroom-link href="#classroom">进入网课</a>
-            </div>
         </div>
     </nav>
 
