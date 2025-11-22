@@ -35,7 +35,10 @@ if ($header === false) {
 }
 
 $normalize = static function ($value) {
-    return trim((string) $value);
+    $v = (string) $value;
+    // Remove UTF-8 BOM if present
+    $v = preg_replace('/^\xEF\xBB\xBF/', '', $v);
+    return trim($v);
 };
 
 $expectedHeaders = ['username', 'display_name', 'password', 'role'];
@@ -78,7 +81,11 @@ while (($row = fgetcsv($handle)) !== false) {
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
     $insertStmt->bind_param('ssss', $username, $displayName, $passwordHash, $role);
     if (!$insertStmt->execute()) {
-        $errors[] = "第 {$rowNumber} 行写入失败：" . $insertStmt->error;
+        if ($mysqli->errno === 1062) {
+            $errors[] = "第 {$rowNumber} 行用户名已存在，已跳过";
+        } else {
+            $errors[] = "第 {$rowNumber} 行写入失败：" . $insertStmt->error;
+        }
         $skipped++;
         continue;
     }

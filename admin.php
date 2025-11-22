@@ -75,43 +75,35 @@
                                 <ul class="table-list user-table" id="userList"></ul>
                             </div>
                         <form id="createUserForm" class="card surface-section form-grid surface-form">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h3 class="mb-1">创建用户</h3>
+                                    <p class="hint mb-0">单个创建或使用右侧按钮批量导入。</p>
+                                </div>
+                                <button type="button" class="ghost-button" id="openUserImportModal">批量导入</button>
+                            </div>
                             <div>
                                 <label for="newUsername">用户名</label>
                                 <input id="newUsername" name="username" placeholder="例如：student01" required>
                             </div>
-                                <div>
-                                    <label for="newDisplayName">显示名称</label>
-                                    <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
-                                </div>
-                                <div>
-                                    <label for="newPassword">初始密码</label>
-                                    <input id="newPassword" name="password" type="password" placeholder="设置登录密码" required>
-                                </div>
-                                <div>
-                                    <label for="newRole">角色</label>
-                                    <select id="newRole" name="role">
-                                        <option value="student">学员</option>
-                                <option value="admin">管理员</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="primary-button">创建用户</button>
-                        <div class="message inline" id="createUserMessage" hidden></div>
-                    </form>
-                    <div class="card surface-section form-grid surface-form">
-                        <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h4 class="mb-1">批量导入用户</h4>
-                                <p class="hint mb-0">下载模板 CSV，填写后上传；支持设置用户名、显示名、密码、角色（student/admin）。</p>
+                                <label for="newDisplayName">显示名称</label>
+                                <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
                             </div>
-                            <button type="button" class="ghost-button" id="downloadUserTemplate">下载模板</button>
-                        </div>
-                        <div>
-                            <label for="userImportFile">上传填写好的 CSV</label>
-                            <input id="userImportFile" type="file" accept=".csv,text/csv">
-                        </div>
-                        <button type="button" class="primary-button" id="userImportButton">导入用户</button>
-                        <div class="message inline" id="userImportMessage" hidden></div>
-                    </div>
+                            <div>
+                                <label for="newPassword">初始密码</label>
+                                <input id="newPassword" name="password" type="password" placeholder="设置登录密码" required>
+                            </div>
+                            <div>
+                                <label for="newRole">角色</label>
+                                <select id="newRole" name="role">
+                                    <option value="student">学员</option>
+                                    <option value="admin">管理员</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="primary-button">创建用户</button>
+                            <div class="message inline" id="createUserMessage" hidden></div>
+                        </form>
                         </div>
                     </div>
                     <div class="col-12 col-xl-7 col-xxl-8">
@@ -160,6 +152,33 @@
                                 <div class="message inline" id="deleteUserMessage" hidden></div>
                             </div>
                         </section>
+                    </div>
+                </div>
+            </div>
+            <!-- 批量导入用户 Modal -->
+            <div class="modal fade" id="userImportModal" tabindex="-1" aria-labelledby="userImportModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="userImportModalLabel">批量导入用户</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="hint">下载模板 CSV，填写后上传；支持设置用户名、显示名、密码、角色（student/admin）。</p>
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <button type="button" class="ghost-button" id="downloadUserTemplate">下载模板</button>
+                                <small class="text-muted">文件大小限制 5MB</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="userImportFile" class="form-label">上传填写好的 CSV</label>
+                                <input id="userImportFile" type="file" accept=".csv,text/csv" class="form-control">
+                            </div>
+                            <div class="message inline" id="userImportMessage" hidden></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                            <button type="button" class="primary-button" id="userImportButton">导入用户</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -395,6 +414,8 @@
     const resetPasswordButton = document.getElementById('resetPasswordButton');
     const deleteUserButton = document.getElementById('deleteUserButton');
     const deleteUserMessage = document.getElementById('deleteUserMessage');
+    const openUserImportModalButton = document.getElementById('openUserImportModal');
+    const userImportModalEl = document.getElementById('userImportModal');
     const userDetailTitle = document.getElementById('userDetailTitle');
     const userDetailSubtitle = document.getElementById('userDetailSubtitle');
     const userDetailRoleChip = document.getElementById('userDetailRoleChip');
@@ -456,6 +477,7 @@
     let cloudPickerModal = null;
     let cloudFiles = [];
     let activeCloudTargetInputId = null;
+    let userImportModal = null;
 
     let state = {
         users: [],
@@ -531,8 +553,8 @@
                 method: 'POST',
                 body: formData
             });
-            const inserted = Number(result.inserted_count || 0);
-            const skipped = Number(result.skipped_count || 0);
+            const inserted = Number(result.inserted ?? result.inserted_count ?? 0);
+            const skipped = Number(result.skipped ?? result.skipped_count ?? 0);
             const errors = Array.isArray(result.errors) ? result.errors : [];
             const parts = [
                 `导入成功：${inserted} 条`,
@@ -1559,11 +1581,27 @@
         showLessonEditor(courseId, lessonId);
     });
 
+    if (userImportModalEl && typeof bootstrap !== 'undefined') {
+        userImportModal = new bootstrap.Modal(userImportModalEl);
+    }
     if (downloadUserTemplateButton) {
         downloadUserTemplateButton.addEventListener('click', downloadUserTemplate);
     }
     if (userImportButton) {
         userImportButton.addEventListener('click', importUsers);
+    }
+    if (openUserImportModalButton) {
+        openUserImportModalButton.addEventListener('click', () => {
+            if (userImportMessage) {
+                setMessage(userImportMessage);
+            }
+            if (userImportFileInput) {
+                userImportFileInput.value = '';
+            }
+            if (userImportModal) {
+                userImportModal.show();
+            }
+        });
     }
 
     createUserForm.addEventListener('submit', async (event) => {
@@ -1967,10 +2005,11 @@
         }
         setMessage(deleteUserMessage, '正在删除用户...');
         try {
+            const body = new URLSearchParams({ action: 'delete', id: String(targetUser.id) });
             await fetchJSON(`${API_BASE}/users.php`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: targetUser.id })
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString()
             });
             state.users.splice(targetIndex, 1);
             const fallback = state.users[targetIndex] || state.users[targetIndex - 1] || null;

@@ -23,6 +23,51 @@ switch ($method) {
         if (empty($input)) {
             $input = $_POST;
         }
+        if (($input['action'] ?? '') === 'delete') {
+            $userId = isset($input['id']) ? (int) $input['id'] : 0;
+            if ($userId <= 0) {
+                error_response('缺少用户ID');
+            }
+            if ($userId === (int) ($_SESSION['user']['id'] ?? 0)) {
+                error_response('无法删除当前登录的管理员');
+            }
+
+            $stmt = $mysqli->prepare('SELECT role FROM users WHERE id = ? LIMIT 1');
+            if (!$stmt) {
+                error_response('无法查询用户信息');
+            }
+            $stmt->bind_param('i', $userId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            $stmt->close();
+
+            if (!$row) {
+                error_response('用户不存在', 404);
+            }
+
+            if ($row['role'] === 'admin') {
+                $countResult = $mysqli->query("SELECT COUNT(*) AS total FROM users WHERE role = 'admin'");
+                if ($countResult) {
+                    $countRow = $countResult->fetch_assoc();
+                    if ((int) ($countRow['total'] ?? 0) <= 1) {
+                        error_response('系统至少需要一名管理员');
+                    }
+                }
+            }
+
+            $stmt = $mysqli->prepare('DELETE FROM users WHERE id = ? LIMIT 1');
+            if (!$stmt) {
+                error_response('无法删除用户');
+            }
+            $stmt->bind_param('i', $userId);
+            if (!$stmt->execute()) {
+                $stmt->close();
+                error_response('删除用户失败');
+            }
+            $stmt->close();
+            json_response(['success' => true]);
+        }
         $username = trim($input['username'] ?? '');
         $displayName = trim($input['display_name'] ?? '');
         $password = $input['password'] ?? '';
