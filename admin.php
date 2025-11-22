@@ -235,8 +235,13 @@
                             </div>
                             <div>
                                 <label for="lessonAttachmentsInput">附件（每行“名称|链接”或直接粘贴链接）</label>
-                                <textarea id="lessonAttachmentsInput" name="attachments" rows="3" placeholder="示例：\n讲义 PDF|https://example.com/file.pdf\n练习题|https://example.com/ex.pdf"></textarea>
-                                <p class="hint">支持外部链接或粘贴云盘外链，留空则无附件。</p>
+                                <div class="d-flex flex-column gap-2">
+                                    <textarea id="lessonAttachmentsInput" name="attachments" rows="3" placeholder="示例：\n讲义 PDF|https://example.com/file.pdf\n练习题|https://example.com/ex.pdf"></textarea>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm cloud-picker-button" data-target-input="lessonAttachmentsInput" data-cloud-mode="attachment">云盘选择</button>
+                                        <p class="hint mb-0">支持外部链接或云盘外链，留空则无附件。</p>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <label for="lessonDescriptionInput">课节简介</label>
@@ -275,7 +280,13 @@
                             </div>
                             <div>
                                 <label for="editLessonAttachments">附件（每行“名称|链接”或直接粘贴链接）</label>
-                                <textarea id="editLessonAttachments" rows="3" placeholder="示例：讲义 PDF|https://example.com/file.pdf"></textarea>
+                                <div class="d-flex flex-column gap-2">
+                                    <textarea id="editLessonAttachments" rows="3" placeholder="示例：讲义 PDF|https://example.com/file.pdf"></textarea>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm cloud-picker-button" data-target-input="editLessonAttachments" data-cloud-mode="attachment">云盘选择</button>
+                                        <p class="hint mb-0">支持外部链接或云盘外链。</p>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <label for="editLessonDescription">课节简介</label>
@@ -509,6 +520,7 @@
     let cloudPickerModal = null;
     let cloudFiles = [];
     let activeCloudTargetInputId = null;
+    let activeCloudTargetMode = 'default';
 
     let state = {
         users: [],
@@ -739,15 +751,22 @@
         }
         const origin = window.location.origin;
         const value = `${origin}${finalFile.share_url}`;
-        targetInput.value = value;
+        if (activeCloudTargetMode === 'attachment' || targetInput.tagName === 'TEXTAREA') {
+            const line = `${finalFile.original_name}|${value}`;
+            const prev = (targetInput.value || '').trim();
+            targetInput.value = prev ? `${prev}\n${line}` : line;
+        } else {
+            targetInput.value = value;
+        }
         setMessage(cloudPickerMessage, `已插入外链：${finalFile.original_name}`, 'success');
         if (cloudPickerModal) {
             cloudPickerModal.hide();
         }
     }
 
-    async function openCloudPicker(targetInputId) {
+    async function openCloudPicker(targetInputId, mode = 'default') {
         activeCloudTargetInputId = targetInputId;
+        activeCloudTargetMode = mode || 'default';
         clearDanglingBackdrops();
         if (!cloudPickerModal) {
             cloudPickerModal = new bootstrap.Modal(cloudPickerModalEl);
@@ -2125,10 +2144,11 @@
     document.querySelectorAll('.cloud-picker-button').forEach((btn) => {
         btn.addEventListener('click', async () => {
             const target = btn.dataset.targetInput;
+            const mode = btn.dataset.cloudMode || 'default';
             if (!target) {
                 return;
             }
-            await openCloudPicker(target);
+            await openCloudPicker(target, mode);
         });
     });
 
