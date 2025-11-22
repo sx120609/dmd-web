@@ -2269,9 +2269,11 @@ body.lesson-drawer-open .drawer-backdrop {
 
 /* admin modal z-index override to ensure clickable */
 .modal {
-    z-index: 2001;
+    z-index: 2055;
+    pointer-events: auto;
 }
 
 .modal-backdrop.show {
-    z-index: 2000;
+    z-index: 2050;
+    pointer-events: auto;
 }
