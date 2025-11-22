@@ -9,6 +9,34 @@ ensure_lesson_attachments_column($mysqli);
 ensure_course_metadata_columns($mysqli);
 
 $rawOverride = '';
+$normalizeAttachments = static function ($raw) {
+    if (is_array($raw)) {
+        return $raw;
+    }
+    if (is_string($raw) && trim($raw) !== '') {
+        $decoded = json_decode($raw, true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $decoded;
+        }
+    }
+    return [];
+};
+
+$lessonsHasAttachments = (function (mysqli $mysqli): bool {
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+    $check = $mysqli->query("SHOW COLUMNS FROM `lessons` LIKE 'attachments'");
+    if ($check instanceof mysqli_result) {
+        $cached = $check->num_rows > 0;
+        $check->free();
+    } else {
+        $cached = false;
+    }
+    return $cached;
+})($mysqli);
+
 if ($method === 'POST') {
     $rawOverride = strtoupper(
         $_POST['_method'] ?? $_GET['_method'] ?? $jsonInput['_method'] ?? ($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] ?? '')
@@ -16,19 +44,6 @@ if ($method === 'POST') {
     if (in_array($rawOverride, ['DELETE', 'PATCH', 'PUT'], true)) {
         $method = $rawOverride;
     }
-
-    $normalizeAttachments = static function ($raw) {
-        if (is_array($raw)) {
-            return $raw;
-        }
-        if (is_string($raw) && trim($raw) !== '') {
-            $decoded = json_decode($raw, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                return $decoded;
-            }
-        }
-        return [];
-    };
 }
 
 function delete_course(mysqli $mysqli, int $courseId): void
@@ -107,9 +122,15 @@ if ($method === 'GET') {
             error_response('课程不存在或无访问权限', 404);
         }
 
-        $stmt = $mysqli->prepare('SELECT id, title, video_url, description, attachments FROM lessons WHERE course_id = ? ORDER BY id ASC');
+        $lessonFields = $lessonsHasAttachments ? 'id, title, video_url, description, attachments' : 'id, title, video_url, description';
+        $stmt = $mysqli->prepare("SELECT {$lessonFields} FROM lessons WHERE course_id = ? ORDER BY id ASC");
         if (!$stmt) {
-            error_response('无法获取课节列表');
+            // fallback无附件列
+            $lessonsHasAttachments = false;
+            $stmt = $mysqli->prepare('SELECT id, title, video_url, description FROM lessons WHERE course_id = ? ORDER BY id ASC');
+            if (!$stmt) {
+                error_response('无法获取课节列表');
+            }
         }
         $stmt->bind_param('i', $courseId);
         $stmt->execute();
@@ -117,7 +138,7 @@ if ($method === 'GET') {
         $lessons = [];
         while ($row = $lessonsResult->fetch_assoc()) {
             $row['id'] = (int) $row['id'];
-            $row['attachments'] = $normalizeAttachments($row['attachments'] ?? []);
+            $row['attachments'] = $lessonsHasAttachments ? $normalizeAttachments($row['attachments'] ?? []) : [];
             $lessons[] = $row;
         }
         $stmt->close();
