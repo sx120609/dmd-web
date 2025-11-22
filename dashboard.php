@@ -517,7 +517,7 @@
         if (courseId) {
             const progress = getCourseProgress(courseId, total);
             resolvedTotal = progress.total || baseTotal;
-            resolvedCompleted = Math.max(progress.completed || 0, progress.visited || resolvedCompleted);
+            resolvedCompleted = Math.max(progress.completed || 0, 0);
         }
         resolvedTotal = Math.max(resolvedTotal, 0);
         resolvedCompleted = Math.min(Math.max(resolvedCompleted, 0), resolvedTotal || resolvedCompleted);
@@ -602,16 +602,14 @@
         const total = lessonCount || record.total || 0;
         const visitedCount = Array.isArray(record.visited) ? record.visited.length : 0;
         const completedCount = Array.isArray(record.completed) ? record.completed.length : 0;
-        const effectiveVisited = Math.max(visitedCount, completedCount);
-        const safeVisited = Math.min(visitedCount, total || visitedCount);
-        const pct = total > 0 ? Math.round((Math.min(effectiveVisited, total) / total) * 100) : 0;
+        const pct = total > 0 ? Math.round((Math.min(completedCount, total) / total) * 100) : 0;
         let status = 'unstarted';
         if (pct >= 100 && total > 0) {
             status = 'completed';
-        } else if (pct > 0) {
+        } else if (completedCount > 0 || visitedCount > 0) {
             status = 'in_progress';
         }
-        return { total, visited: safeVisited, completed: completedCount, percentage: pct, status };
+        return { total, visited: Math.min(visitedCount, total || visitedCount), completed: completedCount, percentage: pct, status };
     }
 
     function setLessonCompleted(courseId, lessonId, isCompleted = true) {
@@ -638,6 +636,12 @@
         }
         progressStore[courseId] = record;
         saveProgressStore();
+    }
+
+    function refreshProgressUI() {
+        setCourseProgress(0, currentLessons.length, currentCourseId);
+        renderCourseList(allCourses);
+        syncMarkCompleteButton();
     }
 
     function renderLessonList(lessons, course) {
@@ -725,7 +729,7 @@
         workspaceIntroEl.textContent = `已为您分配 ${source.length} 门课程。`;
         filtered.forEach((course) => {
             const progress = getCourseProgress(course.id, course.lesson_count || 0);
-            const progressText = course.lesson_count > 0 ? `${progress.visited}/${course.lesson_count}` : '暂无课节';
+            const progressText = course.lesson_count > 0 ? `${progress.completed}/${course.lesson_count}` : '暂无课节';
             const tags = normalizeTags(course.tags);
             const item = document.createElement('button');
             item.type = 'button';
@@ -926,7 +930,6 @@
         updateBreadcrumbs(currentCourse, lesson);
         setStageHint('', true);
         const lessonIndex = currentLessons.findIndex((item) => Number(item.id) === currentLessonId);
-        setCourseProgress(lessonIndex + 1, currentLessons.length, currentCourseId);
         markLessonVisited(currentCourseId, currentLessonId, currentLessons.length);
         renderCourseList(allCourses);
         syncMarkCompleteButton();
@@ -935,8 +938,13 @@
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
                 settings: ['speed', 'quality']
             });
+            player.on('ended', () => {
+                setLessonCompleted(currentCourseId, currentLessonId, true);
+                refreshProgressUI();
+            });
             players.push(player);
         }
+        setCourseProgress(lessonIndex + 1, currentLessons.length, currentCourseId);
     }
 
     function syncMarkCompleteButton() {
@@ -944,12 +952,16 @@
         if (!currentCourseId || !currentLessonId) {
             markCompleteButton.disabled = true;
             markCompleteButton.textContent = '标记已完成';
+            markCompleteButton.classList.remove('btn-success');
+            markCompleteButton.classList.add('btn-outline-success');
             return;
         }
         const record = progressStore[currentCourseId] || { completed: [] };
         const isDone = Array.isArray(record.completed) && record.completed.includes(currentLessonId);
         markCompleteButton.disabled = false;
         markCompleteButton.textContent = isDone ? '取消已完成' : '标记已完成';
+        markCompleteButton.classList.toggle('btn-outline-success', !isDone);
+        markCompleteButton.classList.toggle('btn-success', isDone);
     }
 
     async function loadCourses() {
@@ -1022,18 +1034,16 @@
 
     if (markCompleteButton) {
         markCompleteButton.addEventListener('click', () => {
-            if (!currentCourseId || !currentLessonId) {
-                return;
-            }
-            const record = progressStore[currentCourseId] || { completed: [] };
-            const isDone = Array.isArray(record.completed) && record.completed.includes(currentLessonId);
-            setLessonCompleted(currentCourseId, currentLessonId, !isDone);
-            syncMarkCompleteButton();
-            renderCourseList(allCourses);
-            const lessonIndex = currentLessons.findIndex((item) => Number(item.id) === currentLessonId);
-            setCourseProgress(lessonIndex + 1, currentLessons.length, currentCourseId);
-        });
-    }
+        if (!currentCourseId || !currentLessonId) {
+            return;
+        }
+        const record = progressStore[currentCourseId] || { completed: [] };
+        const isDone = Array.isArray(record.completed) && record.completed.includes(currentLessonId);
+        setLessonCompleted(currentCourseId, currentLessonId, !isDone);
+        syncMarkCompleteButton();
+        refreshProgressUI();
+    });
+}
 
     loadSession();
 </script>
