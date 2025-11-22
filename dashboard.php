@@ -758,6 +758,14 @@
             workspaceIntroEl.textContent = '暂无课程，联系管理员开通访问。';
             setCourseSummary('暂无课程', '暂未为您分配课程，请联系管理员。', '0 个课节', '待分配', 0);
             setStageHint('等待分配课程。', false);
+            clearPlayers();
+            playerHostEl.innerHTML = '<div class="empty-state">尚未选择课节。</div>';
+            if (markCompleteButton) {
+                markCompleteButton.disabled = true;
+                markCompleteButton.textContent = '标记已完成';
+                markCompleteButton.classList.remove('btn-success');
+                markCompleteButton.classList.add('btn-outline-success');
+            }
             updateBreadcrumbs();
             return;
         }
