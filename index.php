@@ -325,6 +325,31 @@
 
             .site-nav {
                 position: static;
+                padding-inline: 1rem;
+            }
+
+            .hero {
+                padding-top: 2rem;
+            }
+
+            .hero-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .primary-button,
+            .ghost-button {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pathway {
+                grid-template-columns: 1fr;
             }
         }
     </style>
