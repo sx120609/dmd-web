@@ -75,13 +75,13 @@
                                 <ul class="table-list user-table" id="userList"></ul>
                             </div>
                         <form id="createUserForm" class="card surface-section form-grid surface-form">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <h3 class="mb-1">创建用户</h3>
-                                    <p class="hint mb-0">单个创建或使用右侧按钮批量导入。</p>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <h3 class="mb-1">创建用户</h3>
+                                        <p class="hint mb-0">单个创建或使用右侧按钮批量导入。</p>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="openUserImportModal">批量导入</button>
                                 </div>
-                                <button type="button" class="ghost-button" id="openUserImportModal">批量导入</button>
-                            </div>
                             <div>
                                 <label for="newUsername">用户名</label>
                                 <input id="newUsername" name="username" placeholder="例如：student01" required>
@@ -1993,7 +1993,7 @@
             setMessage(deleteUserMessage, '请选择需要删除的用户', 'error');
             return;
         }
-        const targetIndex = state.users.findIndex((user) => user.id === state.selectedUserId);
+        const targetIndex = state.users.findIndex((user) => Number(user.id) === Number(state.selectedUserId));
         if (targetIndex === -1) {
             setMessage(deleteUserMessage, '用户不存在', 'error');
             return;

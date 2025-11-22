@@ -2261,8 +2261,17 @@ body.lesson-drawer-open .drawer-backdrop {
         padding: 1rem 1.1rem;
     }
 
-    .player iframe,
+.player iframe,
     .player video {
         min-height: 240px;
     }
+}
+
+/* admin modal z-index override to ensure clickable */
+.modal {
+    z-index: 2001;
+}
+
+.modal-backdrop.show {
+    z-index: 2000;
 }
