@@ -165,6 +165,7 @@
     const courseBadgeEl = document.getElementById('courseBadge');
     const lessonBadgeEl = document.getElementById('lessonBadge');
     const playerHostEl = document.getElementById('playerHost');
+    const attachmentsHostId = 'lessonAttachments';
     const welcomeTextEl = document.getElementById('welcomeText');
     const userChipEl = document.getElementById('userChip');
     const logoutButton = document.getElementById('logoutButton');
@@ -461,6 +462,41 @@
         video.appendChild(source);
         wrapInFrame(video);
         return { wrapper, video };
+    }
+
+    function renderLessonAttachments(attachments) {
+        let host = document.getElementById(attachmentsHostId);
+        if (!host) {
+            host = document.createElement('div');
+            host.id = attachmentsHostId;
+            host.className = 'attachments';
+            playerHostEl.parentNode.insertBefore(host, playerHostEl.nextSibling);
+        }
+        host.innerHTML = '';
+        const items = Array.isArray(attachments) ? attachments : [];
+        if (!items.length) {
+            host.hidden = true;
+            return;
+        }
+        host.hidden = false;
+        const list = document.createElement('div');
+        list.className = 'attachment-list';
+        items.forEach((att, idx) => {
+            const title = att.title || `附件 ${idx + 1}`;
+            const url = att.url || att.link || '';
+            if (!url) return;
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.className = 'attachment-item';
+            link.textContent = title;
+            const icon = document.createElement('i');
+            icon.className = 'bi bi-paperclip';
+            link.prepend(icon, ' ');
+            list.appendChild(link);
+        });
+        host.appendChild(list);
     }
 
     function updateBreadcrumbs(course, lesson) {
@@ -887,10 +923,15 @@
         try {
             const data = await fetchJSON(`${API_BASE}/courses.php?id=${normalizedCourseId}`);
             currentCourse = data.course || null;
+            const lessons = (data.lessons || []).map((lesson) => ({
+                ...lesson,
+                id: Number(lesson.id),
+                attachments: Array.isArray(lesson.attachments) ? lesson.attachments : []
+            }));
             const courseTitle = currentCourse && currentCourse.title ? currentCourse.title : '';
             lessonPaneTitleEl.textContent = courseTitle ? `${courseTitle} 的课节` : '课节';
             updateBreadcrumbs(currentCourse);
-            renderLessonList(data.lessons || [], currentCourse);
+            renderLessonList(lessons, currentCourse);
         } catch (error) {
             currentCourse = null;
             lessonListEl.innerHTML = `<div class="list-group-item text-center text-secondary small">加载课程内容失败：${error.message}</div>`;
@@ -924,6 +965,7 @@
         const { wrapper, video } = buildPlayer(lesson.video_url || '');
         playerHostEl.innerHTML = '';
         playerHostEl.appendChild(wrapper);
+        renderLessonAttachments(lesson.attachments || lesson.attachment);
         lessonTitleEl.textContent = lesson.title || '课节';
         lessonDescriptionEl.textContent = lesson.description || '该课节暂无详细介绍。';
         workspaceIntroEl.textContent = `正在观看「${lesson.title || '课节'}」`;

@@ -15,6 +15,7 @@ if ($method === 'POST') {
 }
 
 ensure_lessons_description_column($mysqli);
+ensure_lesson_attachments_column($mysqli);
 
 if ($method === 'POST') {
     require_admin($mysqli);
@@ -26,16 +27,33 @@ if ($method === 'POST') {
     $title = trim($input['title'] ?? '');
     $videoUrl = trim($input['video_url'] ?? '');
     $description = trim($input['description'] ?? '');
+    $attachmentsRaw = $input['attachments'] ?? null;
+    $attachments = [];
+    if (is_array($attachmentsRaw)) {
+        $attachments = $attachmentsRaw;
+    } elseif (is_string($attachmentsRaw) && trim($attachmentsRaw) !== '') {
+        $lines = explode("\n", $attachmentsRaw);
+        foreach ($lines as $line) {
+            $parts = array_map('trim', explode('|', $line, 2));
+            if (count($parts) === 2 && $parts[1] !== '') {
+                $attachments[] = ['title' => $parts[0] ?: $parts[1], 'url' => $parts[1]];
+            } elseif ($parts[0] !== '') {
+                $attachments[] = ['title' => $parts[0], 'url' => $parts[0]];
+            }
+        }
+    }
 
     if ($courseId <= 0 || $title === '') {
         error_response('课程和课节标题不能为空');
     }
 
-    $stmt = $mysqli->prepare('INSERT INTO lessons (course_id, title, video_url, description) VALUES (?, ?, ?, ?)');
+    $attachmentsJson = $attachments ? json_encode($attachments, JSON_UNESCAPED_UNICODE) : null;
+
+    $stmt = $mysqli->prepare('INSERT INTO lessons (course_id, title, video_url, description, attachments) VALUES (?, ?, ?, ?, ?)');
     if (!$stmt) {
         error_response('无法创建课节');
     }
-    $stmt->bind_param('isss', $courseId, $title, $videoUrl, $description);
+    $stmt->bind_param('issss', $courseId, $title, $videoUrl, $description, $attachmentsJson);
     if (!$stmt->execute()) {
         $stmt->close();
         error_response('创建课节失败');
@@ -50,6 +68,7 @@ if ($method === 'POST') {
             'title' => $title,
             'video_url' => $videoUrl,
             'description' => $description,
+            'attachments' => $attachments,
         ],
     ]);
 } elseif ($method === 'PATCH' || $method === 'PUT') {
@@ -70,7 +89,7 @@ if ($method === 'POST') {
         error_response('课节ID无效');
     }
 
-    $stmt = $mysqli->prepare('SELECT id, course_id, title, video_url, description FROM lessons WHERE id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT id, course_id, title, video_url, description, attachments FROM lessons WHERE id = ? LIMIT 1');
     if (!$stmt) {
         error_response('无法获取课节信息');
     }
@@ -90,6 +109,32 @@ if ($method === 'POST') {
     $description = array_key_exists('description', $input)
         ? trim((string) $input['description'])
         : ($current['description'] ?? '');
+    $attachmentsRaw = $input['attachments'] ?? null;
+    $attachments = [];
+    if (array_key_exists('attachments', $input)) {
+        if (is_array($attachmentsRaw)) {
+            $attachments = $attachmentsRaw;
+        } elseif (is_string($attachmentsRaw) && trim($attachmentsRaw) !== '') {
+            $lines = explode("\n", $attachmentsRaw);
+            foreach ($lines as $line) {
+                $parts = array_map('trim', explode('|', $line, 2));
+                if (count($parts) === 2 && $parts[1] !== '') {
+                    $attachments[] = ['title' => $parts[0] ?: $parts[1], 'url' => $parts[1]];
+                } elseif ($parts[0] !== '') {
+                    $attachments[] = ['title' => $parts[0], 'url' => $parts[0]];
+                }
+            }
+        } else {
+            $attachments = [];
+        }
+    } else {
+        if (!empty($current['attachments'])) {
+            $decoded = json_decode($current['attachments'], true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $attachments = $decoded;
+            }
+        }
+    }
 
     if ($courseId <= 0) {
         error_response('课程ID无效');
@@ -114,11 +159,13 @@ if ($method === 'POST') {
         }
     }
 
-    $stmt = $mysqli->prepare('UPDATE lessons SET course_id = ?, title = ?, video_url = ?, description = ? WHERE id = ? LIMIT 1');
+    $attachmentsJson = $attachments ? json_encode($attachments, JSON_UNESCAPED_UNICODE) : null;
+
+    $stmt = $mysqli->prepare('UPDATE lessons SET course_id = ?, title = ?, video_url = ?, description = ?, attachments = ? WHERE id = ? LIMIT 1');
     if (!$stmt) {
         error_response('无法更新课节');
     }
-    $stmt->bind_param('isssi', $courseId, $title, $videoUrl, $description, $lessonId);
+    $stmt->bind_param('issssi', $courseId, $title, $videoUrl, $description, $attachmentsJson, $lessonId);
     if (!$stmt->execute()) {
         $stmt->close();
         error_response('更新课节失败');
@@ -132,6 +179,7 @@ if ($method === 'POST') {
             'title' => $title,
             'video_url' => $videoUrl,
             'description' => $description,
+            'attachments' => $attachments,
         ],
     ]);
 } elseif ($method === 'DELETE') {

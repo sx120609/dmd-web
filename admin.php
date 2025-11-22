@@ -234,6 +234,11 @@
                                 <p class="hint">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
                             </div>
                             <div>
+                                <label for="lessonAttachmentsInput">附件（每行“名称|链接”或直接粘贴链接）</label>
+                                <textarea id="lessonAttachmentsInput" name="attachments" rows="3" placeholder="示例：\n讲义 PDF|https://example.com/file.pdf\n练习题|https://example.com/ex.pdf"></textarea>
+                                <p class="hint">支持外部链接或粘贴云盘外链，留空则无附件。</p>
+                            </div>
+                            <div>
                                 <label for="lessonDescriptionInput">课节简介</label>
                                 <textarea id="lessonDescriptionInput" name="description" rows="4" placeholder="填写课节要点"></textarea>
                             </div>
@@ -267,6 +272,10 @@
                                     <button type="button" class="btn btn-outline-secondary cloud-picker-button" data-target-input="editLessonVideo">云盘选择</button>
                                 </div>
                                 <p class="hint">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
+                            </div>
+                            <div>
+                                <label for="editLessonAttachments">附件（每行“名称|链接”或直接粘贴链接）</label>
+                                <textarea id="editLessonAttachments" rows="3" placeholder="示例：讲义 PDF|https://example.com/file.pdf"></textarea>
                             </div>
                             <div>
                                 <label for="editLessonDescription">课节简介</label>
@@ -464,6 +473,7 @@
     const lessonCourseSelect = document.getElementById('lessonCourseSelect');
     const lessonTitleInput = document.getElementById('lessonTitleInput');
     const lessonVideoInput = document.getElementById('lessonVideoInput');
+    const lessonAttachmentsInput = document.getElementById('lessonAttachmentsInput');
     const lessonDescriptionInput = document.getElementById('lessonDescriptionInput');
     const lessonListEl = document.getElementById('lessonList');
     const lessonListMessage = document.getElementById('lessonListMessage');
@@ -472,6 +482,7 @@
     const editLessonCourseSelect = document.getElementById('editLessonCourseSelect');
     const editLessonTitleInput = document.getElementById('editLessonTitle');
     const editLessonVideoInput = document.getElementById('editLessonVideo');
+    const editLessonAttachmentsInput = document.getElementById('editLessonAttachments');
     const editLessonDescriptionInput = document.getElementById('editLessonDescription');
     const cancelLessonEditButton = document.getElementById('cancelLessonEdit');
 
@@ -1094,6 +1105,13 @@
         if (editLessonDescriptionInput) {
             editLessonDescriptionInput.value = target.description || '';
         }
+        if (editLessonAttachmentsInput) {
+            if (Array.isArray(target.attachments)) {
+                editLessonAttachmentsInput.value = target.attachments.map((att) => `${att.title || att.url || ''}|${att.url || ''}`.trim()).join('\n');
+            } else {
+                editLessonAttachmentsInput.value = '';
+            }
+        }
         setMessage(updateLessonMessage);
         renderLessons(courseId, lessons);
     }
@@ -1163,7 +1181,9 @@
             meta.className = 'text-muted';
             meta.style.fontSize = '0.85rem';
             const videoText = summarize(lesson.video_url || '', 70);
-            meta.textContent = videoText ? `课节ID：${lesson.id} · ${videoText}` : `课节ID：${lesson.id}`;
+            const attachmentCount = Array.isArray(lesson.attachments) ? lesson.attachments.length : 0;
+            const attachText = attachmentCount > 0 ? ` · ${attachmentCount} 个附件` : '';
+            meta.textContent = videoText ? `课节ID：${lesson.id} · ${videoText}${attachText}` : `课节ID：${lesson.id}${attachText}`;
             info.appendChild(meta);
             item.appendChild(info);
 
@@ -1207,7 +1227,8 @@
             const data = await fetchJSON(`${API_BASE}/courses.php?id=${courseId}`);
             const lessons = (data.lessons || []).map((lesson) => ({
                 ...lesson,
-                id: Number(lesson.id)
+                id: Number(lesson.id),
+                attachments: Array.isArray(lesson.attachments) ? lesson.attachments : (lesson.attachments ? lesson.attachments : [])
             }));
             state.lessons[courseId] = lessons;
             renderLessons(courseId, lessons);
@@ -1858,14 +1879,15 @@
         }
     });
 
-    createLessonForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const payload = {
-            course_id: parseInt(lessonCourseSelect.value, 10),
-            title: lessonTitleInput ? lessonTitleInput.value.trim() : '',
-            video_url: lessonVideoInput ? lessonVideoInput.value.trim() : '',
-            description: lessonDescriptionInput ? lessonDescriptionInput.value.trim() : ''
-        };
+        createLessonForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const payload = {
+                course_id: parseInt(lessonCourseSelect.value, 10),
+                title: lessonTitleInput ? lessonTitleInput.value.trim() : '',
+                video_url: lessonVideoInput ? lessonVideoInput.value.trim() : '',
+                attachments: lessonAttachmentsInput ? lessonAttachmentsInput.value : '',
+                description: lessonDescriptionInput ? lessonDescriptionInput.value.trim() : ''
+            };
         if (!payload.course_id || !payload.title) {
             setMessage(createLessonMessage, '请选择课程并填写课节标题', 'error');
             return;
@@ -1911,6 +1933,7 @@
                 course_id: parseInt(editLessonCourseSelect.value, 10),
                 title: editLessonTitleInput.value.trim(),
                 video_url: editLessonVideoInput.value.trim(),
+                attachments: editLessonAttachmentsInput ? editLessonAttachmentsInput.value : '',
                 description: editLessonDescriptionInput ? editLessonDescriptionInput.value.trim() : ''
             };
             if (!payload.course_id || !payload.title) {

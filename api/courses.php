@@ -93,7 +93,7 @@ if ($method === 'GET') {
             error_response('课程不存在或无访问权限', 404);
         }
 
-        $stmt = $mysqli->prepare('SELECT id, title, video_url, description FROM lessons WHERE course_id = ? ORDER BY id ASC');
+        $stmt = $mysqli->prepare('SELECT id, title, video_url, description, attachments FROM lessons WHERE course_id = ? ORDER BY id ASC');
         if (!$stmt) {
             error_response('无法获取课节列表');
         }

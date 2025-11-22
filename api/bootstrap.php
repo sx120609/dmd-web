@@ -60,6 +60,28 @@ function ensure_lessons_description_column(mysqli $mysqli): void
     $mysqli->query("ALTER TABLE `lessons` ADD COLUMN `description` TEXT AFTER `video_url`");
 }
 
+function ensure_lesson_attachments_column(mysqli $mysqli): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $result = $mysqli->query("SHOW COLUMNS FROM `lessons` LIKE 'attachments'");
+    if ($result instanceof mysqli_result) {
+        $hasColumn = $result->num_rows > 0;
+        $result->free();
+        if ($hasColumn) {
+            return;
+        }
+    } else {
+        return;
+    }
+
+    $mysqli->query("ALTER TABLE `lessons` ADD COLUMN `attachments` TEXT NULL DEFAULT NULL AFTER `description`");
+}
+
 function ensure_cloud_files_table(mysqli $mysqli): void
 {
     static $checked = false;
