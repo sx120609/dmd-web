@@ -256,6 +256,20 @@
             justify-content: space-between;
         }
 
+        .cta-banner .cta-button {
+            background: #ffffff;
+            color: #1d4ed8;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+
+        .cta-banner .cta-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
+            filter: brightness(1.02);
+        }
+
         .classroom {
             background: rgba(255, 255, 255, 0.9);
             border-radius: 22px;
@@ -394,7 +408,7 @@
                         <div class="fw-bold fs-5">想加入我们？</div>
                         <div>欢迎医疗机构、教育机构与企业伙伴共建罕见病儿童支持网络。</div>
                     </div>
-                    <a class="ghost-button text-white border-light" href="#contact">成为合作伙伴 ↗</a>
+                    <a class="ghost-button cta-button" href="#contact">成为合作伙伴 ↗</a>
                 </div>
             </div>
         </section>
