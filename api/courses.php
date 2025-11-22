@@ -157,7 +157,7 @@ if ($method === 'GET') {
             'lesson_count' => count($lessons)
         ]);
     } else {
-        $all = isset($_GET['all']) && $user['role'] === 'admin';
+        $all = isset($_GET['all']) && in_array($user['role'], ['admin', 'teacher'], true);
         if ($all) {
             $sql = 'SELECT id, title, description, instructor, tags, created_at, owner_id, (SELECT COUNT(*) FROM lessons l WHERE l.course_id = courses.id) AS lesson_count FROM courses ORDER BY id ASC';
             $result = $mysqli->query($sql);
