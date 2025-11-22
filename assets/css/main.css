@@ -2226,6 +2226,81 @@ body.lesson-drawer-open .drawer-backdrop {
     display: block;
 }
 
+.overlay-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.overlay-modal.show {
+    pointer-events: auto;
+}
+
+.overlay-modal[hidden] {
+    display: none;
+}
+
+.overlay-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+.overlay-dialog {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    border-radius: var(--radius-lg, 16px);
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
+    width: min(520px, calc(100% - 32px));
+    max-height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.overlay-header,
+.overlay-footer {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.overlay-footer {
+    border-top: 1px solid rgba(148, 163, 184, 0.25);
+    border-bottom: none;
+    justify-content: flex-end;
+}
+
+.overlay-body {
+    padding: 18px 20px;
+    overflow-y: auto;
+}
+
+.overlay-dialog .primary-button {
+    margin: 0;
+}
+
+.overlay-dialog .btn-close {
+    opacity: 0.65;
+}
+
+.overlay-dialog .btn-close:hover {
+    opacity: 1;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
 @media (max-width: 720px) {
     .topbar-inner {
         flex-direction: column;

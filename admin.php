@@ -80,7 +80,7 @@
                                         <h3 class="mb-1">创建用户</h3>
                                         <p class="hint mb-0">单个创建或使用右侧按钮批量导入。</p>
                                     </div>
-                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="openUserImportModal" data-bs-toggle="modal" data-bs-target="#userImportModal">批量导入</button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="openUserImportModal">批量导入</button>
                                 </div>
                             <div>
                                 <label for="newUsername">用户名</label>
@@ -155,30 +155,29 @@
                     </div>
                 </div>
             </div>
-            <!-- 批量导入用户 Modal（独立实现，与云盘同级） -->
-            <div class="modal fade" id="userImportModal" tabindex="-1" aria-labelledby="userImportModalLabel" aria-hidden="true" data-bs-backdrop="true">
-                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="userImportModalLabel">批量导入用户</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <!-- 批量导入用户弹窗（自定义） -->
+            <div class="overlay-modal" id="userImportOverlay" hidden>
+                <div class="overlay-backdrop" id="userImportOverlayBackdrop"></div>
+                <div class="overlay-dialog" role="dialog" aria-modal="true" aria-labelledby="userImportOverlayTitle">
+                    <div class="overlay-header">
+                        <h5 id="userImportOverlayTitle" class="m-0">批量导入用户</h5>
+                        <button type="button" class="btn-close" id="closeUserImportOverlay" aria-label="关闭"></button>
+                    </div>
+                    <div class="overlay-body">
+                        <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role（student/admin）。</p>
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="downloadUserTemplate">下载模板</button>
+                            <small class="text-secondary">文件大小限制 5MB</small>
                         </div>
-                        <div class="modal-body">
-                            <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role（student/admin）。</p>
-                            <div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
-                                <button type="button" class="btn btn-outline-primary btn-sm" id="downloadUserTemplate">下载模板</button>
-                                <small class="text-secondary">文件大小限制 5MB</small>
-                            </div>
-                            <div class="mb-3">
-                                <label for="userImportFile" class="form-label">上传填写好的 CSV</label>
-                                <input id="userImportFile" type="file" accept=".csv,text/csv" class="form-control">
-                            </div>
-                            <div class="message" id="userImportMessage" hidden></div>
+                        <div class="mb-3">
+                            <label for="userImportFile" class="form-label">上传填写好的 CSV</label>
+                            <input id="userImportFile" type="file" accept=".csv,text/csv" class="form-control">
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                            <button type="button" class="primary-button" id="userImportButton">导入用户</button>
-                        </div>
+                        <div class="message" id="userImportMessage" hidden></div>
+                    </div>
+                    <div class="overlay-footer">
+                        <button type="button" class="btn btn-secondary" id="cancelUserImportOverlay">关闭</button>
+                        <button type="button" class="primary-button" id="userImportButton">导入用户</button>
                     </div>
                 </div>
             </div>
@@ -415,7 +414,10 @@
     const deleteUserButton = document.getElementById('deleteUserButton');
     const deleteUserMessage = document.getElementById('deleteUserMessage');
     const openUserImportModalButton = document.getElementById('openUserImportModal');
-    const userImportModalEl = document.getElementById('userImportModal');
+    const userImportOverlay = document.getElementById('userImportOverlay');
+    const userImportOverlayBackdrop = document.getElementById('userImportOverlayBackdrop');
+    const closeUserImportOverlayButton = document.getElementById('closeUserImportOverlay');
+    const cancelUserImportOverlayButton = document.getElementById('cancelUserImportOverlay');
     const userDetailTitle = document.getElementById('userDetailTitle');
     const userDetailSubtitle = document.getElementById('userDetailSubtitle');
     const userDetailRoleChip = document.getElementById('userDetailRoleChip');
@@ -477,7 +479,6 @@
     let cloudPickerModal = null;
     let cloudFiles = [];
     let activeCloudTargetInputId = null;
-    let userImportModal = null;
 
     let state = {
         users: [],
@@ -510,6 +511,31 @@
         const i = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
         const size = bytes / Math.pow(1024, i);
         return `${size.toFixed(size >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+    }
+
+    function resetUserImportOverlay() {
+        if (userImportMessage) {
+            setMessage(userImportMessage);
+        }
+        if (userImportFileInput) {
+            userImportFileInput.value = '';
+        }
+    }
+
+    function openUserImportOverlay() {
+        if (!userImportOverlay) return;
+        resetUserImportOverlay();
+        userImportOverlay.hidden = false;
+        userImportOverlay.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+
+    function closeUserImportOverlay() {
+        if (!userImportOverlay) return;
+        userImportOverlay.classList.remove('show');
+        userImportOverlay.hidden = true;
+        document.body.classList.remove('modal-open');
+        resetUserImportOverlay();
     }
 
     function downloadUserTemplate() {
@@ -1581,24 +1607,32 @@
         showLessonEditor(courseId, lessonId);
     });
 
-    if (userImportModalEl && typeof bootstrap !== 'undefined') {
-        userImportModal = new bootstrap.Modal(userImportModalEl);
-        userImportModalEl.addEventListener('show.bs.modal', () => {
-            if (userImportMessage) {
-                setMessage(userImportMessage);
-            }
-            if (userImportFileInput) {
-                userImportFileInput.value = '';
-            }
-        });
-    }
     if (downloadUserTemplateButton) {
         downloadUserTemplateButton.addEventListener('click', downloadUserTemplate);
     }
     if (userImportButton) {
         userImportButton.addEventListener('click', importUsers);
     }
-    // openUserImportModalButton now uses data-bs-toggle; logic handled by modal show event above
+    if (openUserImportModalButton) {
+        openUserImportModalButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            openUserImportOverlay();
+        });
+    }
+    if (closeUserImportOverlayButton) {
+        closeUserImportOverlayButton.addEventListener('click', closeUserImportOverlay);
+    }
+    if (cancelUserImportOverlayButton) {
+        cancelUserImportOverlayButton.addEventListener('click', closeUserImportOverlay);
+    }
+    if (userImportOverlayBackdrop) {
+        userImportOverlayBackdrop.addEventListener('click', closeUserImportOverlay);
+    }
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && userImportOverlay && !userImportOverlay.hidden) {
+            closeUserImportOverlay();
+        }
+    });
 
     createUserForm.addEventListener('submit', async (event) => {
         event.preventDefault();
