@@ -125,11 +125,11 @@
                 <div class="breadcrumbs" id="breadcrumbs"><span>网课</span></div>
                 <h2 class="stage-title" id="lessonTitle">欢迎来到课堂</h2>
                 <p class="stage-subtitle" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
-                <div class="stage-meta" id="lessonMeta" hidden>
-                    <span class="chip" id="courseBadge"></span>
-                    <span class="chip subtle" id="lessonBadge"></span>
-                </div>
-                <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+                <div class="d-flex flex-wrap gap-2 align-items-center mt-1">
+                    <div class="stage-meta d-flex flex-wrap gap-2 align-items-center" id="lessonMeta" hidden>
+                        <span class="chip" id="courseBadge"></span>
+                        <span class="chip subtle" id="lessonBadge"></span>
+                    </div>
                     <button class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1" id="markCompleteButton" disabled>
                         <i class="bi bi-check2-circle"></i>
                         <span>标记已完成</span>
@@ -761,6 +761,7 @@
             updateBreadcrumbs();
             return;
         }
+        setStageHint('选择左侧课节播放视频。', false);
         workspaceHeadingEl.textContent = '我的课堂';
         workspaceIntroEl.textContent = `已为您分配 ${source.length} 门课程。`;
         filtered.forEach((course) => {

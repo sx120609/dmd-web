@@ -85,9 +85,10 @@
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
             <div class="user-chip" id="userChip"></div>
-            <a class="btn btn-outline-secondary btn-sm" href="/">返回首页</a>
-            <button class="btn btn-outline-secondary btn-sm" id="dashboardButton">返回课堂</button>
-            <button class="btn btn-outline-danger btn-sm" id="logoutButton">退出登录</button>
+            <a class="btn btn-outline-secondary btn-sm rounded-pill" href="/">返回首页</a>
+            <button class="btn btn-outline-secondary btn-sm rounded-pill" id="dashboardButton">返回课堂</button>
+            <a class="btn btn-outline-primary btn-sm rounded-pill" href="admin">返回管理中心</a>
+            <button class="btn btn-outline-danger btn-sm rounded-pill" id="logoutButton">退出登录</button>
         </div>
     </div>
 </nav>
