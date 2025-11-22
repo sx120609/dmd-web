@@ -16,7 +16,7 @@
 <nav class="navbar navbar-expand-lg app-navbar">
     <div class="container-xxl py-3 px-3 px-lg-4 w-100 d-flex align-items-center gap-3 flex-wrap">
         <div class="d-flex align-items-center gap-3">
-            <div class="brand-glow">CL</div>
+            <div class="brand-glow">RL</div>
             <div class="d-flex flex-column">
                 <span class="brand-eyebrow text-uppercase">RARE LIGHT</span>
                 <span class="navbar-brand p-0 m-0 fw-semibold">Rare Light 课堂</span>
