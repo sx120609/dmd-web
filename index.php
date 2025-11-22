@@ -115,6 +115,7 @@
         .ghost-button {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
             padding: 0.85rem 1.1rem;
             border-radius: 12px;
@@ -129,6 +130,12 @@
         .ghost-button:hover {
             transform: translateY(-1px);
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .primary-button,
+        .ghost-button {
+            text-align: center;
+            justify-content: center;
         }
 
         .session-note {
@@ -258,6 +265,8 @@
 
         .cta-banner .cta-button {
             background: #ffffff;
+            text-align: center;
+            justify-content: center;
             color: #1d4ed8;
             border: 1px solid rgba(255, 255, 255, 0.75);
             box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
@@ -328,11 +337,10 @@
                 <span class="brand-mark">RL</span>
                 <div>
                     <div class="small text-uppercase text-secondary">Rare Light</div>
-                    <div class="fw-bold">稀光行动 · 罕见病儿童公益</div>
+                    <div class="fw-bold">Rare Light · 罕见病儿童公益</div>
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a class="ghost-button" href="#programs">了解项目</a>
                 <a class="primary-button" id="classroomCta" data-classroom-link href="#classroom">进入网课</a>
             </div>
         </div>
@@ -444,14 +452,8 @@
                             <p class="eyebrow mb-1">Rare Light School</p>
                             <h3 class="fw-bold">网课入口</h3>
                             <p class="text-secondary">患儿与家长可在此登录进入课堂；已分配课程的用户将直接跳转至学习页面。</p>
-                            <ul class="list-unstyled text-secondary mb-3">
-                                <li class="mb-1">· 录播与外部视频均可播放</li>
-                                <li class="mb-1">· 支持按课程分配和进度查看</li>
-                                <li class="mb-1">· 志愿者与管理员可在后台维护内容</li>
-                            </ul>
                             <div class="d-flex flex-wrap gap-2">
                                 <a class="primary-button" data-classroom-link href="#classroom">立即进入网课</a>
-                                <a class="ghost-button" href="admin">管理员入口</a>
                             </div>
                         </div>
                         <div class="login-panel">
@@ -501,7 +503,7 @@
 
     <footer class="footer">
         <div class="container-xxl d-flex flex-wrap justify-content-between gap-2">
-            <div>Rare Light · 稀光行动 — 为罕见病儿童提供陪伴、教育与资源链接。</div>
+            <div>Rare Light — 为罕见病儿童提供陪伴、教育与资源链接。</div>
             <div class="text-secondary">联系邮箱：hello@rarelight.org</div>
         </div>
     </footer>
