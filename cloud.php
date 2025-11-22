@@ -79,15 +79,15 @@
         <div class="d-flex align-items-center gap-3">
             <div class="brand-glow">CL</div>
             <div class="d-flex flex-column">
-                <span class="brand-eyebrow text-uppercase">智能录播课堂</span>
-                <span class="navbar-brand p-0 m-0 fw-semibold">云盘中心</span>
+                <span class="brand-eyebrow text-uppercase">RARE LIGHT</span>
+                <span class="navbar-brand p-0 m-0 fw-semibold">Rare Light 云盘</span>
             </div>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
             <div class="user-chip" id="userChip"></div>
             <a class="btn btn-outline-secondary btn-sm rounded-pill" href="/">返回首页</a>
             <button class="btn btn-outline-secondary btn-sm rounded-pill" id="dashboardButton">返回课堂</button>
-            <a class="btn btn-outline-primary btn-sm rounded-pill" href="admin">返回管理中心</a>
+            <a class="btn btn-outline-primary btn-sm rounded-pill" href="admin">返回管理后台</a>
             <button class="btn btn-outline-danger btn-sm rounded-pill" id="logoutButton">退出登录</button>
         </div>
     </div>

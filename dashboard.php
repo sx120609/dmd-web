@@ -18,8 +18,8 @@
         <div class="d-flex align-items-center gap-3">
             <div class="brand-glow">CL</div>
             <div class="d-flex flex-column">
-                <span class="brand-eyebrow text-uppercase">智能录播课堂</span>
-                <span class="navbar-brand p-0 m-0 fw-semibold">学习工作台</span>
+                <span class="brand-eyebrow text-uppercase">RARE LIGHT</span>
+                <span class="navbar-brand p-0 m-0 fw-semibold">Rare Light 课堂</span>
             </div>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-3 ms-auto">
