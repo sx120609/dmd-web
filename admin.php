@@ -74,11 +74,11 @@
                                 </div>
                                 <ul class="table-list user-table" id="userList"></ul>
                             </div>
-                            <form id="createUserForm" class="card surface-section form-grid surface-form">
-                                <div>
-                                    <label for="newUsername">用户名</label>
-                                    <input id="newUsername" name="username" placeholder="例如：student01" required>
-                                </div>
+                        <form id="createUserForm" class="card surface-section form-grid surface-form">
+                            <div>
+                                <label for="newUsername">用户名</label>
+                                <input id="newUsername" name="username" placeholder="例如：student01" required>
+                            </div>
                                 <div>
                                     <label for="newDisplayName">显示名称</label>
                                     <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
@@ -91,12 +91,27 @@
                                     <label for="newRole">角色</label>
                                     <select id="newRole" name="role">
                                         <option value="student">学员</option>
-                                        <option value="admin">管理员</option>
-                                    </select>
-                                </div>
-                                <button type="submit" class="primary-button">创建用户</button>
-                                <div class="message inline" id="createUserMessage" hidden></div>
-                            </form>
+                                <option value="admin">管理员</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="primary-button">创建用户</button>
+                        <div class="message inline" id="createUserMessage" hidden></div>
+                    </form>
+                    <div class="card surface-section form-grid surface-form">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h4 class="mb-1">批量导入用户</h4>
+                                <p class="hint mb-0">下载模板 CSV，填写后上传；支持设置用户名、显示名、密码、角色（student/admin）。</p>
+                            </div>
+                            <button type="button" class="ghost-button" id="downloadUserTemplate">下载模板</button>
+                        </div>
+                        <div>
+                            <label for="userImportFile">上传填写好的 CSV</label>
+                            <input id="userImportFile" type="file" accept=".csv,text/csv">
+                        </div>
+                        <button type="button" class="primary-button" id="userImportButton">导入用户</button>
+                        <div class="message inline" id="userImportMessage" hidden></div>
+                    </div>
                         </div>
                     </div>
                     <div class="col-12 col-xl-7 col-xxl-8">
@@ -366,6 +381,10 @@
 
     const createUserForm = document.getElementById('createUserForm');
     const createUserMessage = document.getElementById('createUserMessage');
+    const downloadUserTemplateButton = document.getElementById('downloadUserTemplate');
+    const userImportFileInput = document.getElementById('userImportFile');
+    const userImportButton = document.getElementById('userImportButton');
+    const userImportMessage = document.getElementById('userImportMessage');
     const userListEl = document.getElementById('userList');
     const updateUserForm = document.getElementById('updateUserForm');
     const updateUserMessage = document.getElementById('updateUserMessage');
@@ -469,6 +488,89 @@
         const i = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
         const size = bytes / Math.pow(1024, i);
         return `${size.toFixed(size >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+    }
+
+    function downloadUserTemplate() {
+        const content = [
+            ['username', 'display_name', 'password', 'role'],
+            ['student01', '学生01', 'pass1234', 'student'],
+            ['admin01', '管理员01', 'adminpass', 'admin']
+        ].map((row) => row.join(',')).join('\n');
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'user_import_template.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    async function importUsers() {
+        if (!userImportFileInput) return;
+        const file = userImportFileInput.files && userImportFileInput.files[0];
+        if (!file) {
+            setMessage(userImportMessage, '请选择要导入的 CSV 文件', 'error');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            setMessage(userImportMessage, '文件过大，请控制在 5MB 内', 'error');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', file);
+        const originalLabel = userImportButton ? userImportButton.textContent : '';
+        if (userImportButton) {
+            userImportButton.disabled = true;
+            userImportButton.textContent = '导入中...';
+        }
+        setMessage(userImportMessage, '正在导入，请稍候...');
+        try {
+            const result = await fetchJSON(`${API_BASE}/users_import.php`, {
+                method: 'POST',
+                body: formData
+            });
+            const inserted = Number(result.inserted_count || 0);
+            const skipped = Number(result.skipped_count || 0);
+            const errors = Array.isArray(result.errors) ? result.errors : [];
+            const parts = [
+                `导入成功：${inserted} 条`,
+                `跳过：${skipped} 条`
+            ];
+            if (errors.length) {
+                parts.push(`错误 ${errors.length} 条：${errors.map((e) => (e && e.message) || e).join('；')}`);
+            }
+            setMessage(userImportMessage, parts.join('；'), errors.length ? 'error' : 'success');
+            userImportFileInput.value = '';
+
+            const usersData = await fetchJSON(`${API_BASE}/users.php`);
+            state.users = (usersData.users || []).map((user) => ({
+                ...user,
+                id: Number(user.id)
+            }));
+            state.users.sort((a, b) => a.id - b.id);
+            const preferredUserId = state.selectedUserId && state.users.find((u) => u.id === state.selectedUserId)
+                ? state.selectedUserId
+                : (state.users[0] ? state.users[0].id : null);
+            state.selectedUserId = preferredUserId;
+            refreshUserList();
+            populateSelect(
+                assignUserSelect,
+                state.users,
+                'id',
+                (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
+                preferredUserId || ''
+            );
+            selectUser(preferredUserId);
+        } catch (error) {
+            setMessage(userImportMessage, error.message || '导入失败', 'error');
+        } finally {
+            if (userImportButton) {
+                userImportButton.disabled = false;
+                userImportButton.textContent = originalLabel || '导入用户';
+            }
+        }
     }
 
     async function fetchJSON(url, options = {}) {
@@ -1456,6 +1558,13 @@
         }
         showLessonEditor(courseId, lessonId);
     });
+
+    if (downloadUserTemplateButton) {
+        downloadUserTemplateButton.addEventListener('click', downloadUserTemplate);
+    }
+    if (userImportButton) {
+        userImportButton.addEventListener('click', importUsers);
+    }
 
     createUserForm.addEventListener('submit', async (event) => {
         event.preventDefault();
