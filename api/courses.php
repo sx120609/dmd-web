@@ -5,6 +5,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $jsonInput = get_json_input();
 
 ensure_lessons_description_column($mysqli);
+ensure_course_metadata_columns($mysqli);
 
 $rawOverride = '';
 if ($method === 'POST') {
@@ -71,9 +72,9 @@ if ($method === 'GET') {
         }
 
         if ($user['role'] === 'admin') {
-            $stmt = $mysqli->prepare('SELECT id, title, description FROM courses WHERE id = ? LIMIT 1');
+            $stmt = $mysqli->prepare('SELECT id, title, description, instructor, tags, created_at FROM courses WHERE id = ? LIMIT 1');
         } else {
-            $stmt = $mysqli->prepare('SELECT c.id, c.title, c.description FROM courses c INNER JOIN user_courses uc ON uc.course_id = c.id WHERE uc.user_id = ? AND c.id = ? LIMIT 1');
+            $stmt = $mysqli->prepare('SELECT c.id, c.title, c.description, c.instructor, c.tags, c.created_at FROM courses c INNER JOIN user_courses uc ON uc.course_id = c.id WHERE uc.user_id = ? AND c.id = ? LIMIT 1');
         }
         if (!$stmt) {
             error_response('无法获取课程信息');
@@ -106,14 +107,18 @@ if ($method === 'GET') {
         }
         $stmt->close();
 
-        json_response(['course' => $course, 'lessons' => $lessons]);
+        json_response([
+            'course' => $course,
+            'lessons' => $lessons,
+            'lesson_count' => count($lessons)
+        ]);
     } else {
         $all = isset($_GET['all']) && $user['role'] === 'admin';
         if ($all) {
-            $sql = 'SELECT id, title, description FROM courses ORDER BY id ASC';
+            $sql = 'SELECT id, title, description, instructor, tags, created_at, (SELECT COUNT(*) FROM lessons l WHERE l.course_id = courses.id) AS lesson_count FROM courses ORDER BY id ASC';
             $result = $mysqli->query($sql);
         } else {
-            $stmt = $mysqli->prepare('SELECT c.id, c.title, c.description FROM courses c INNER JOIN user_courses uc ON uc.course_id = c.id WHERE uc.user_id = ? ORDER BY c.id ASC');
+            $stmt = $mysqli->prepare('SELECT c.id, c.title, c.description, c.instructor, c.tags, c.created_at, (SELECT COUNT(*) FROM lessons l WHERE l.course_id = c.id) AS lesson_count FROM courses c INNER JOIN user_courses uc ON uc.course_id = c.id WHERE uc.user_id = ? ORDER BY c.id ASC');
             if (!$stmt) {
                 error_response('无法获取课程列表');
             }
@@ -156,16 +161,18 @@ if ($method === 'GET') {
 
     $title = trim($input['title'] ?? '');
     $description = trim($input['description'] ?? '');
+    $instructor = trim($input['instructor'] ?? '');
+    $tags = trim($input['tags'] ?? '');
 
     if ($title === '') {
         error_response('课程标题不能为空');
     }
 
-    $stmt = $mysqli->prepare('INSERT INTO courses (title, description) VALUES (?, ?)');
+    $stmt = $mysqli->prepare('INSERT INTO courses (title, description, instructor, tags) VALUES (?, ?, ?, ?)');
     if (!$stmt) {
         error_response('无法创建课程');
     }
-    $stmt->bind_param('ss', $title, $description);
+    $stmt->bind_param('ssss', $title, $description, $instructor, $tags);
     if (!$stmt->execute()) {
         $stmt->close();
         error_response('创建课程失败');
@@ -190,7 +197,16 @@ if ($method === 'GET') {
         }
     }
 
-    json_response(['course' => ['id' => (int) $courseId, 'title' => $title, 'description' => $description]]);
+    json_response([
+        'course' => [
+            'id' => (int) $courseId,
+            'title' => $title,
+            'description' => $description,
+            'instructor' => $instructor,
+            'tags' => $tags,
+            'lesson_count' => isset($input['lessons']) && is_array($input['lessons']) ? count($input['lessons']) : 0
+        ]
+    ]);
 } elseif ($method === 'PATCH' || $method === 'PUT') {
     require_admin($mysqli);
     $input = $jsonInput ?: get_json_input();
@@ -209,7 +225,7 @@ if ($method === 'GET') {
         error_response('课程ID无效');
     }
 
-    $stmt = $mysqli->prepare('SELECT id, title, description FROM courses WHERE id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('SELECT id, title, description, instructor, tags FROM courses WHERE id = ? LIMIT 1');
     if (!$stmt) {
         error_response('无法获取课程信息');
     }
@@ -225,23 +241,33 @@ if ($method === 'GET') {
 
     $title = array_key_exists('title', $input) ? trim((string) $input['title']) : ($current['title'] ?? '');
     $description = array_key_exists('description', $input) ? trim((string) $input['description']) : ($current['description'] ?? '');
+    $instructor = array_key_exists('instructor', $input) ? trim((string) $input['instructor']) : ($current['instructor'] ?? '');
+    $tags = array_key_exists('tags', $input) ? trim((string) $input['tags']) : ($current['tags'] ?? '');
 
     if ($title === '') {
         error_response('课程标题不能为空');
     }
 
-    $stmt = $mysqli->prepare('UPDATE courses SET title = ?, description = ? WHERE id = ? LIMIT 1');
+    $stmt = $mysqli->prepare('UPDATE courses SET title = ?, description = ?, instructor = ?, tags = ? WHERE id = ? LIMIT 1');
     if (!$stmt) {
         error_response('无法更新课程');
     }
-    $stmt->bind_param('ssi', $title, $description, $courseId);
+    $stmt->bind_param('ssssi', $title, $description, $instructor, $tags, $courseId);
     if (!$stmt->execute()) {
         $stmt->close();
         error_response('更新课程失败');
     }
     $stmt->close();
 
-    json_response(['course' => ['id' => (int) $courseId, 'title' => $title, 'description' => $description]]);
+    json_response([
+        'course' => [
+            'id' => (int) $courseId,
+            'title' => $title,
+            'description' => $description,
+            'instructor' => $instructor,
+            'tags' => $tags
+        ]
+    ]);
 } elseif ($method === 'DELETE') {
     require_admin($mysqli);
     $input = $jsonInput ?: get_json_input();

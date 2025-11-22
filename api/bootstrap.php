@@ -83,6 +83,33 @@ function ensure_cloud_files_table(mysqli $mysqli): void
     );
 }
 
+function ensure_course_metadata_columns(mysqli $mysqli): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $columnCheck = $mysqli->query("SHOW COLUMNS FROM `courses` LIKE 'instructor'");
+    if ($columnCheck instanceof mysqli_result) {
+        $hasInstructor = $columnCheck->num_rows > 0;
+        $columnCheck->free();
+        if (!$hasInstructor) {
+            $mysqli->query("ALTER TABLE `courses` ADD COLUMN `instructor` VARCHAR(150) NULL DEFAULT NULL AFTER `description`");
+        }
+    }
+
+    $tagsCheck = $mysqli->query("SHOW COLUMNS FROM `courses` LIKE 'tags'");
+    if ($tagsCheck instanceof mysqli_result) {
+        $hasTags = $tagsCheck->num_rows > 0;
+        $tagsCheck->free();
+        if (!$hasTags) {
+            $mysqli->query("ALTER TABLE `courses` ADD COLUMN `tags` VARCHAR(255) NULL DEFAULT NULL AFTER `instructor`");
+        }
+    }
+}
+
 function json_response($data, int $status = 200): void
 {
     http_response_code($status);

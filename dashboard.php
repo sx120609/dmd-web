@@ -65,6 +65,29 @@
                     <h2>我的课程</h2>
                     <p>挑选一个课程继续学习。</p>
                 </div>
+                <div class="d-flex flex-column gap-2 mb-3">
+                    <input type="search" class="form-control form-control-sm" id="courseSearchInput" placeholder="搜索课程名称/标签/老师">
+                    <div class="d-flex flex-wrap gap-2">
+                        <select class="form-select form-select-sm" id="courseTagFilter" style="min-width: 120px;">
+                            <option value="">全部标签</option>
+                        </select>
+                        <select class="form-select form-select-sm" id="courseInstructorFilter" style="min-width: 120px;">
+                            <option value="">全部老师</option>
+                        </select>
+                        <select class="form-select form-select-sm" id="courseProgressFilter" style="min-width: 140px;">
+                            <option value="all">全部进度</option>
+                            <option value="unwatched">未看</option>
+                            <option value="in_progress">学习中</option>
+                            <option value="completed">已完成</option>
+                        </select>
+                        <select class="form-select form-select-sm" id="courseSortSelect" style="min-width: 140px;">
+                            <option value="default">默认排序</option>
+                            <option value="latest">最新优先</option>
+                            <option value="progress">进度优先</option>
+                            <option value="unwatched_first">未看优先</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="sidebar-body">
                     <div class="panel-list" id="courseList">
                         <div class="panel-list-item">
@@ -155,6 +178,11 @@
     const courseDrawerClose = document.getElementById('courseDrawerClose');
     const lessonDrawerClose = document.getElementById('lessonDrawerClose');
     const mobileQuery = window.matchMedia('(max-width: 768px)');
+    const courseSearchInput = document.getElementById('courseSearchInput');
+    const courseTagFilter = document.getElementById('courseTagFilter');
+    const courseInstructorFilter = document.getElementById('courseInstructorFilter');
+    const courseProgressFilter = document.getElementById('courseProgressFilter');
+    const courseSortSelect = document.getElementById('courseSortSelect');
 
     let currentUser = null;
     let currentCourseId = null;
@@ -162,6 +190,16 @@
     let currentLessons = [];
     let currentCourse = null;
     let players = [];
+    let allCourses = [];
+    let courseFilters = {
+        search: '',
+        tag: '',
+        instructor: '',
+        progress: 'all',
+        sort: 'default'
+    };
+    let progressStore = {};
+    let progressKey = '';
 
     function closeAllDrawers() {
         document.body.classList.remove('course-drawer-open', 'lesson-drawer-open');
@@ -206,6 +244,31 @@
             closeAllDrawers();
         }
     });
+
+    const handleCourseFilterChange = () => {
+        courseFilters.search = courseSearchInput ? courseSearchInput.value.trim().toLowerCase() : '';
+        courseFilters.tag = courseTagFilter ? courseTagFilter.value : '';
+        courseFilters.instructor = courseInstructorFilter ? courseInstructorFilter.value : '';
+        courseFilters.progress = courseProgressFilter ? courseProgressFilter.value : 'all';
+        courseFilters.sort = courseSortSelect ? courseSortSelect.value : 'default';
+        renderCourseList(allCourses);
+    };
+
+    if (courseSearchInput) {
+        courseSearchInput.addEventListener('input', handleCourseFilterChange);
+    }
+    if (courseTagFilter) {
+        courseTagFilter.addEventListener('change', handleCourseFilterChange);
+    }
+    if (courseInstructorFilter) {
+        courseInstructorFilter.addEventListener('change', handleCourseFilterChange);
+    }
+    if (courseProgressFilter) {
+        courseProgressFilter.addEventListener('change', handleCourseFilterChange);
+    }
+    if (courseSortSelect) {
+        courseSortSelect.addEventListener('change', handleCourseFilterChange);
+    }
 
     function showWelcome(user) {
         welcomeTextEl.textContent = user ? `欢迎回来，${user.display_name || user.username}` : '欢迎来到课堂';
@@ -466,16 +529,85 @@
         }
     }
 
+    function loadProgressStore(userId = 'guest') {
+        progressKey = `rl_progress_${userId}`;
+        try {
+            const raw = localStorage.getItem(progressKey);
+            progressStore = raw ? JSON.parse(raw) : {};
+        } catch (error) {
+            progressStore = {};
+        }
+    }
+
+    function saveProgressStore() {
+        if (!progressKey) return;
+        try {
+            localStorage.setItem(progressKey, JSON.stringify(progressStore));
+        } catch (error) {
+            // ignore storage errors
+        }
+    }
+
+    function markLessonVisited(courseId, lessonId, totalLessons = 0) {
+        if (!courseId || !lessonId) return;
+        if (!progressStore[courseId]) {
+            progressStore[courseId] = { visited: [], total: totalLessons || 0 };
+        }
+        const record = progressStore[courseId];
+        if (!Array.isArray(record.visited)) {
+            record.visited = [];
+        }
+        if (!record.visited.includes(lessonId)) {
+            record.visited.push(lessonId);
+        }
+        if (totalLessons > 0) {
+            record.total = totalLessons;
+        } else if (!record.total && currentLessons && currentLessons.length) {
+            record.total = currentLessons.length;
+        }
+        progressStore[courseId] = record;
+        saveProgressStore();
+    }
+
+    function updateCourseTotalLessons(courseId, lessonCount) {
+        if (!courseId) return;
+        if (!progressStore[courseId]) {
+            progressStore[courseId] = { visited: [], total: lessonCount || 0 };
+        } else if (lessonCount > 0) {
+            progressStore[courseId].total = lessonCount;
+        }
+        saveProgressStore();
+    }
+
+    function getCourseProgress(courseId, lessonCount = 0) {
+        const record = progressStore[courseId] || { visited: [], total: lessonCount || 0 };
+        const total = lessonCount || record.total || 0;
+        const visitedCount = Array.isArray(record.visited) ? record.visited.length : 0;
+        const safeVisited = Math.min(visitedCount, total || visitedCount);
+        const pct = total > 0 ? Math.round((safeVisited / total) * 100) : 0;
+        let status = 'unstarted';
+        if (pct >= 100 && total > 0) {
+            status = 'completed';
+        } else if (pct > 0) {
+            status = 'in_progress';
+        }
+        return { total, visited: safeVisited, percentage: pct, status };
+    }
+
     function renderLessonList(lessons, course) {
         closeAllDrawers();
         currentCourse = course || null;
         currentLessons = lessons || [];
+        if (currentCourse && currentCourse.id) {
+            updateCourseTotalLessons(currentCourse.id, currentLessons.length || 0);
+        }
         currentLessonId = null;
         clearPlayers();
         playerHostEl.innerHTML = '<div class="empty-state">尚未选择课节。</div>';
         lessonListEl.innerHTML = '';
         updateCourseSummary(currentCourse, currentLessons.length);
         setCourseProgress(0, currentLessons.length);
+        renderCourseList(allCourses);
         workspaceHeadingEl.textContent = currentCourse ? (currentCourse.title || '未命名课程') : '我的课堂';
         if (!currentLessons.length) {
             lessonBadgeEl.textContent = '0 个课节';
@@ -520,11 +652,13 @@
 
     function renderCourseList(courses) {
         closeAllDrawers();
+        const source = courses && Array.isArray(courses) ? courses : allCourses;
+        const filtered = applyCourseFilters(source || []);
         courseListEl.innerHTML = '';
-        if (!courses || courses.length === 0) {
+        if (!filtered.length) {
             const empty = document.createElement('div');
             empty.className = 'list-group-item text-center text-secondary small';
-            empty.textContent = '暂未为您分配课程，请联系管理员。';
+            empty.textContent = source && source.length ? '没有符合筛选条件的课程。' : '暂未为您分配课程，请联系管理员。';
             courseListEl.appendChild(empty);
             lessonPaneTitleEl.textContent = '课节';
             lessonPaneHintEl.textContent = '等待分配课程后即可在此查看课节。';
@@ -542,26 +676,132 @@
             return;
         }
         workspaceHeadingEl.textContent = '我的课堂';
-        workspaceIntroEl.textContent = `已为您分配 ${courses.length} 门课程。`;
-        courses.forEach((course) => {
+        workspaceIntroEl.textContent = `已为您分配 ${source.length} 门课程。`;
+        filtered.forEach((course) => {
+            const progress = getCourseProgress(course.id, course.lesson_count || 0);
+            const progressText = course.lesson_count > 0 ? `${progress.visited}/${course.lesson_count}` : '暂无课节';
+            const tags = normalizeTags(course.tags);
             const item = document.createElement('button');
             item.type = 'button';
             item.className = 'list-group-item list-group-item-action course-button';
             item.dataset.courseId = course.id;
             item.innerHTML = `
                 <div class="fw-semibold">${course.title}</div>
-                <div class="text-secondary small">${course.description || '暂无描述'}</div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                    ${course.instructor ? `<span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">讲师 · ${course.instructor}</span>` : ''}
+                    ${tags.length ? tags.map((tag) => `<span class="badge bg-light text-secondary border">${tag}</span>`).join('') : ''}
+                    <span class="badge rounded-pill ${progress.status === 'completed' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'}">${progressText}</span>
+                </div>
+                <div class="text-secondary small mt-1">${course.description || '暂无描述'}</div>
             `;
             item.addEventListener('click', () => selectCourse(course.id));
             courseListEl.appendChild(item);
         });
-        selectCourse(courses[0].id);
+        const preferredCourse = filtered.find((c) => c.id === currentCourseId) || filtered[0];
+        if (preferredCourse) {
+            selectCourse(preferredCourse.id);
+        }
     }
 
     function highlightCourse(courseId) {
         document.querySelectorAll('#courseList .list-group-item-action').forEach((el) => {
             el.classList.toggle('active', Number(el.dataset.courseId) === courseId);
         });
+    }
+
+    function normalizeTags(tags) {
+        if (!tags) return [];
+        return String(tags)
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter(Boolean);
+    }
+
+    function updateFilterOptions() {
+        if (!allCourses.length) return;
+        const tagSet = new Set();
+        const instructorSet = new Set();
+        allCourses.forEach((course) => {
+            normalizeTags(course.tags).forEach((tag) => tagSet.add(tag));
+            if (course.instructor && course.instructor.trim()) {
+                instructorSet.add(course.instructor.trim());
+            }
+        });
+        if (courseTagFilter) {
+            const current = courseTagFilter.value;
+            courseTagFilter.innerHTML = '<option value="">全部标签</option>';
+            Array.from(tagSet).sort().forEach((tag) => {
+                const option = document.createElement('option');
+                option.value = tag;
+                option.textContent = tag;
+                if (current === tag) option.selected = true;
+                courseTagFilter.appendChild(option);
+            });
+        }
+        if (courseInstructorFilter) {
+            const current = courseInstructorFilter.value;
+            courseInstructorFilter.innerHTML = '<option value="">全部老师</option>';
+            Array.from(instructorSet).sort().forEach((name) => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                if (current === name) option.selected = true;
+                courseInstructorFilter.appendChild(option);
+            });
+        }
+    }
+
+    function applyCourseFilters(courses) {
+        const filtered = (courses || []).filter((course) => {
+            const progress = getCourseProgress(course.id, course.lesson_count || 0);
+            const search = courseFilters.search.toLowerCase();
+            if (search) {
+                const haystack = [
+                    course.title,
+                    course.description,
+                    course.instructor,
+                    course.tags
+                ].join(' ').toLowerCase();
+                if (!haystack.includes(search)) {
+                    return false;
+                }
+            }
+            if (courseFilters.tag) {
+                const tags = normalizeTags(course.tags);
+                if (!tags.includes(courseFilters.tag)) {
+                    return false;
+                }
+            }
+            if (courseFilters.instructor) {
+                if (!course.instructor || course.instructor !== courseFilters.instructor) {
+                    return false;
+                }
+            }
+            if (courseFilters.progress === 'unwatched' && progress.percentage > 0) return false;
+            if (courseFilters.progress === 'completed' && progress.percentage < 100) return false;
+            if (courseFilters.progress === 'in_progress' && (progress.percentage <= 0 || progress.percentage >= 100)) return false;
+            return true;
+        });
+
+        const sorter = {
+            latest: (a, b) => (new Date(b.created_at || 0) - new Date(a.created_at || 0)) || b.id - a.id,
+            progress: (a, b) => getCourseProgress(b.id, b.lesson_count || 0).percentage - getCourseProgress(a.id, a.lesson_count || 0).percentage,
+            unwatched_first: (a, b) => {
+                const pa = getCourseProgress(a.id, a.lesson_count || 0).percentage;
+                const pb = getCourseProgress(b.id, b.lesson_count || 0).percentage;
+                if (pa === 0 && pb !== 0) return -1;
+                if (pb === 0 && pa !== 0) return 1;
+                return pa - pb;
+            }
+        };
+
+        if (courseFilters.sort && courseFilters.sort !== 'default' && sorter[courseFilters.sort]) {
+            filtered.sort(sorter[courseFilters.sort]);
+        } else {
+            filtered.sort((a, b) => a.id - b.id);
+        }
+
+        return filtered;
     }
 
     function highlightLesson(lessonId) {
@@ -641,6 +881,8 @@
         setStageHint('', true);
         const lessonIndex = currentLessons.findIndex((item) => Number(item.id) === currentLessonId);
         setCourseProgress(lessonIndex + 1, currentLessons.length);
+        markLessonVisited(currentCourseId, currentLessonId, currentLessons.length);
+        renderCourseList(allCourses);
         if (video) {
             const player = new Plyr(video, {
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
@@ -653,7 +895,13 @@
     async function loadCourses() {
         try {
             const data = await fetchJSON(`${API_BASE}/courses.php`);
-            renderCourseList(data.courses || []);
+            allCourses = (data.courses || []).map((course) => ({
+                ...course,
+                id: Number(course.id),
+                lesson_count: Number(course.lesson_count || course.lessons_count || 0)
+            }));
+            updateFilterOptions();
+            renderCourseList(allCourses);
         } catch (error) {
             courseListEl.innerHTML = `<div class="list-group-item text-center text-secondary small">无法加载课程列表：${error.message}</div>`;
             lessonPaneTitleEl.textContent = '课节';
@@ -679,6 +927,7 @@
                 return;
             }
             currentUser = data.user;
+            loadProgressStore(currentUser.id || 'guest');
             showWelcome(currentUser);
             if (currentUser.role === 'admin') {
                 adminButton.style.display = 'inline-flex';

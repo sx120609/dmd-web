@@ -164,6 +164,14 @@
                                 <input id="courseTitleInput" name="title" placeholder="例如：高等数学" required>
                             </div>
                             <div>
+                                <label for="courseInstructorInput">讲师/老师</label>
+                                <input id="courseInstructorInput" name="instructor" placeholder="可选，填写讲师或负责人">
+                            </div>
+                            <div>
+                                <label for="courseTagsInput">标签</label>
+                                <input id="courseTagsInput" name="tags" placeholder="用逗号分隔，例如：数学,基础,直播">
+                            </div>
+                            <div>
                                 <label for="courseDescriptionInput">课程简介</label>
                                 <textarea id="courseDescriptionInput" name="description" rows="4" placeholder="补充课程概述与亮点"></textarea>
                             </div>
@@ -183,6 +191,14 @@
                             <div>
                                 <label for="editCourseTitle">课程名称</label>
                                 <input id="editCourseTitle" required>
+                            </div>
+                            <div>
+                                <label for="editCourseInstructor">讲师/老师</label>
+                                <input id="editCourseInstructor" placeholder="可选，填写讲师或负责人">
+                            </div>
+                            <div>
+                                <label for="editCourseTags">标签</label>
+                                <input id="editCourseTags" placeholder="用逗号分隔标签">
                             </div>
                             <div>
                                 <label for="editCourseDescription">课程简介</label>
@@ -431,11 +447,15 @@
     }
     const createCourseForm = document.getElementById('createCourseForm');
     const createCourseMessage = document.getElementById('createCourseMessage');
+    const courseInstructorInput = document.getElementById('courseInstructorInput');
+    const courseTagsInput = document.getElementById('courseTagsInput');
     const courseListEl = document.getElementById('courseList');
     const courseListMessage = document.getElementById('courseListMessage');
     const updateCourseForm = document.getElementById('updateCourseForm');
     const updateCourseMessage = document.getElementById('updateCourseMessage');
     const editCourseTitleInput = document.getElementById('editCourseTitle');
+    const editCourseInstructorInput = document.getElementById('editCourseInstructor');
+    const editCourseTagsInput = document.getElementById('editCourseTags');
     const editCourseDescriptionInput = document.getElementById('editCourseDescription');
     const cancelCourseEditButton = document.getElementById('cancelCourseEdit');
 
@@ -933,7 +953,11 @@
             meta.className = 'text-muted';
             meta.style.fontSize = '0.85rem';
             const description = summarize(course.description || '', 64);
-            meta.textContent = description ? `课程ID：${course.id} · ${description}` : `课程ID：${course.id} · 暂无描述`;
+            const tagText = course.tags ? `标签：${course.tags}` : '无标签';
+            const instructorText = course.instructor ? `讲师：${course.instructor}` : '讲师未填写';
+            meta.textContent = description
+                ? `课程ID：${course.id} · ${description} · ${instructorText} · ${tagText}`
+                : `课程ID：${course.id} · ${instructorText} · ${tagText}`;
             info.appendChild(meta);
             item.appendChild(info);
 
@@ -1019,6 +1043,12 @@
         }
         if (editCourseTitleInput) {
             editCourseTitleInput.value = target.title || '';
+        }
+        if (editCourseInstructorInput) {
+            editCourseInstructorInput.value = target.instructor || '';
+        }
+        if (editCourseTagsInput) {
+            editCourseTagsInput.value = target.tags || '';
         }
         if (editCourseDescriptionInput) {
             editCourseDescriptionInput.value = target.description || '';
@@ -1675,6 +1705,8 @@
         event.preventDefault();
         const payload = {
             title: document.getElementById('courseTitleInput').value.trim(),
+            instructor: courseInstructorInput ? courseInstructorInput.value.trim() : '',
+            tags: courseTagsInput ? courseTagsInput.value.trim() : '',
             description: document.getElementById('courseDescriptionInput').value.trim()
         };
         if (!payload.title) {
@@ -1721,6 +1753,8 @@
             const payload = {
                 id: state.selectedCourseId,
                 title: editCourseTitleInput.value.trim(),
+                instructor: editCourseInstructorInput ? editCourseInstructorInput.value.trim() : '',
+                tags: editCourseTagsInput ? editCourseTagsInput.value.trim() : '',
                 description: editCourseDescriptionInput.value.trim()
             };
             if (!payload.title) {
