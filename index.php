@@ -344,8 +344,8 @@
                 <div class="hero-grid">
                     <div class="hero-copy">
                         <span class="brand-eyebrow">Rare Light · 点亮希望</span>
-                        <h1>为罕见病儿童照亮疗愈与学习的道路</h1>
-                        <p class="lead">我们陪伴罕见病患儿及其家庭，连结医疗资源、学习支持与心理关怀，让每一份努力都化作抵达未来的微光。</p>
+                        <h1>“线上趣味课 + 线下科普行” 双轨陪伴罕见病儿童</h1>
+                        <p class="lead">RARE LIGHT 罕见病关爱项目，面向患儿与家庭同步提供线上趣味课堂与线下科普关怀，兼顾成长需求与社会认知，打造专业且温暖的公益服务体系。</p>
                         <div class="hero-actions">
                             <a class="primary-button" data-classroom-link href="#classroom">进入网课</a>
                             <a class="ghost-button" href="#contact">与我们合作</a>
@@ -353,21 +353,21 @@
                         <div class="session-note" id="sessionNote">课堂由专业志愿者维护，登录后即可继续学习。</div>
                     </div>
                     <div class="hero-card">
-                        <p class="eyebrow mb-2">我们在做的事</p>
-                        <h3 class="fw-bold mb-3">陪伴治疗、守护学习、连接社会资源</h3>
-                        <p class="text-secondary mb-3">Rare Light 通过家庭陪伴、线上课堂与公益伙伴网络，为罕见病儿童提供持续支持。</p>
+                        <p class="eyebrow mb-2">项目全景</p>
+                        <h3 class="fw-bold mb-3">线上课堂迭代五期 · 线下科普深入社区与校园</h3>
+                        <p class="text-secondary mb-3">教师梯队与服务规模同步壮大，课堂覆盖语文、数学、英语、科学、地理、历史、AI 等学科，累计近千课时，陪伴 30+ 罕见病患儿家庭。线下科普行走进医院、校园与社区，媒体报道与实践成果持续放大影响。</p>
                         <div class="stat-grid">
                             <div class="stat">
-                                <strong>40+ 城市</strong>
-                                <span class="text-secondary">志愿者和合作社群覆盖</span>
+                                <strong>5 期课堂</strong>
+                                <span class="text-secondary">近千课时，覆盖多学科</span>
                             </div>
                             <div class="stat">
-                                <strong>每周课堂</strong>
-                                <span class="text-secondary">定期录播与直播结合</span>
+                                <strong>70 位志愿者</strong>
+                                <span class="text-secondary">教师梯队持续壮大</span>
                             </div>
                             <div class="stat">
-                                <strong>家庭关怀</strong>
-                                <span class="text-secondary">陪伴、心理与转介支持</span>
+                                <strong>30+ 家庭</strong>
+                                <span class="text-secondary">5 年持续陪伴</span>
                             </div>
                         </div>
                     </div>
@@ -379,28 +379,28 @@
             <div class="container-xxl">
                 <header>
                     <p class="eyebrow mb-1">我们的行动</p>
-                    <h2>Rare Light 如何提供帮助</h2>
+                    <h2>线上趣味课 + 线下科普行 · 双轨服务模式</h2>
                 </header>
                 <div class="feature-grid">
                     <div class="feature-card">
                         <span class="feature-icon">A</span>
-                        <h4 class="fw-bold mb-1">陪伴与同侪支持</h4>
-                        <p class="text-secondary mb-0">志愿者与家长伙伴组成陪伴小组，回应情绪、学习与资源需求。</p>
+                        <h4 class="fw-bold mb-1">线上趣味课堂</h4>
+                        <p class="text-secondary mb-0">中国药科大学志愿者面向患儿开展系列教学，从英语拓展到语数外、科学、地理、历史、AI，多学科陪伴成长。</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">B</span>
-                        <h4 class="fw-bold mb-1">线上课堂 · Rare Light School</h4>
-                        <p class="text-secondary mb-0">面向患儿的专属课堂，提供长期、可重复观看的录播课程与直播互动。</p>
+                        <h4 class="fw-bold mb-1">线下科普关怀</h4>
+                        <p class="text-secondary mb-0">“罕见病患儿进校园”“罕爱童行・药语同航”等活动走进校园、医院与社区，让公众看见、理解并支持罕见病家庭。</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">C</span>
-                        <h4 class="fw-bold mb-1">医疗与社会资源链接</h4>
-                        <p class="text-secondary mb-0">携手医院、公益组织与企业，为家庭争取医疗、康复及生活支持。</p>
+                        <h4 class="fw-bold mb-1">科普传播与倡导</h4>
+                        <p class="text-secondary mb-0">媒体报道、公众号“因你罕见，我药看见”持续输出诊疗指南、药物政策与真实故事，为家庭提供权威信息服务。</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">D</span>
-                        <h4 class="fw-bold mb-1">家庭韧性工作坊</h4>
-                        <p class="text-secondary mb-0">通过小组训练与工具包，帮助家长获得自助与互助的方法。</p>
+                        <h4 class="fw-bold mb-1">志愿者与科研支撑</h4>
+                        <p class="text-secondary mb-0">70 人志愿者队伍与调研报告双线推进，沉淀实证数据，为服务迭代和政策倡导提供依据。</p>
                     </div>
                 </div>
                 <div class="cta-banner mt-4">
