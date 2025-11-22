@@ -204,13 +204,24 @@ switch ($method) {
         $perPage = isset($_GET['per_page']) ? (int) $_GET['per_page'] : 0;
         $perPage = $perPage > 0 ? min($perPage, 100) : 0;
 
+        $baseQuery = 'FROM cloud_files';
+        $where = '';
+        $params = [];
+        $types = '';
+        if (!in_array($currentUser['role'], ['admin', 'teacher'], true)) {
+            $where = ' WHERE user_id = ?';
+            $types = 'i';
+            $params[] = $currentUser['id'];
+        }
+
         if ($page > 0 && $perPage > 0) {
             $offset = ($page - 1) * $perPage;
-            $stmt = $mysqli->prepare('SELECT * FROM cloud_files WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?');
+            $stmt = $mysqli->prepare("SELECT * {$baseQuery}{$where} ORDER BY created_at DESC LIMIT ? OFFSET ?");
             if (!$stmt) {
                 error_response('无法读取文件列表');
             }
-            $stmt->bind_param('iii', $currentUser['id'], $perPage, $offset);
+            $bindTypes = $types . 'ii';
+            $stmt->bind_param($bindTypes, ...array_merge($params, [$perPage, $offset]));
             $stmt->execute();
             $result = $stmt->get_result();
             $files = [];
@@ -219,11 +230,13 @@ switch ($method) {
             }
             $stmt->close();
 
-            $countStmt = $mysqli->prepare('SELECT COUNT(*) AS total FROM cloud_files WHERE user_id = ?');
+            $countStmt = $mysqli->prepare("SELECT COUNT(*) AS total {$baseQuery}{$where}");
             if (!$countStmt) {
                 error_response('无法统计文件数量');
             }
-            $countStmt->bind_param('i', $currentUser['id']);
+            if ($types !== '') {
+                $countStmt->bind_param($types, ...$params);
+            }
             $countStmt->execute();
             $countResult = $countStmt->get_result()->fetch_assoc();
             $countStmt->close();
@@ -244,11 +257,13 @@ switch ($method) {
             break;
         }
 
-        $stmt = $mysqli->prepare('SELECT * FROM cloud_files WHERE user_id = ? ORDER BY created_at DESC');
+        $stmt = $mysqli->prepare("SELECT * {$baseQuery}{$where} ORDER BY created_at DESC");
         if (!$stmt) {
             error_response('无法读取文件列表');
         }
-        $stmt->bind_param('i', $currentUser['id']);
+        if ($types !== '') {
+            $stmt->bind_param($types, ...$params);
+        }
         $stmt->execute();
         $result = $stmt->get_result();
         $files = [];
@@ -268,8 +283,11 @@ switch ($method) {
                 error_response('缺少文件ID');
             }
             $file = fetch_file_by_id($mysqli, $deleteId);
-            if (!$file || (int) $file['user_id'] !== (int) $currentUser['id']) {
-                error_response('文件不存在或无权限', 404);
+            if (!$file) {
+                error_response('文件不存在', 404);
+            }
+            if (!in_array($currentUser['role'], ['admin', 'teacher'], true) && (int) $file['user_id'] !== (int) $currentUser['id']) {
+                error_response('无权限删除该文件', 403);
             }
             $path = $storageDir . '/' . $file['stored_name'];
             $stmtDel = $mysqli->prepare('DELETE FROM cloud_files WHERE id = ?');
