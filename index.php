@@ -570,26 +570,26 @@
                 <div class="classroom" id="classroom">
                     <div class="classroom-grid">
                         <div>
-                            <p class="eyebrow mb-1">Rare Light School</p>
-                            <h3 class="fw-bold">网课入口</h3>
-                            <p class="text-secondary">患儿与家长可在此登录进入课堂；已分配课程的用户将直接跳转至学习页面。</p>
+                            <p class="eyebrow mb-1" data-i18n="classroomEyebrow">Rare Light School</p>
+                            <h3 class="fw-bold" data-i18n="classroomTitle">网课入口</h3>
+                            <p class="text-secondary" data-i18n="classroomDesc">患儿与家长可在此登录进入课堂；已分配课程的用户将直接跳转至学习页面。</p>
                             <div class="d-flex flex-wrap gap-2">
                                 <a class="primary-button" data-classroom-link href="#classroom">立即进入网课</a>
                             </div>
                         </div>
                         <div class="login-panel">
-                            <h4 class="fw-bold mb-2">课堂登录</h4>
-                            <p class="text-secondary mb-3">请输入管理员分配的账号登录。如果您尚未拥有账户，请联系我们的协调员。</p>
+                            <h4 class="fw-bold mb-2" data-i18n="loginTitle">课堂登录</h4>
+                            <p class="text-secondary mb-3" data-i18n="loginDesc">请输入管理员分配的账号登录。如果您尚未拥有账户，请联系我们的协调员。</p>
                             <form id="loginForm" autocomplete="on">
                                 <div>
-                                    <label for="username">用户名</label>
+                                    <label for="username" data-i18n="loginUsername">用户名</label>
                                     <input id="username" name="username" type="text" placeholder="student01" required>
                                 </div>
                                 <div>
-                                    <label for="password">密码</label>
+                                    <label for="password" data-i18n="loginPassword">密码</label>
                                     <input id="password" name="password" type="password" placeholder="请输入密码" required>
                                 </div>
-                                <button type="submit" class="primary-button w-100" id="loginButton">登录并进入课堂</button>
+                                <button type="submit" class="primary-button w-100" id="loginButton" data-i18n="loginButton">登录并进入课堂</button>
                                 <div class="message login-message" id="loginMessage" aria-live="polite" hidden></div>
                             </form>
                         </div>
@@ -601,21 +601,21 @@
         <section class="section" id="contact">
             <div class="container-xxl">
                 <header>
-                    <p class="eyebrow mb-1">联系与合作</p>
-                    <h2>一起为罕见病儿童点亮更多光</h2>
+                    <p class="eyebrow mb-1" data-i18n="contactEyebrow">联系与合作</p>
+                    <h2 data-i18n="contactTitle">一起为罕见病儿童点亮更多光</h2>
                 </header>
                 <div class="feature-grid">
                     <div class="feature-card">
-                        <h5 class="fw-bold mb-1">成为志愿者</h5>
-                        <p class="text-secondary mb-0">加入陪伴小组、教学与运营支持团队。</p>
+                        <h5 class="fw-bold mb-1" data-i18n="contactVolunteer">成为志愿者</h5>
+                        <p class="text-secondary mb-0" data-i18n="contactVolunteerDesc">加入陪伴小组、教学与运营支持团队。</p>
                     </div>
                     <div class="feature-card">
-                        <h5 class="fw-bold mb-1">机构合作</h5>
-                        <p class="text-secondary mb-0">医疗、教育、公益、企业伙伴欢迎联系共建项目。</p>
+                        <h5 class="fw-bold mb-1" data-i18n="contactPartner">机构合作</h5>
+                        <p class="text-secondary mb-0" data-i18n="contactPartnerDesc">医疗、教育、公益、企业伙伴欢迎联系共建项目。</p>
                     </div>
                     <div class="feature-card">
-                        <h5 class="fw-bold mb-1">家庭申请</h5>
-                        <p class="text-secondary mb-0">罕见病患儿家庭可申请课堂访问与陪伴支持。</p>
+                        <h5 class="fw-bold mb-1" data-i18n="contactFamily">家庭申请</h5>
+                        <p class="text-secondary mb-0" data-i18n="contactFamilyDesc">罕见病患儿家庭可申请课堂访问与陪伴支持。</p>
                     </div>
                 </div>
             </div>
@@ -669,7 +669,23 @@
             ctaJoinBtn: '成为合作伙伴 ↗',
             qrTitle: '关注 Rare Light 公众号',
             qrSubtitle: '微信扫码，获取最新课程与科普动态',
-            qrDesc: '用微信扫描二维码即可关注，第一时间了解课程安排、线下活动、科普信息与政策更新。'
+            qrDesc: '用微信扫描二维码即可关注，第一时间了解课程安排、线下活动、科普信息与政策更新。',
+            classroomEyebrow: 'Rare Light School',
+            classroomTitle: '网课入口',
+            classroomDesc: '患儿与家长可在此登录进入课堂；已分配课程的用户将直接跳转至学习页面。',
+            loginTitle: '课堂登录',
+            loginDesc: '请输入管理员分配的账号登录。如果您尚未拥有账户，请联系我们的协调员。',
+            loginUsername: '用户名',
+            loginPassword: '密码',
+            loginButton: '登录并进入课堂',
+            contactEyebrow: '联系与合作',
+            contactTitle: '一起为罕见病儿童点亮更多光',
+            contactVolunteer: '成为志愿者',
+            contactVolunteerDesc: '加入陪伴小组、教学与运营支持团队。',
+            contactPartner: '机构合作',
+            contactPartnerDesc: '医疗、教育、公益、企业伙伴欢迎联系共建项目。',
+            contactFamily: '家庭申请',
+            contactFamilyDesc: '罕见病患儿家庭可申请课堂访问与陪伴支持。'
         },
         en: {
             brandTagline: 'Rare Light',
@@ -704,7 +720,23 @@
             ctaJoinBtn: 'Become a Partner ↗',
             qrTitle: 'Follow Rare Light on WeChat',
             qrSubtitle: 'Scan to get course updates & news',
-            qrDesc: 'Scan the QR code to follow and receive course schedules, events, and policy updates.'
+            qrDesc: 'Scan the QR code to follow and receive course schedules, events, and policy updates.',
+            classroomEyebrow: 'Rare Light School',
+            classroomTitle: 'Classroom Access',
+            classroomDesc: 'Children and parents log in here; assigned users jump directly to learning.',
+            loginTitle: 'Classroom Login',
+            loginDesc: 'Use the account assigned by administrators. If you need access, contact our coordinator.',
+            loginUsername: 'Username',
+            loginPassword: 'Password',
+            loginButton: 'Log in & Enter Classroom',
+            contactEyebrow: 'Contact & Partnership',
+            contactTitle: 'Light up more hope for rare disease children together',
+            contactVolunteer: 'Become a Volunteer',
+            contactVolunteerDesc: 'Join companion groups, teaching, or operations support teams.',
+            contactPartner: 'Institutional Partnership',
+            contactPartnerDesc: 'Hospitals, schools, NGOs, and companies are welcome to co-build the program.',
+            contactFamily: 'Family Application',
+            contactFamilyDesc: 'Rare disease families can apply for classroom access and companion support.'
         }
     };
 
@@ -757,7 +789,10 @@
         const dict = i18n[lang] || i18n.zh;
         document.querySelectorAll('[data-i18n]').forEach((el) => {
             const key = el.dataset.i18n;
-            if (key && dict[key]) {
+            if (!key || !(key in dict)) return;
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                el.setAttribute('placeholder', dict[key]);
+            } else {
                 el.textContent = dict[key];
             }
         });
