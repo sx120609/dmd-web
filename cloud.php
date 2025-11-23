@@ -99,11 +99,11 @@
             <div class="hero-eyebrow">Rare Light · 云盘</div>
             <div class="hero-main">
                 <div class="hero-copy">
-                    <h1 class="hero-title mb-3">仅管理员可访问的安全网盘</h1>
+                    <h1 class="hero-title mb-3">Rare Light·自主安全网盘</h1>
                     <p class="hero-subtitle mb-0">上传教学素材、生成外链、管理文件。外链以随机令牌保护，随时可关闭。</p>
                 </div>
                 <div class="hero-meta">
-                    <span class="hero-pill">管理员专属</span>
+                    <span class="hero-pill">组织专属</span>
                     <span class="hero-pill soft">文件外链可控</span>
                 </div>
             </div>
