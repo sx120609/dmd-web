@@ -73,8 +73,8 @@ while (($row = fgetcsv($handle)) !== false) {
         $skipped++;
         continue;
     }
-    if (!in_array($role, ['student', 'admin'], true)) {
-        $errors[] = "第 {$rowNumber} 行角色无效（仅支持 student 或 admin），已按 student 处理";
+    if (!in_array($role, ['student', 'admin', 'teacher'], true)) {
+        $errors[] = "第 {$rowNumber} 行角色无效（仅支持 student/admin/teacher），已按 student 处理";
         $role = 'student';
     }
 
