@@ -125,11 +125,9 @@
                 <div class="breadcrumbs" id="breadcrumbs"><span>网课</span></div>
                 <h2 class="stage-title" id="lessonTitle">欢迎来到课堂</h2>
                 <p class="stage-subtitle" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
-                <div class="d-flex flex-wrap gap-2 align-items-center mt-1">
-                    <div class="stage-meta d-flex flex-wrap gap-2 align-items-center" id="lessonMeta" hidden>
-                        <span class="chip" id="courseBadge"></span>
-                        <span class="chip subtle" id="lessonBadge"></span>
-                    </div>
+                <div class="stage-meta stage-meta-row d-flex flex-wrap gap-2 align-items-center mt-1">
+                    <span class="chip" id="courseBadge"></span>
+                    <span class="chip subtle" id="lessonBadge"></span>
                     <span class="chip subtle" id="markCompleteButton" style="cursor:pointer; user-select:none;" aria-disabled="true">
                         <i class="bi bi-check2-circle"></i>
                         <span>标记已完成</span>
@@ -1013,7 +1011,7 @@
         const record = progressStore[currentCourseId] || { completed: [] };
         const isDone = Array.isArray(record.completed) && record.completed.includes(currentLessonId);
         markCompleteButton.setAttribute('aria-disabled', 'false');
-        markCompleteButton.classList.toggle('subtle', isDone);
+        markCompleteButton.classList.toggle('subtle', !isDone);
         markCompleteButton.classList.toggle('chip-success', isDone);
         markCompleteButton.querySelector('span').textContent = isDone ? '取消已完成' : '标记已完成';
     }

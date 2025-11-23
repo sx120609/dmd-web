@@ -595,6 +595,7 @@ label {
     color: var(--brand-color-strong);
     font-size: 0.8rem;
     font-weight: 600;
+    height: 32px;
 }
 
 .chip.subtle {
@@ -605,6 +606,11 @@ label {
 .chip.chip-success {
     background: rgba(34, 197, 94, 0.16);
     color: #166534;
+}
+
+.stage-meta-row .chip {
+    height: 36px;
+    align-items: center;
 }
 
 .lesson-columns {
