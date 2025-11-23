@@ -346,7 +346,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role（student/admin）。</p>
+                            <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role（student/admin/teacher）。</p>
                 <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
                     <button type="button" class="btn btn-outline-primary btn-sm" id="downloadUserTemplate">下载模板</button>
                     <small class="text-secondary">文件大小限制 5MB</small>
@@ -634,6 +634,7 @@
         const content = [
             ['username', 'display_name', 'password', 'role'],
             ['student01', '学生01', 'pass1234', 'student'],
+            ['teacher01', '老师01', 'teachpass', 'teacher'],
             ['admin01', '管理员01', 'adminpass', 'admin']
         ].map((row) => row.join(',')).join('\n');
         const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
