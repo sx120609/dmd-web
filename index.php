@@ -466,7 +466,7 @@
         <section class="hero">
             <div class="container-xxl">
                 <div class="hero-grid">
-                    <div class="hero-copy">
+                    <div class="hero-copy reveal" data-reveal>
                         <span class="brand-eyebrow" data-i18n="heroEyebrow">Rare Light · 点亮希望</span>
                         <h1 data-i18n="heroTitle">“线上趣味课 + 线下科普行” 双轨陪伴罕见病儿童</h1>
                         <p class="lead" data-i18n="heroLead">RARE LIGHT 罕见病关爱项目，面向患儿与家庭同步提供线上趣味课堂与线下科普关怀，兼顾成长需求与社会认知，打造专业且温暖的公益服务体系。</p>
@@ -476,7 +476,7 @@
                         </div>
                         <div class="session-note" id="sessionNote" data-i18n="sessionNote">课堂由专业志愿者维护，登录后即可继续学习。</div>
                     </div>
-                    <div class="hero-card">
+                    <div class="hero-card reveal" data-reveal>
                         <p class="eyebrow mb-2" data-i18n="cardEyebrow">项目全景</p>
                         <h3 class="fw-bold mb-3" data-i18n="cardTitle">线上课堂迭代五期 · 线下科普深入社区与校园</h3>
                         <p class="text-secondary mb-3" data-i18n="cardDesc">教师梯队与服务规模同步壮大，课堂覆盖语文、数学、英语、科学、地理、历史、AI 等学科，累计近千课时，陪伴 30+ 罕见病患儿家庭。线下科普行走进医院、校园与社区，媒体报道与实践成果持续放大影响。</p>
@@ -499,29 +499,29 @@
             </div>
         </section>
 
-        <section class="section" id="about">
+        <section class="section reveal" id="about" data-reveal>
             <div class="container-xxl">
                 <header>
                     <p class="eyebrow mb-1" data-i18n="sectionActionEyebrow">我们的行动</p>
                     <h2 data-i18n="sectionActionTitle">线上趣味课 + 线下科普行 · 双轨服务模式</h2>
                 </header>
                 <div class="feature-grid">
-                    <div class="feature-card">
+                    <div class="feature-card reveal" data-reveal>
                         <span class="feature-icon">A</span>
                         <h4 class="fw-bold mb-1" data-i18n="featureA">线上趣味课堂</h4>
                         <p class="text-secondary mb-0" data-i18n="featureAText">中国药科大学志愿者面向患儿开展系列教学，从英语拓展到语数外、科学、地理、历史、AI，多学科陪伴成长。</p>
                     </div>
-                    <div class="feature-card">
+                    <div class="feature-card reveal" data-reveal>
                         <span class="feature-icon">B</span>
                         <h4 class="fw-bold mb-1" data-i18n="featureB">线下科普关怀</h4>
                         <p class="text-secondary mb-0" data-i18n="featureBText">“罕见病患儿进校园”“罕爱童行・药语同航”等活动走进校园、医院与社区，让公众看见、理解并支持罕见病家庭。</p>
                     </div>
-                    <div class="feature-card">
+                    <div class="feature-card reveal" data-reveal>
                         <span class="feature-icon">C</span>
                         <h4 class="fw-bold mb-1" data-i18n="featureC">科普传播与倡导</h4>
                         <p class="text-secondary mb-0" data-i18n="featureCText">媒体报道、公众号“因你罕见，我药看见”持续输出诊疗指南、药物政策与真实故事，为家庭提供权威信息服务。</p>
                     </div>
-                    <div class="feature-card">
+                    <div class="feature-card reveal" data-reveal>
                         <span class="feature-icon">D</span>
                         <h4 class="fw-bold mb-1" data-i18n="featureD">志愿者与科研支撑</h4>
                         <p class="text-secondary mb-0" data-i18n="featureDText">70 人志愿者队伍与调研报告双线推进，沉淀实证数据，为服务迭代和政策倡导提供依据。</p>
@@ -537,10 +537,10 @@
             </div>
         </section>
 
-        <section class="section" id="resources">
+        <section class="section reveal" id="resources" data-reveal>
             <div class="container-xxl">
                 <div class="qr-section">
-                    <div class="qr-card">
+                    <div class="qr-card reveal" data-reveal>
                         <img src="assets/img/wechat-qr.png" alt="微信扫码关注 Rare Light 公众号" class="qr-image">
                         <div>
                             <p class="eyebrow mb-2" data-i18n="qrTitle">关注 Rare Light 公众号</p>
@@ -552,22 +552,22 @@
             </div>
         </section>
 
-        <section class="section" id="news">
+        <section class="section reveal" id="news" data-reveal>
             <div class="container-xxl">
                 <header>
                     <p class="eyebrow mb-1" data-i18n="pathwayEyebrow">陪伴路径</p>
                     <h2 data-i18n="pathwayTitle">从需求到陪伴，我们这样行动</h2>
                 </header>
                 <div class="pathway">
-                    <div class="pathway-step">
+                    <div class="pathway-step reveal" data-reveal>
                         <h5 class="fw-bold" data-i18n="pathway1">1. 了解家庭需求</h5>
                         <p class="text-secondary mb-0" data-i18n="pathway1Desc">与家长沟通病情、教育与心理需求，建立一对一档案。</p>
                     </div>
-                    <div class="pathway-step">
+                    <div class="pathway-step reveal" data-reveal>
                         <h5 class="fw-bold" data-i18n="pathway2">2. 匹配资源与课堂</h5>
                         <p class="text-secondary mb-0" data-i18n="pathway2Desc">为孩子安排合适的线上课程与志愿者陪伴，并链接医疗与社会资源。</p>
                     </div>
-                    <div class="pathway-step">
+                    <div class="pathway-step reveal" data-reveal>
                         <h5 class="fw-bold" data-i18n="pathway3">3. 持续跟进与评估</h5>
                         <p class="text-secondary mb-0" data-i18n="pathway3Desc">定期回访，评估课堂效果与家庭需求，调整支持方案。</p>
                     </div>
@@ -863,6 +863,23 @@
         }
     }
 
+    function initRevealOnScroll() {
+        const items = document.querySelectorAll('[data-reveal]');
+        if (!('IntersectionObserver' in window) || !items.length) {
+            items.forEach((el) => el.classList.add('visible'));
+            return;
+        }
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        items.forEach((el) => observer.observe(el));
+    }
+
     function updateClassroomLinks(target, text) {
         classroomLinks.forEach((link) => {
             link.href = target;
@@ -952,6 +969,7 @@
 
     initFontControls();
     initLangToggle();
+    initRevealOnScroll();
     checkSession();
 </script>
 </body>
