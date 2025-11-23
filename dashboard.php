@@ -125,7 +125,7 @@
                 <div class="breadcrumbs" id="breadcrumbs"><span>网课</span></div>
                 <h2 class="stage-title" id="lessonTitle">欢迎来到课堂</h2>
                 <p class="stage-subtitle" id="lessonDescription">从左侧依次选择课程与课节即可开始学习。</p>
-                <div class="stage-meta stage-meta-row d-flex flex-wrap gap-2 align-items-center mt-1">
+                <div class="stage-meta stage-meta-row d-flex flex-wrap gap-2 align-items-center mt-1" id="lessonMeta" hidden>
                     <span class="chip" id="courseBadge"></span>
                     <span class="chip subtle" id="lessonBadge"></span>
                     <span class="chip subtle" id="markCompleteButton" style="cursor:pointer; user-select:none;" aria-disabled="true">
