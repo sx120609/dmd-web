@@ -407,6 +407,23 @@
     </div>
 </div>
 
+<!-- 全局确认弹窗 -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">确认操作</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="confirmModalBody">确定执行该操作吗？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="confirmModalConfirm">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 
@@ -527,6 +544,10 @@
     let cloudFiles = [];
     let activeCloudTargetInputId = null;
     let activeCloudTargetMode = 'default';
+    const confirmModalEl = document.getElementById('confirmModal');
+    const confirmModalBody = document.getElementById('confirmModalBody');
+    const confirmModalConfirm = document.getElementById('confirmModalConfirm');
+    let confirmModal = null;
 
     let state = {
         users: [],
@@ -559,6 +580,38 @@
         const i = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
         const size = bytes / Math.pow(1024, i);
         return `${size.toFixed(size >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+    }
+
+    function showConfirm(message = '确定执行该操作吗？', title = '确认操作') {
+        return new Promise((resolve) => {
+            if (!confirmModalEl || !confirmModalBody || !confirmModalConfirm || typeof bootstrap === 'undefined') {
+                const fallback = window.confirm(message);
+                resolve(fallback);
+                return;
+            }
+            if (!confirmModal) {
+                confirmModal = new bootstrap.Modal(confirmModalEl);
+            }
+            const titleEl = document.getElementById('confirmModalLabel');
+            if (titleEl) {
+                titleEl.textContent = title;
+            }
+            confirmModalBody.textContent = message;
+            const onConfirm = () => {
+                resolve(true);
+                confirmModalConfirm.removeEventListener('click', onConfirm);
+                confirmModalEl.removeEventListener('hidden.bs.modal', onCancel);
+                confirmModal.hide();
+            };
+            const onCancel = () => {
+                resolve(false);
+                confirmModalConfirm.removeEventListener('click', onConfirm);
+                confirmModalEl.removeEventListener('hidden.bs.modal', onCancel);
+            };
+            confirmModalConfirm.addEventListener('click', onConfirm);
+            confirmModalEl.addEventListener('hidden.bs.modal', onCancel, { once: true });
+            confirmModal.show();
+        });
     }
 
     function resetUserImportModal() {
@@ -1495,7 +1548,8 @@
             }
             const course = state.courses.find((item) => item.id === courseId);
             const courseLabel = course && course.title ? `课程「${course.title}」` : '该课程';
-            if (!window.confirm(`确定删除${courseLabel}？删除后将同步移除课节与课程分配。`)) {
+            const confirm = await showConfirm(`确定删除${courseLabel}？删除后将同步移除课节与课程分配。`);
+            if (!confirm) {
                 return;
             }
             const originalLabel = button.textContent;
@@ -1655,7 +1709,8 @@
             if (action !== 'delete') {
                 return;
             }
-            if (!window.confirm('确定删除该课节？删除后无法恢复。')) {
+            const confirm = await showConfirm('确定删除该课节？删除后无法恢复。');
+            if (!confirm) {
                 return;
             }
             const originalLabel = button.textContent;
@@ -2141,7 +2196,8 @@
         }
         const targetUser = state.users[targetIndex];
         const label = targetUser.display_name || targetUser.username;
-        if (!window.confirm(`确定删除用户「${label}」吗？该操作无法恢复。`)) {
+        const confirm = await showConfirm(`确定删除用户「${label}」吗？该操作无法恢复。`);
+        if (!confirm) {
             return;
         }
         setMessage(deleteUserMessage, '正在删除用户...');
