@@ -1001,11 +1001,15 @@
 
     function syncMarkCompleteButton() {
         if (!markCompleteButton) return;
+        const labelEl = markCompleteButton.querySelector('span');
+        if (!labelEl) {
+            return;
+        }
         if (!currentCourseId || !currentLessonId) {
             markCompleteButton.setAttribute('aria-disabled', 'true');
             markCompleteButton.classList.add('subtle');
             markCompleteButton.classList.remove('chip-success');
-            markCompleteButton.querySelector('span').textContent = '标记已完成';
+            labelEl.textContent = '标记已完成';
             return;
         }
         const record = progressStore[currentCourseId] || { completed: [] };
@@ -1013,7 +1017,7 @@
         markCompleteButton.setAttribute('aria-disabled', 'false');
         markCompleteButton.classList.toggle('subtle', !isDone);
         markCompleteButton.classList.toggle('chip-success', isDone);
-        markCompleteButton.querySelector('span').textContent = isDone ? '取消已完成' : '标记已完成';
+        labelEl.textContent = isDone ? '取消已完成' : '标记已完成';
     }
 
     async function loadCourses() {
