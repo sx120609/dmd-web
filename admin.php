@@ -238,7 +238,9 @@
                             <div>
                                 <label for="lessonAttachmentsInput">附件（每行“名称|链接”或直接粘贴链接）</label>
                                 <div class="d-flex flex-column gap-2">
-                                    <textarea id="lessonAttachmentsInput" name="attachments" rows="3" placeholder="示例：\n讲义 PDF|https://example.com/file.pdf\n练习题|https://example.com/ex.pdf"></textarea>
+                                    <textarea id="lessonAttachmentsInput" name="attachments" rows="3" placeholder="示例：
+讲义 PDF|https://example.com/file.pdf
+练习题|https://example.com/ex.pdf"></textarea>
                                     <div class="d-flex flex-wrap gap-2">
                                         <button type="button" class="btn btn-outline-secondary btn-sm cloud-picker-button" data-target-input="lessonAttachmentsInput" data-cloud-mode="attachment">云盘选择</button>
                                         <p class="hint mb-0">支持外部链接或云盘外链，留空则无附件。</p>
@@ -283,7 +285,9 @@
                             <div>
                                 <label for="editLessonAttachments">附件（每行“名称|链接”或直接粘贴链接）</label>
                                 <div class="d-flex flex-column gap-2">
-                                    <textarea id="editLessonAttachments" rows="3" placeholder="示例：讲义 PDF|https://example.com/file.pdf"></textarea>
+                                    <textarea id="editLessonAttachments" rows="3" placeholder="示例：
+讲义 PDF|https://example.com/file.pdf
+练习题|https://example.com/ex.pdf"></textarea>
                                     <div class="d-flex flex-wrap gap-2">
                                         <button type="button" class="btn btn-outline-secondary btn-sm cloud-picker-button" data-target-input="editLessonAttachments" data-cloud-mode="attachment">云盘选择</button>
                                         <p class="hint mb-0">支持外部链接或云盘外链。</p>
