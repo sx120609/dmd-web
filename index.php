@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Rare Light · 点亮罕见病儿童的希望</title>
+<title data-i18n="pageTitle">Rare Light · 点亮罕见病儿童的希望</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -472,16 +472,16 @@
                         <p class="text-secondary mb-3" data-i18n="cardDesc">教师梯队与服务规模同步壮大，课堂覆盖语文、数学、英语、科学、地理、历史、AI 等学科，累计近千课时，陪伴 30+ 罕见病患儿家庭。线下科普行走进医院、校园与社区，媒体报道与实践成果持续放大影响。</p>
                         <div class="stat-grid">
                             <div class="stat">
-                                <strong>5 期课堂</strong>
-                                <span class="text-secondary">近千课时，覆盖多学科</span>
+                                <strong data-i18n="stat1">5 期课堂</strong>
+                                <span class="text-secondary" data-i18n="stat1Desc">近千课时，覆盖多学科</span>
                             </div>
                             <div class="stat">
-                                <strong>70 位志愿者</strong>
-                                <span class="text-secondary">教师梯队持续壮大</span>
+                                <strong data-i18n="stat2">70 位志愿者</strong>
+                                <span class="text-secondary" data-i18n="stat2Desc">教师梯队持续壮大</span>
                             </div>
                             <div class="stat">
-                                <strong>30+ 家庭</strong>
-                                <span class="text-secondary">5 年持续陪伴</span>
+                                <strong data-i18n="stat3">30+ 家庭</strong>
+                                <span class="text-secondary" data-i18n="stat3Desc">5 年持续陪伴</span>
                             </div>
                         </div>
                     </div>
@@ -489,7 +489,7 @@
             </div>
         </section>
 
-        <section class="section" id="programs">
+        <section class="section" id="about">
             <div class="container-xxl">
                 <header>
                     <p class="eyebrow mb-1" data-i18n="sectionActionEyebrow">我们的行动</p>
@@ -527,7 +527,7 @@
             </div>
         </section>
 
-        <section class="section">
+        <section class="section" id="resources">
             <div class="container-xxl">
                 <div class="qr-section">
                     <div class="qr-card">
@@ -542,24 +542,24 @@
             </div>
         </section>
 
-        <section class="section">
+        <section class="section" id="news">
             <div class="container-xxl">
                 <header>
-                    <p class="eyebrow mb-1">陪伴路径</p>
-                    <h2>从需求到陪伴，我们这样行动</h2>
+                    <p class="eyebrow mb-1" data-i18n="pathwayEyebrow">陪伴路径</p>
+                    <h2 data-i18n="pathwayTitle">从需求到陪伴，我们这样行动</h2>
                 </header>
                 <div class="pathway">
                     <div class="pathway-step">
-                        <h5 class="fw-bold">1. 了解家庭需求</h5>
-                        <p class="text-secondary mb-0">与家长沟通病情、教育与心理需求，建立一对一档案。</p>
+                        <h5 class="fw-bold" data-i18n="pathway1">1. 了解家庭需求</h5>
+                        <p class="text-secondary mb-0" data-i18n="pathway1Desc">与家长沟通病情、教育与心理需求，建立一对一档案。</p>
                     </div>
                     <div class="pathway-step">
-                        <h5 class="fw-bold">2. 匹配资源与课堂</h5>
-                        <p class="text-secondary mb-0">为孩子安排合适的线上课程与志愿者陪伴，并链接医疗与社会资源。</p>
+                        <h5 class="fw-bold" data-i18n="pathway2">2. 匹配资源与课堂</h5>
+                        <p class="text-secondary mb-0" data-i18n="pathway2Desc">为孩子安排合适的线上课程与志愿者陪伴，并链接医疗与社会资源。</p>
                     </div>
                     <div class="pathway-step">
-                        <h5 class="fw-bold">3. 持续跟进与评估</h5>
-                        <p class="text-secondary mb-0">定期回访，评估课堂效果与家庭需求，调整支持方案。</p>
+                        <h5 class="fw-bold" data-i18n="pathway3">3. 持续跟进与评估</h5>
+                        <p class="text-secondary mb-0" data-i18n="pathway3Desc">定期回访，评估课堂效果与家庭需求，调整支持方案。</p>
                     </div>
                 </div>
             </div>
@@ -574,7 +574,7 @@
                             <h3 class="fw-bold" data-i18n="classroomTitle">网课入口</h3>
                             <p class="text-secondary" data-i18n="classroomDesc">患儿与家长可在此登录进入课堂；已分配课程的用户将直接跳转至学习页面。</p>
                             <div class="d-flex flex-wrap gap-2">
-                                <a class="primary-button" data-classroom-link href="#classroom">立即进入网课</a>
+                                <a class="primary-button" data-classroom-link href="#classroom" data-i18n="ctaImmediate">立即进入网课</a>
                             </div>
                         </div>
                         <div class="login-panel">
@@ -624,8 +624,8 @@
 
     <footer class="footer">
         <div class="container-xxl d-flex flex-wrap justify-content-between gap-2">
-            <div>Rare Light — 为罕见病儿童提供陪伴、教育与资源链接。</div>
-            <div class="text-secondary">联系邮箱：hello@rarelight.org</div>
+            <div data-i18n="footerText">Rare Light — 为罕见病儿童提供陪伴、教育与资源链接。</div>
+            <div class="text-secondary" data-i18n="footerEmail">联系邮箱：hello@rarelight.org</div>
         </div>
     </footer>
 </div>
@@ -639,6 +639,7 @@
         zh: {
             brandTagline: 'Rare Light',
             brandTitle: 'Rare Light · 罕见病儿童公益',
+            pageTitle: 'Rare Light · 点亮罕见病儿童的希望',
             navAbout: '关于我们',
             navNews: '新闻',
             navResources: '资源与工具',
@@ -667,6 +668,21 @@
             ctaJoinTitle: '想加入我们？',
             ctaJoinDesc: '欢迎医疗机构、教育机构与企业伙伴共建罕见病儿童支持网络。',
             ctaJoinBtn: '成为合作伙伴 ↗',
+            stat1: '5 期课堂',
+            stat1Desc: '近千课时，覆盖多学科',
+            stat2: '70 位志愿者',
+            stat2Desc: '教师梯队持续壮大',
+            stat3: '30+ 家庭',
+            stat3Desc: '5 年持续陪伴',
+            pathwayEyebrow: '陪伴路径',
+            pathwayTitle: '从需求到陪伴，我们这样行动',
+            pathway1: '1. 了解家庭需求',
+            pathway1Desc: '与家长沟通病情、教育与心理需求，建立一对一档案。',
+            pathway2: '2. 匹配资源与课堂',
+            pathway2Desc: '为孩子安排合适的线上课程与志愿者陪伴，并链接医疗与社会资源。',
+            pathway3: '3. 持续跟进与评估',
+            pathway3Desc: '定期回访，评估课堂效果与家庭需求，调整支持方案。',
+            ctaImmediate: '立即进入网课',
             qrTitle: '关注 Rare Light 公众号',
             qrSubtitle: '微信扫码，获取最新课程与科普动态',
             qrDesc: '用微信扫描二维码即可关注，第一时间了解课程安排、线下活动、科普信息与政策更新。',
@@ -690,6 +706,7 @@
         en: {
             brandTagline: 'Rare Light',
             brandTitle: 'Rare Light · Rare Disease Care',
+            pageTitle: 'Rare Light · Rare Disease Care',
             navAbout: 'About Us',
             navNews: 'News',
             navResources: 'Resources & Tools',
@@ -718,6 +735,21 @@
             ctaJoinTitle: 'Join Us',
             ctaJoinDesc: 'Hospitals, schools, and corporate partners are welcome to build the support network together.',
             ctaJoinBtn: 'Become a Partner ↗',
+            stat1: '5 phases of classes',
+            stat1Desc: 'Nearly 1,000 class hours across subjects',
+            stat2: '70 volunteers',
+            stat2Desc: 'Growing teaching team',
+            stat3: '30+ families',
+            stat3Desc: '5 years of ongoing support',
+            pathwayEyebrow: 'Our Path',
+            pathwayTitle: 'From needs to sustained companionship',
+            pathway1: '1. Understand needs',
+            pathway1Desc: 'Talk with parents about medical, education, and psychological needs; build a 1:1 profile.',
+            pathway2: '2. Match resources & classes',
+            pathway2Desc: 'Arrange suitable online courses, volunteer companions, and medical/social resources.',
+            pathway3: '3. Follow-up & evaluate',
+            pathway3Desc: 'Regular check-ins to adjust plans based on family feedback.',
+            ctaImmediate: 'Enter Classroom Now',
             qrTitle: 'Follow Rare Light on WeChat',
             qrSubtitle: 'Scan to get course updates & news',
             qrDesc: 'Scan the QR code to follow and receive course schedules, events, and policy updates.',
@@ -796,6 +828,7 @@
                 el.textContent = dict[key];
             }
         });
+        document.title = dict.pageTitle || 'Rare Light';
         currentLang = lang;
         localStorage.setItem(LANG_KEY, currentLang);
         if (langToggle) {
