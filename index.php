@@ -448,6 +448,7 @@
                     <button type="button" id="fontLarger" aria-label="Larger font">A+</button>
                 </div>
                 <button class="lang-toggle" type="button" id="langToggle" aria-label="Language toggle">EN / 中文</button>
+                <a class="primary-button" id="classroomCta" data-classroom-link href="#classroom" data-i18n="navLogin">进入网课</a>
             </div>
         </div>
     </nav>
@@ -692,7 +693,7 @@
             loginTitle: '课堂登录',
             loginDesc: '请输入管理员分配的账号登录。如果您尚未拥有账户，请联系我们的协调员。',
             loginUsername: '用户名',
-            loginPassword: '密码',
+            loginPassword: '请输入密码',
             loginButton: '登录并进入课堂',
             contactEyebrow: '联系与合作',
             contactTitle: '一起为罕见病儿童点亮更多光',
