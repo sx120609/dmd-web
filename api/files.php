@@ -120,7 +120,7 @@ function stream_file_download(array $file, string $storageDir): void
     header_remove('Content-Type');
     http_response_code($httpStatus);
     header('Content-Type: ' . $mime);
-    header('Content-Disposition: attachment; filename="' . rawurlencode($file['original_name']) . '"');
+    header('Content-Disposition: inline; filename="' . rawurlencode($file['original_name']) . '"');
     header('Accept-Ranges: bytes');
     header('Content-Length: ' . $length);
     if ($httpStatus === 206) {
