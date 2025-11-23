@@ -424,8 +424,7 @@
             }
 
             .nav-actions {
-                width: 100%;
-                justify-content: flex-start;
+                display: none;
             }
         }
     </style>
@@ -442,11 +441,6 @@
                 </div>
             </div>
             <div class="nav-actions">
-                <a class="ghost-button" href="#about" data-i18n="navAbout">About Us</a>
-                <a class="ghost-button" href="#news" data-i18n="navNews">News</a>
-                <a class="ghost-button" href="#resources" data-i18n="navResources">Resources &amp; Tools</a>
-                <a class="ghost-button" data-classroom-link href="#classroom" data-i18n="navCourses">Online Courses</a>
-                <a class="primary-button" id="classroomCta" data-classroom-link href="#classroom" data-i18n="navLogin">进入网课</a>
                 <div class="font-toggle" aria-label="Font size controls">
                     <span data-i18n="fontLabel">A</span>
                     <button type="button" id="fontSmaller" aria-label="Smaller font">A-</button>
