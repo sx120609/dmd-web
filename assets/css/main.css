@@ -602,6 +602,11 @@ label {
     color: var(--text-secondary);
 }
 
+.chip.chip-success {
+    background: rgba(34, 197, 94, 0.16);
+    color: #166534;
+}
+
 .lesson-columns {
     display: grid;
     gap: 1.75rem;

@@ -130,10 +130,10 @@
                         <span class="chip" id="courseBadge"></span>
                         <span class="chip subtle" id="lessonBadge"></span>
                     </div>
-                    <button class="btn btn-outline-success btn-sm d-inline-flex align-items-center gap-1" id="markCompleteButton" disabled>
+                    <span class="chip subtle" id="markCompleteButton" style="cursor:pointer; user-select:none;" aria-disabled="true">
                         <i class="bi bi-check2-circle"></i>
                         <span>标记已完成</span>
-                    </button>
+                    </span>
                 </div>
             </header>
             <div class="stage-content">
@@ -1004,18 +1004,18 @@
     function syncMarkCompleteButton() {
         if (!markCompleteButton) return;
         if (!currentCourseId || !currentLessonId) {
-            markCompleteButton.disabled = true;
-            markCompleteButton.textContent = '标记已完成';
-            markCompleteButton.classList.remove('btn-success');
-            markCompleteButton.classList.add('btn-outline-success');
+            markCompleteButton.setAttribute('aria-disabled', 'true');
+            markCompleteButton.classList.add('subtle');
+            markCompleteButton.classList.remove('chip-success');
+            markCompleteButton.querySelector('span').textContent = '标记已完成';
             return;
         }
         const record = progressStore[currentCourseId] || { completed: [] };
         const isDone = Array.isArray(record.completed) && record.completed.includes(currentLessonId);
-        markCompleteButton.disabled = false;
-        markCompleteButton.textContent = isDone ? '取消已完成' : '标记已完成';
-        markCompleteButton.classList.toggle('btn-outline-success', !isDone);
-        markCompleteButton.classList.toggle('btn-success', isDone);
+        markCompleteButton.setAttribute('aria-disabled', 'false');
+        markCompleteButton.classList.toggle('subtle', isDone);
+        markCompleteButton.classList.toggle('chip-success', isDone);
+        markCompleteButton.querySelector('span').textContent = isDone ? '取消已完成' : '标记已完成';
     }
 
     async function loadCourses() {
@@ -1088,16 +1088,16 @@
 
     if (markCompleteButton) {
         markCompleteButton.addEventListener('click', () => {
-        if (!currentCourseId || !currentLessonId) {
-            return;
-        }
-        const record = progressStore[currentCourseId] || { completed: [] };
-        const isDone = Array.isArray(record.completed) && record.completed.includes(currentLessonId);
-        setLessonCompleted(currentCourseId, currentLessonId, !isDone);
-        syncMarkCompleteButton();
-        refreshProgressUI();
-    });
-}
+            if (!currentCourseId || !currentLessonId) {
+                return;
+            }
+            const record = progressStore[currentCourseId] || { completed: [] };
+            const isDone = Array.isArray(record.completed) && record.completed.includes(currentLessonId);
+            setLessonCompleted(currentCourseId, currentLessonId, !isDone);
+            syncMarkCompleteButton();
+            refreshProgressUI();
+        });
+    }
 
     loadSession();
 </script>
