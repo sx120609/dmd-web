@@ -138,6 +138,44 @@
             justify-content: center;
         }
 
+        .nav-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .lang-toggle,
+        .font-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            background: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .font-toggle button {
+            border: none;
+            background: transparent;
+            padding: 0.2rem 0.45rem;
+            border-radius: 8px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .font-toggle button:hover,
+        .lang-toggle:hover {
+            background: rgba(79, 70, 229, 0.08);
+        }
+
+        .font-toggle button:disabled {
+            opacity: 0.5;
+        }
+
         .session-note {
             margin-top: 1rem;
             color: #0f172a;
@@ -384,6 +422,11 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
+
+            .nav-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
         }
     </style>
 </head>
@@ -394,9 +437,23 @@
             <div class="nav-brand">
                 <span class="brand-mark">RL</span>
                 <div>
-                    <div class="small text-uppercase text-secondary">Rare Light</div>
-                    <div class="fw-bold">Rare Light · 罕见病儿童公益</div>
+                    <div class="small text-uppercase text-secondary" data-i18n="brandTagline">Rare Light</div>
+                    <div class="fw-bold" data-i18n="brandTitle">Rare Light · 罕见病儿童公益</div>
                 </div>
+            </div>
+            <div class="nav-actions">
+                <a class="ghost-button" href="#about" data-i18n="navAbout">About Us</a>
+                <a class="ghost-button" href="#news" data-i18n="navNews">News</a>
+                <a class="ghost-button" href="#resources" data-i18n="navResources">Resources &amp; Tools</a>
+                <a class="ghost-button" data-classroom-link href="#classroom" data-i18n="navCourses">Online Courses</a>
+                <a class="primary-button" id="classroomCta" data-classroom-link href="#classroom" data-i18n="navLogin">进入网课</a>
+                <div class="font-toggle" aria-label="Font size controls">
+                    <span data-i18n="fontLabel">A</span>
+                    <button type="button" id="fontSmaller" aria-label="Smaller font">A-</button>
+                    <button type="button" id="fontReset" aria-label="Default font">A</button>
+                    <button type="button" id="fontLarger" aria-label="Larger font">A+</button>
+                </div>
+                <button class="lang-toggle" type="button" id="langToggle" aria-label="Language toggle">EN / 中文</button>
             </div>
         </div>
     </nav>
@@ -406,19 +463,19 @@
             <div class="container-xxl">
                 <div class="hero-grid">
                     <div class="hero-copy">
-                        <span class="brand-eyebrow">Rare Light · 点亮希望</span>
-                        <h1>“线上趣味课 + 线下科普行” 双轨陪伴罕见病儿童</h1>
-                        <p class="lead">RARE LIGHT 罕见病关爱项目，面向患儿与家庭同步提供线上趣味课堂与线下科普关怀，兼顾成长需求与社会认知，打造专业且温暖的公益服务体系。</p>
+                        <span class="brand-eyebrow" data-i18n="heroEyebrow">Rare Light · 点亮希望</span>
+                        <h1 data-i18n="heroTitle">“线上趣味课 + 线下科普行” 双轨陪伴罕见病儿童</h1>
+                        <p class="lead" data-i18n="heroLead">RARE LIGHT 罕见病关爱项目，面向患儿与家庭同步提供线上趣味课堂与线下科普关怀，兼顾成长需求与社会认知，打造专业且温暖的公益服务体系。</p>
                         <div class="hero-actions">
-                            <a class="primary-button" data-classroom-link href="#classroom">进入网课</a>
-                            <a class="ghost-button" href="#contact">与我们合作</a>
+                            <a class="primary-button" data-classroom-link href="#classroom" data-i18n="ctaEnter">进入网课</a>
+                            <a class="ghost-button" href="#contact" data-i18n="ctaPartner">与我们合作</a>
                         </div>
-                        <div class="session-note" id="sessionNote">课堂由专业志愿者维护，登录后即可继续学习。</div>
+                        <div class="session-note" id="sessionNote" data-i18n="sessionNote">课堂由专业志愿者维护，登录后即可继续学习。</div>
                     </div>
                     <div class="hero-card">
-                        <p class="eyebrow mb-2">项目全景</p>
-                        <h3 class="fw-bold mb-3">线上课堂迭代五期 · 线下科普深入社区与校园</h3>
-                        <p class="text-secondary mb-3">教师梯队与服务规模同步壮大，课堂覆盖语文、数学、英语、科学、地理、历史、AI 等学科，累计近千课时，陪伴 30+ 罕见病患儿家庭。线下科普行走进医院、校园与社区，媒体报道与实践成果持续放大影响。</p>
+                        <p class="eyebrow mb-2" data-i18n="cardEyebrow">项目全景</p>
+                        <h3 class="fw-bold mb-3" data-i18n="cardTitle">线上课堂迭代五期 · 线下科普深入社区与校园</h3>
+                        <p class="text-secondary mb-3" data-i18n="cardDesc">教师梯队与服务规模同步壮大，课堂覆盖语文、数学、英语、科学、地理、历史、AI 等学科，累计近千课时，陪伴 30+ 罕见病患儿家庭。线下科普行走进医院、校园与社区，媒体报道与实践成果持续放大影响。</p>
                         <div class="stat-grid">
                             <div class="stat">
                                 <strong>5 期课堂</strong>
@@ -441,37 +498,37 @@
         <section class="section" id="programs">
             <div class="container-xxl">
                 <header>
-                    <p class="eyebrow mb-1">我们的行动</p>
-                    <h2>线上趣味课 + 线下科普行 · 双轨服务模式</h2>
+                    <p class="eyebrow mb-1" data-i18n="sectionActionEyebrow">我们的行动</p>
+                    <h2 data-i18n="sectionActionTitle">线上趣味课 + 线下科普行 · 双轨服务模式</h2>
                 </header>
                 <div class="feature-grid">
                     <div class="feature-card">
                         <span class="feature-icon">A</span>
-                        <h4 class="fw-bold mb-1">线上趣味课堂</h4>
-                        <p class="text-secondary mb-0">中国药科大学志愿者面向患儿开展系列教学，从英语拓展到语数外、科学、地理、历史、AI，多学科陪伴成长。</p>
+                        <h4 class="fw-bold mb-1" data-i18n="featureA">线上趣味课堂</h4>
+                        <p class="text-secondary mb-0" data-i18n="featureAText">中国药科大学志愿者面向患儿开展系列教学，从英语拓展到语数外、科学、地理、历史、AI，多学科陪伴成长。</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">B</span>
-                        <h4 class="fw-bold mb-1">线下科普关怀</h4>
-                        <p class="text-secondary mb-0">“罕见病患儿进校园”“罕爱童行・药语同航”等活动走进校园、医院与社区，让公众看见、理解并支持罕见病家庭。</p>
+                        <h4 class="fw-bold mb-1" data-i18n="featureB">线下科普关怀</h4>
+                        <p class="text-secondary mb-0" data-i18n="featureBText">“罕见病患儿进校园”“罕爱童行・药语同航”等活动走进校园、医院与社区，让公众看见、理解并支持罕见病家庭。</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">C</span>
-                        <h4 class="fw-bold mb-1">科普传播与倡导</h4>
-                        <p class="text-secondary mb-0">媒体报道、公众号“因你罕见，我药看见”持续输出诊疗指南、药物政策与真实故事，为家庭提供权威信息服务。</p>
+                        <h4 class="fw-bold mb-1" data-i18n="featureC">科普传播与倡导</h4>
+                        <p class="text-secondary mb-0" data-i18n="featureCText">媒体报道、公众号“因你罕见，我药看见”持续输出诊疗指南、药物政策与真实故事，为家庭提供权威信息服务。</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">D</span>
-                        <h4 class="fw-bold mb-1">志愿者与科研支撑</h4>
-                        <p class="text-secondary mb-0">70 人志愿者队伍与调研报告双线推进，沉淀实证数据，为服务迭代和政策倡导提供依据。</p>
+                        <h4 class="fw-bold mb-1" data-i18n="featureD">志愿者与科研支撑</h4>
+                        <p class="text-secondary mb-0" data-i18n="featureDText">70 人志愿者队伍与调研报告双线推进，沉淀实证数据，为服务迭代和政策倡导提供依据。</p>
                     </div>
                 </div>
                 <div class="cta-banner mt-4">
                     <div>
-                        <div class="fw-bold fs-5">想加入我们？</div>
-                        <div>欢迎医疗机构、教育机构与企业伙伴共建罕见病儿童支持网络。</div>
+                        <div class="fw-bold fs-5" data-i18n="ctaJoinTitle">想加入我们？</div>
+                        <div data-i18n="ctaJoinDesc">欢迎医疗机构、教育机构与企业伙伴共建罕见病儿童支持网络。</div>
                     </div>
-                    <a class="ghost-button cta-button" href="#contact">成为合作伙伴 ↗</a>
+                    <a class="ghost-button cta-button" href="#contact" data-i18n="ctaJoinBtn">成为合作伙伴 ↗</a>
                 </div>
             </div>
         </section>
@@ -482,9 +539,9 @@
                     <div class="qr-card">
                         <img src="assets/img/wechat-qr.png" alt="微信扫码关注 Rare Light 公众号" class="qr-image">
                         <div>
-                            <p class="eyebrow mb-2">关注 Rare Light 公众号</p>
-                            <h3 class="fw-bold mb-2">微信扫码，获取最新课程与科普动态</h3>
-                            <p class="text-secondary mb-0">用微信扫描二维码即可关注，第一时间了解课程安排、线下活动、科普信息与政策更新。</p>
+                            <p class="eyebrow mb-2" data-i18n="qrTitle">关注 Rare Light 公众号</p>
+                            <h3 class="fw-bold mb-2" data-i18n="qrSubtitle">微信扫码，获取最新课程与科普动态</h3>
+                            <p class="text-secondary mb-0" data-i18n="qrDesc">用微信扫描二维码即可关注，第一时间了解课程安排、线下活动、科普信息与政策更新。</p>
                         </div>
                     </div>
                 </div>
@@ -582,6 +639,88 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const API_BASE = 'api';
+    const FONT_KEY = 'rl_font_scale';
+    const LANG_KEY = 'rl_lang';
+    const i18n = {
+        zh: {
+            brandTagline: 'Rare Light',
+            brandTitle: 'Rare Light · 罕见病儿童公益',
+            navAbout: '关于我们',
+            navNews: '新闻',
+            navResources: '资源与工具',
+            navCourses: '在线课程',
+            navLogin: '进入网课',
+            fontLabel: '字号',
+            heroEyebrow: 'Rare Light · 点亮希望',
+            heroTitle: '“线上趣味课 + 线下科普行” 双轨陪伴罕见病儿童',
+            heroLead: 'RARE LIGHT 罕见病关爱项目，面向患儿与家庭同步提供线上趣味课堂与线下科普关怀，兼顾成长需求与社会认知，打造专业且温暖的公益服务体系。',
+            ctaEnter: '进入网课',
+            ctaPartner: '与我们合作',
+            sessionNote: '课堂由专业志愿者维护，登录后即可继续学习。',
+            cardEyebrow: '项目全景',
+            cardTitle: '线上课堂迭代五期 · 线下科普深入社区与校园',
+            cardDesc: '教师梯队与服务规模同步壮大，课堂覆盖语文、数学、英语、科学、地理、历史、AI 等学科，累计近千课时，陪伴 30+ 罕见病患儿家庭。线下科普行走进医院、校园与社区，媒体报道与实践成果持续放大影响。',
+            sectionActionEyebrow: '我们的行动',
+            sectionActionTitle: '线上趣味课 + 线下科普行 · 双轨服务模式',
+            featureA: '线上趣味课堂',
+            featureAText: '中国药科大学志愿者面向患儿开展系列教学，从英语拓展到语数外、科学、地理、历史、AI，多学科陪伴成长。',
+            featureB: '线下科普关怀',
+            featureBText: '“罕见病患儿进校园”“罕爱童行・药语同航”等活动走进校园、医院与社区，让公众看见、理解并支持罕见病家庭。',
+            featureC: '科普传播与倡导',
+            featureCText: '媒体报道、公众号“因你罕见，我药看见”持续输出诊疗指南、药物政策与真实故事，为家庭提供权威信息服务。',
+            featureD: '志愿者与科研支撑',
+            featureDText: '70 人志愿者队伍与调研报告双线推进，沉淀实证数据，为服务迭代和政策倡导提供依据。',
+            ctaJoinTitle: '想加入我们？',
+            ctaJoinDesc: '欢迎医疗机构、教育机构与企业伙伴共建罕见病儿童支持网络。',
+            ctaJoinBtn: '成为合作伙伴 ↗',
+            qrTitle: '关注 Rare Light 公众号',
+            qrSubtitle: '微信扫码，获取最新课程与科普动态',
+            qrDesc: '用微信扫描二维码即可关注，第一时间了解课程安排、线下活动、科普信息与政策更新。'
+        },
+        en: {
+            brandTagline: 'Rare Light',
+            brandTitle: 'Rare Light · Rare Disease Care',
+            navAbout: 'About Us',
+            navNews: 'News',
+            navResources: 'Resources & Tools',
+            navCourses: 'Online Courses',
+            navLogin: 'Enter Classroom',
+            fontLabel: 'Font',
+            heroEyebrow: 'Rare Light · Hope',
+            heroTitle: 'Hybrid “Online Fun Courses + Offline Sci-pop” for Rare Disease Children',
+            heroLead: 'Rare Light provides online fun classes and offline outreach for children and families, blending growth support with social awareness in a warm, professional way.',
+            ctaEnter: 'Enter Classroom',
+            ctaPartner: 'Partner with Us',
+            sessionNote: 'Log in to continue learning; classes are maintained by volunteers.',
+            cardEyebrow: 'Project Snapshot',
+            cardTitle: 'Five phases of online classes · Offline outreach to campuses and communities',
+            cardDesc: 'Expanding subjects across languages, STEM, humanities, and AI with nearly 1,000 class hours, serving 30+ families. Offline events bring visibility and support through hospitals, campuses, and media.',
+            sectionActionEyebrow: 'What We Do',
+            sectionActionTitle: 'Online Fun Courses + Offline Sci-pop',
+            featureA: 'Online Fun Classes',
+            featureAText: 'Student volunteers teach across English, Math, Science, Geography, History, and AI, accompanying rare disease children in learning.',
+            featureB: 'Offline Outreach',
+            featureBText: 'Campus visits and hospital/community events raise awareness and support for rare disease families.',
+            featureC: 'Sci-pop & Advocacy',
+            featureCText: 'We publish guides, policy updates, and real stories via media and the “Rare Light” WeChat account.',
+            featureD: 'Volunteers & Research',
+            featureDText: 'A 70-person volunteer team plus research to inform service iteration and advocacy.',
+            ctaJoinTitle: 'Join Us',
+            ctaJoinDesc: 'Hospitals, schools, and corporate partners are welcome to build the support network together.',
+            ctaJoinBtn: 'Become a Partner ↗',
+            qrTitle: 'Follow Rare Light on WeChat',
+            qrSubtitle: 'Scan to get course updates & news',
+            qrDesc: 'Scan the QR code to follow and receive course schedules, events, and policy updates.'
+        }
+    };
+
+    const htmlEl = document.documentElement;
+    const fontSmallerBtn = document.getElementById('fontSmaller');
+    const fontResetBtn = document.getElementById('fontReset');
+    const fontLargerBtn = document.getElementById('fontLarger');
+    const langToggle = document.getElementById('langToggle');
+    let currentFontScale = 1;
+    let currentLang = localStorage.getItem(LANG_KEY) || 'zh';
     const classroomLinks = document.querySelectorAll('[data-classroom-link]');
     const sessionNote = document.getElementById('sessionNote');
     const loginForm = document.getElementById('loginForm');
@@ -595,6 +734,54 @@
             return query ? `${sanitizedPath}?${query}` : sanitizedPath;
         }
         return url;
+    }
+
+    function applyFontScale(scale) {
+        currentFontScale = Math.min(1.3, Math.max(0.85, scale));
+        htmlEl.style.setProperty('--font-base', '16px');
+        htmlEl.style.fontSize = `calc(var(--font-base) * ${currentFontScale})`;
+        localStorage.setItem(FONT_KEY, String(currentFontScale));
+    }
+
+    function initFontControls() {
+        const saved = parseFloat(localStorage.getItem(FONT_KEY) || '1');
+        if (!Number.isNaN(saved)) {
+            applyFontScale(saved);
+        }
+        if (fontSmallerBtn) {
+            fontSmallerBtn.addEventListener('click', () => applyFontScale(currentFontScale - 0.05));
+        }
+        if (fontResetBtn) {
+            fontResetBtn.addEventListener('click', () => applyFontScale(1));
+        }
+        if (fontLargerBtn) {
+            fontLargerBtn.addEventListener('click', () => applyFontScale(currentFontScale + 0.05));
+        }
+    }
+
+    function applyTranslations(lang) {
+        const dict = i18n[lang] || i18n.zh;
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+            const key = el.dataset.i18n;
+            if (key && dict[key]) {
+                el.textContent = dict[key];
+            }
+        });
+        currentLang = lang;
+        localStorage.setItem(LANG_KEY, currentLang);
+        if (langToggle) {
+            langToggle.textContent = lang === 'zh' ? '中文 / EN' : 'EN / 中文';
+        }
+    }
+
+    function initLangToggle() {
+        applyTranslations(currentLang);
+        if (langToggle) {
+            langToggle.addEventListener('click', () => {
+                const next = currentLang === 'zh' ? 'en' : 'zh';
+                applyTranslations(next);
+            });
+        }
     }
 
     function updateClassroomLinks(target, text) {
@@ -638,18 +825,18 @@
             const data = await fetchJSON(`${API_BASE}/session.php`, { method: 'GET' });
             if (data && data.user) {
                 const name = data.user.display_name || data.user.username;
-                updateClassroomLinks('dashboard', '进入我的课堂');
-                sessionNote.textContent = `欢迎回来，${name}。点击即可直接进入课堂继续学习。`;
+                updateClassroomLinks('dashboard', i18n[currentLang].navLogin || '进入我的课堂');
+                sessionNote.textContent = `${i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。'} 欢迎回来，${name}。`;
                 loginForm.querySelectorAll('input, button').forEach((element) => {
                     element.disabled = true;
                 });
-                showMessage('您已登录，可直接进入课堂。', 'success');
+                showMessage(currentLang === 'zh' ? '您已登录，可直接进入课堂。' : 'You are logged in. Enter the classroom directly.', 'success');
             } else {
-                updateClassroomLinks('#classroom', '进入网课');
-                sessionNote.textContent = '课堂由专业志愿者维护，登录后即可继续学习。';
+                updateClassroomLinks('#classroom', i18n[currentLang].navLogin || '进入网课');
+                sessionNote.textContent = i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。';
             }
         } catch (error) {
-            sessionNote.textContent = '课堂由专业志愿者维护，登录后即可继续学习。';
+            sessionNote.textContent = i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。';
         }
     }
 
@@ -684,6 +871,8 @@
         }
     });
 
+    initFontControls();
+    initLangToggle();
     checkSession();
 </script>
 </body>
