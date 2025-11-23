@@ -250,6 +250,33 @@
             background: rgba(248, 250, 252, 0.8);
         }
 
+        .qr-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.2rem;
+            align-items: center;
+        }
+
+        .qr-card {
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.92);
+            border: var(--card-border);
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .qr-card .qr-image {
+            width: 180px;
+            height: 180px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            object-fit: cover;
+            background: #f8fafc;
+        }
+
         .cta-banner {
             margin-top: 1.5rem;
             padding: 1.4rem;
@@ -351,6 +378,11 @@
             .pathway {
                 grid-template-columns: 1fr;
             }
+
+            .qr-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -439,6 +471,21 @@
                         <div>欢迎医疗机构、教育机构与企业伙伴共建罕见病儿童支持网络。</div>
                     </div>
                     <a class="ghost-button cta-button" href="#contact">成为合作伙伴 ↗</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container-xxl">
+                <div class="qr-section">
+                    <div class="qr-card">
+                        <img src="assets/img/wechat-qr.png" alt="微信扫码关注 Rare Light 公众号" class="qr-image">
+                        <div>
+                            <p class="eyebrow mb-2">关注 Rare Light 公众号</p>
+                            <h3 class="fw-bold mb-2">微信扫码，获取最新课程与科普动态</h3>
+                            <p class="text-secondary mb-0">用微信扫描二维码即可关注，第一时间了解课程安排、线下活动、科普信息与政策更新。</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
