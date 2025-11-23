@@ -17,6 +17,16 @@ if (!empty($config['session_name'])) {
     session_name($config['session_name']);
 }
 if (session_status() === PHP_SESSION_NONE) {
+    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+    $params = session_get_cookie_params();
+    session_set_cookie_params([
+        'lifetime' => $params['lifetime'],
+        'path' => $params['path'],
+        'domain' => $params['domain'],
+        'secure' => $secure,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
     session_start();
 }
 

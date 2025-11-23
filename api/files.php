@@ -120,7 +120,7 @@ function stream_file_download(array $file, string $storageDir): void
     header_remove('Content-Type');
     http_response_code($httpStatus);
     header('Content-Type: ' . $mime);
-    header('Content-Disposition: inline; filename="' . rawurlencode($file['original_name']) . '"');
+    header('Content-Disposition: attachment; filename="' . rawurlencode($file['original_name']) . '"');
     header('Accept-Ranges: bytes');
     header('Content-Length: ' . $length);
     if ($httpStatus === 206) {
@@ -313,6 +313,7 @@ switch ($method) {
             error_response('文件目录不可写，请检查权限');
         }
         $maxSize = 2 * 1024 * 1024 * 1024; // 2GB
+        $allowedExt = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'mp4', 'mov', 'avi', 'mkv', 'mp3', 'wav', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'zip'];
 
         $files = $_FILES['file'];
         $multi = is_array($files['name']);
@@ -331,12 +332,15 @@ switch ($method) {
                 error_response('文件过大，单个文件不超过 2GB');
             }
             $originalName = basename($name);
-            $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+            $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
             $storedName = bin2hex(random_bytes(16)) . ($ext ? '.' . $ext : '');
             $mimeType = ($multi ? $files['type'][$i] : $files['type']) ?: (function_exists('mime_content_type') ? mime_content_type($tmpName) : 'application/octet-stream');
             $sizeBytes = $size;
             $shareToken = bin2hex(random_bytes(16));
             $targetPath = $storageDir . '/' . $storedName;
+            if ($ext && !in_array($ext, $allowedExt, true)) {
+                error_response('不支持的文件类型');
+            }
             if (!move_uploaded_file($tmpName, $targetPath)) {
                 error_response('保存文件失败');
             }
