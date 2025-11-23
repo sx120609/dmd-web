@@ -1396,10 +1396,13 @@
             }
 
             const initialCourseId = parseInt(selectedLessonCourse, 10);
-            if (!initialCourseId && !state.courses.length) {
+            if (initialCourseId) {
+                await loadLessonsForCourse(initialCourseId);
+            } else if (!state.courses.length) {
                 renderLessonPlaceholder('暂无课程，请先创建。');
+            } else {
+                renderLessonPlaceholder('请选择课程查看课节');
             }
-            renderLessonPlaceholder('请选择课程查看课节');
         } catch (error) {
             alert(error.message || '加载管理信息失败');
             window.location.href = ROUTE_LOGIN;
