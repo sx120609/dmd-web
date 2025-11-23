@@ -32,9 +32,22 @@ function assert_course_access(mysqli $mysqli, int $courseId, array $user): void
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $stmt->close();
-    if (!$row || (int) ($row['owner_id'] ?? 0) !== (int) $user['id']) {
-        error_response('仅所属课程可编辑课节', 403);
+    if ($row && (int) ($row['owner_id'] ?? 0) === (int) $user['id']) {
+        return;
     }
+
+    $assignStmt = $mysqli->prepare('SELECT 1 FROM user_courses WHERE course_id = ? AND user_id = ? LIMIT 1');
+    if ($assignStmt) {
+        $assignStmt->bind_param('ii', $courseId, $user['id']);
+        $assignStmt->execute();
+        $found = (bool) $assignStmt->get_result()->fetch_row();
+        $assignStmt->close();
+        if ($found) {
+            return;
+        }
+    }
+
+    error_response('仅所属或分配的课程可编辑课节', 403);
 }
 
 if ($method === 'POST') {

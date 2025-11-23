@@ -44,6 +44,7 @@ function ensure_teacher_owns_course(mysqli $mysqli, int $courseId, array $user):
     if (($user['role'] ?? '') !== 'teacher') {
         return;
     }
+    $teacherId = (int) $user['id'];
     $stmt = $mysqli->prepare('SELECT owner_id FROM courses WHERE id = ? LIMIT 1');
     if (!$stmt) {
         error_response('无法验证课程归属');
@@ -54,9 +55,24 @@ function ensure_teacher_owns_course(mysqli $mysqli, int $courseId, array $user):
     $row = $result->fetch_assoc();
     $stmt->close();
     $ownerId = isset($row['owner_id']) ? (int) $row['owner_id'] : 0;
-    if ($ownerId !== (int) $user['id']) {
-        error_response('仅课程归属教师可操作', 403);
+
+    if ($ownerId === $teacherId) {
+        return;
     }
+
+    // 允许分配给老师的课程
+    $assignStmt = $mysqli->prepare('SELECT 1 FROM user_courses WHERE course_id = ? AND user_id = ? LIMIT 1');
+    if ($assignStmt) {
+        $assignStmt->bind_param('ii', $courseId, $teacherId);
+        $assignStmt->execute();
+        $hasRow = (bool) $assignStmt->get_result()->fetch_row();
+        $assignStmt->close();
+        if ($hasRow) {
+            return;
+        }
+    }
+
+    error_response('仅被分配或归属的课程可操作', 403);
 }
 
 if ($method === 'POST') {
@@ -125,7 +141,7 @@ if ($method === 'GET') {
         if ($user['role'] === 'admin') {
             $stmt = $mysqli->prepare('SELECT id, title, description, instructor, tags, created_at, owner_id FROM courses WHERE id = ? LIMIT 1');
         } elseif ($user['role'] === 'teacher') {
-            $stmt = $mysqli->prepare('SELECT id, title, description, instructor, tags, created_at, owner_id FROM courses WHERE id = ? AND owner_id = ? LIMIT 1');
+            $stmt = $mysqli->prepare('SELECT id, title, description, instructor, tags, created_at, owner_id FROM courses WHERE (owner_id = ? OR id IN (SELECT course_id FROM user_courses WHERE user_id = ?)) AND id = ? LIMIT 1');
         } else {
             $stmt = $mysqli->prepare('SELECT c.id, c.title, c.description, c.instructor, c.tags, c.created_at, c.owner_id FROM courses c INNER JOIN user_courses uc ON uc.course_id = c.id WHERE uc.user_id = ? AND c.id = ? LIMIT 1');
         }
@@ -135,7 +151,7 @@ if ($method === 'GET') {
         if ($user['role'] === 'admin') {
             $stmt->bind_param('i', $courseId);
         } elseif ($user['role'] === 'teacher') {
-            $stmt->bind_param('ii', $courseId, $user['id']);
+            $stmt->bind_param('iii', $user['id'], $user['id'], $courseId);
         } else {
             $stmt->bind_param('ii', $user['id'], $courseId);
         }
@@ -178,11 +194,11 @@ if ($method === 'GET') {
         $all = isset($_GET['all']) && in_array($user['role'], ['admin', 'teacher'], true);
         if ($all) {
             if ($user['role'] === 'teacher') {
-                $stmt = $mysqli->prepare('SELECT id, title, description, instructor, tags, created_at, owner_id, (SELECT COUNT(*) FROM lessons l WHERE l.course_id = courses.id) AS lesson_count FROM courses WHERE owner_id = ? ORDER BY id ASC');
+                $stmt = $mysqli->prepare('SELECT DISTINCT c.id, c.title, c.description, c.instructor, c.tags, c.created_at, c.owner_id, (SELECT COUNT(*) FROM lessons l WHERE l.course_id = c.id) AS lesson_count FROM courses c LEFT JOIN user_courses uc ON uc.course_id = c.id WHERE c.owner_id = ? OR uc.user_id = ? ORDER BY c.id ASC');
                 if (!$stmt) {
                     error_response('无法获取课程列表');
                 }
-                $stmt->bind_param('i', $user['id']);
+                $stmt->bind_param('ii', $user['id'], $user['id']);
                 $stmt->execute();
                 $result = $stmt->get_result();
             } else {
