@@ -771,7 +771,7 @@
             loginTitle: 'Classroom Login',
             loginDesc: 'Use the account assigned by administrators. If you need access, contact our coordinator.',
             loginUsername: 'Username',
-            loginPassword: 'Password',
+            loginPassword: 'Enter password',
             loginButton: 'Log in & Enter Classroom',
             contactEyebrow: 'Contact & Partnership',
             contactTitle: 'Light up more hope for rare disease children together',

@@ -241,9 +241,29 @@ label {
     text-decoration: none;
 }
 
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+}
+
 .primary-button {
     background: var(--brand-gradient);
     color: #fff;
+    min-height: 42px;
 }
 
 .primary-button:disabled {
@@ -259,6 +279,7 @@ label {
     background: rgba(255, 255, 255, 0.6);
     color: var(--text-primary);
     border: 1px solid rgba(15, 23, 42, 0.1);
+    min-height: 42px;
 }
 
 .ghost-button:hover {
