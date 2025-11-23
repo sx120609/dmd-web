@@ -150,12 +150,14 @@
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            padding: 0.4rem 0.75rem;
+            padding: 0.55rem 0.95rem;
             border-radius: 999px;
             border: 1px solid rgba(15, 23, 42, 0.12);
             background: rgba(255, 255, 255, 0.85);
             font-weight: 600;
             color: #0f172a;
+            font-size: 0.92rem;
+            min-height: 42px;
         }
 
         .font-toggle button {
@@ -165,6 +167,13 @@
             border-radius: 8px;
             font-weight: 700;
             color: #1e293b;
+        }
+
+        .nav-actions .primary-button {
+            padding: 0.55rem 1.1rem;
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
         }
 
         .font-toggle button:hover,
@@ -588,7 +597,7 @@
                                 </div>
                                 <div>
                                     <label for="password" data-i18n="loginPassword">密码</label>
-                                    <input id="password" name="password" type="password" placeholder="请输入密码" required>
+                                    <input id="password" name="password" type="password" placeholder="请输入密码" required data-i18n="loginPassword">
                                 </div>
                                 <button type="submit" class="primary-button w-100" id="loginButton" data-i18n="loginButton">登录并进入课堂</button>
                                 <div class="message login-message" id="loginMessage" aria-live="polite" hidden></div>
