@@ -20,8 +20,21 @@ ensure_lesson_attachments_column($mysqli);
 
 function assert_course_access(mysqli $mysqli, int $courseId, array $user): void
 {
-    // 暂时允许老师管理所有课程，跳过归属校验
-    return;
+    if (($user['role'] ?? '') !== 'teacher') {
+        return;
+    }
+    $stmt = $mysqli->prepare('SELECT owner_id FROM courses WHERE id = ? LIMIT 1');
+    if (!$stmt) {
+        error_response('无法验证课程权限');
+    }
+    $stmt->bind_param('i', $courseId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
+    if (!$row || (int) ($row['owner_id'] ?? 0) !== (int) $user['id']) {
+        error_response('仅所属课程可编辑课节', 403);
+    }
 }
 
 if ($method === 'POST') {
