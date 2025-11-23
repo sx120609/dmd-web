@@ -596,8 +596,8 @@
                                     <input id="username" name="username" type="text" placeholder="student01" required>
                                 </div>
                                 <div>
-                                    <label for="password" data-i18n="loginPassword">密码</label>
-                                    <input id="password" name="password" type="password" placeholder="请输入密码" required data-i18n="loginPassword">
+                            <label for="password" data-i18n="loginPasswordLabel">密码</label>
+                            <input id="password" name="password" type="password" placeholder="请输入密码" required data-i18n-placeholder="loginPasswordPlaceholder">
                                 </div>
                                 <button type="submit" class="primary-button w-100" id="loginButton" data-i18n="loginButton">登录并进入课堂</button>
                                 <div class="message login-message" id="loginMessage" aria-live="polite" hidden></div>
@@ -702,7 +702,8 @@
             loginTitle: '课堂登录',
             loginDesc: '请输入管理员分配的账号登录。如果您尚未拥有账户，请联系我们的协调员。',
             loginUsername: '用户名',
-            loginPassword: '密码 Password',
+            loginPasswordLabel: '密码',
+            loginPasswordPlaceholder: '请输入密码',
             loginButton: '登录并进入课堂',
             contactEyebrow: '联系与合作',
             contactTitle: '一起为罕见病儿童点亮更多光',
@@ -771,7 +772,8 @@
             loginTitle: 'Classroom Login',
             loginDesc: 'Use the account assigned by administrators. If you need access, contact our coordinator.',
             loginUsername: 'Username',
-            loginPassword: 'Enter password',
+            loginPasswordLabel: 'Password',
+            loginPasswordPlaceholder: 'Enter password',
             loginButton: 'Log in & Enter Classroom',
             contactEyebrow: 'Contact & Partnership',
             contactTitle: 'Light up more hope for rare disease children together',
@@ -836,11 +838,12 @@
         document.querySelectorAll('[data-i18n]').forEach((el) => {
             const key = el.dataset.i18n;
             if (!key || !(key in dict)) return;
-            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                el.setAttribute('placeholder', dict[key]);
-            } else {
-                el.textContent = dict[key];
-            }
+            el.textContent = dict[key];
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+            const key = el.dataset.i18nPlaceholder;
+            if (!key || !(key in dict)) return;
+            el.setAttribute('placeholder', dict[key]);
         });
         document.title = dict.pageTitle || 'Rare Light';
         currentLang = lang;
