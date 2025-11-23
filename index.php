@@ -702,7 +702,7 @@
             loginTitle: '课堂登录',
             loginDesc: '请输入管理员分配的账号登录。如果您尚未拥有账户，请联系我们的协调员。',
             loginUsername: '用户名',
-            loginPassword: '请输入密码',
+            loginPassword: '密码 Password',
             loginButton: '登录并进入课堂',
             contactEyebrow: '联系与合作',
             contactTitle: '一起为罕见病儿童点亮更多光',
