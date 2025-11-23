@@ -312,6 +312,7 @@
             border: var(--card-border);
             box-shadow: var(--card-shadow);
             padding: clamp(1.75rem, 4vw, 2.5rem);
+            scroll-margin-top: 120px;
         }
 
         .classroom-grid {
