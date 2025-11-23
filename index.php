@@ -701,7 +701,9 @@
             contactPartner: '机构合作',
             contactPartnerDesc: '医疗、教育、公益、企业伙伴欢迎联系共建项目。',
             contactFamily: '家庭申请',
-            contactFamilyDesc: '罕见病患儿家庭可申请课堂访问与陪伴支持。'
+            contactFamilyDesc: '罕见病患儿家庭可申请课堂访问与陪伴支持。',
+            footerText: 'Rare Light — 为罕见病儿童提供陪伴、教育与资源链接。',
+            footerEmail: '联系邮箱：hello@rarelight.org'
         },
         en: {
             brandTagline: 'Rare Light',
@@ -768,9 +770,11 @@
             contactPartner: 'Institutional Partnership',
             contactPartnerDesc: 'Hospitals, schools, NGOs, and companies are welcome to co-build the program.',
             contactFamily: 'Family Application',
-            contactFamilyDesc: 'Rare disease families can apply for classroom access and companion support.'
-        }
-    };
+        contactFamilyDesc: 'Rare disease families can apply for classroom access and companion support.',
+        footerText: 'Rare Light — Providing companionship, education, and resources for children with rare diseases.',
+        footerEmail: 'Email: hello@rarelight.org'
+    }
+};
 
     const htmlEl = document.documentElement;
     const fontSmallerBtn = document.getElementById('fontSmaller');
@@ -888,15 +892,15 @@
             if (data && data.user) {
                 const name = data.user.display_name || data.user.username;
                 updateClassroomLinks('dashboard', i18n[currentLang].navLogin || '进入我的课堂');
-                sessionNote.textContent = `${i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。'} 欢迎回来，${name}。`;
+                sessionNote.textContent = `${i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。'} ${currentLang === 'zh' ? `欢迎回来，${name}。` : `Welcome back, ${name}.`}`;
                 loginForm.querySelectorAll('input, button').forEach((element) => {
                     element.disabled = true;
                 });
                 showMessage(currentLang === 'zh' ? '您已登录，可直接进入课堂。' : 'You are logged in. Enter the classroom directly.', 'success');
             } else {
                 updateClassroomLinks('#classroom', i18n[currentLang].navLogin || '进入网课');
-                sessionNote.textContent = i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。';
-            }
+        sessionNote.textContent = i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。';
+    }
         } catch (error) {
             sessionNote.textContent = i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。';
         }
