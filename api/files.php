@@ -120,10 +120,11 @@ function stream_file_download(array $file, string $storageDir): void
     $etag = '"' . md5($file['stored_name'] . $size . $lastModified) . '"';
 
     // 缓存验证，避免重复下载
-    $ifNoneMatch = $_SERVER['HTTP_IF_NONE_MATCH'] ?? '';
+    $ifNoneMatch = trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
     $ifModifiedSince = $_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '';
-    if (($ifNoneMatch && trim($ifNoneMatch) === $etag) ||
-        ($ifModifiedSince && strtotime($ifModifiedSince) >= $lastModified)
+    $ifModifiedTs = $ifModifiedSince ? strtotime($ifModifiedSince) : false;
+    if (($ifNoneMatch && $ifNoneMatch === $etag) ||
+        ($ifModifiedTs !== false && $ifModifiedTs >= $lastModified)
     ) {
         http_response_code(304);
         header('ETag: ' . $etag);
@@ -142,7 +143,8 @@ function stream_file_download(array $file, string $storageDir): void
     $rangeAllowed = true;
     if ($ifRange !== '') {
         // If-Range 不匹配则回退整文件
-        if ($ifRange !== $etag && strtotime($ifRange) !== $lastModified) {
+        $ifRangeTime = strtotime($ifRange);
+        if ($ifRange !== $etag && ($ifRangeTime === false || $ifRangeTime < $lastModified)) {
             $rangeAllowed = false;
         }
     }
@@ -181,7 +183,7 @@ function stream_file_download(array $file, string $storageDir): void
     header('Content-Disposition: inline; filename="' . rawurlencode($file['original_name']) . '"');
     header('Accept-Ranges: bytes');
     header('ETag: ' . $etag);
-    header('Last-Modified: ' . gmdate('D, M Y H:i:s', $lastModified) . ' GMT');
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
     header('Content-Length: ' . $length);
     if ($httpStatus === 206) {
         header("Content-Range: bytes {$start}-{$end}/{$size}");
