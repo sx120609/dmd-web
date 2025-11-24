@@ -121,21 +121,35 @@ function stream_file_download(array $file, string $storageDir): void
         error_response('文件记录损坏', 500);
     }
 
-    // 确认物理文件存在
     $realPath = rtrim($storageDir, '/').'/'.$storedName;
     if (!is_file($realPath)) {
         error_response('文件已不存在', 404);
     }
 
-    // 真实静态文件的对外 URL（注意：这里不用 /rarelight 前缀）
-    $publicUrl = '/uploads/files/'.$storedName;
+    // 解析应用根路径，例如 /rarelight/api/files.php -> appBasePath = /rarelight
+    $scriptPath = $_SERVER['SCRIPT_NAME'] ?? '';
+    $apiDir = rtrim(str_replace('\\', '/', dirname($scriptPath)), '/');
+    $appBasePath = rtrim(dirname($apiDir), '/'); // 去掉 /api 层
+    if ($appBasePath === '.') {
+        $appBasePath = '';
+    }
+    $publicUrl = ($appBasePath ? $appBasePath : '') . '/uploads/files/' . rawurlencode($storedName);
+    $publicUrl = preg_replace('~/{2,}~', '/', $publicUrl); // 去重 //
 
-    // 如果你希望浏览器直接播放视频，用 inline；如果希望强制下载，用 attachment
-    $disposition = 'inline'; // 或 'attachment'
+    $mime = $file['mime_type'] ?: 'application/octet-stream';
+    $disposition = 'inline';
+    header('Content-Type: ' . $mime);
+    header('Content-Disposition: ' . $disposition . '; filename="' . rawurlencode($file['original_name']) . '"');
+    header("Content-Disposition: {$disposition}; filename*=UTF-8''" . rawurlencode($file['original_name']));
 
-    header('Content-Type: '.($file['mime_type'] ?: 'application/octet-stream'));
-    header('Content-Disposition: '.$disposition.'; filename="' . rawurlencode($file['original_name']) . '"');
-    header('Location: '.$publicUrl, true, 302); // 302 跳转到静态文件
+    // 如果部署了 nginx 内部跳转，可改为 X-Accel-Redirect，避免二次握手
+    if (function_exists('header')) {
+        header('X-Accel-Redirect: ' . $publicUrl);
+        exit;
+    }
+
+    // 退化为 302 跳转
+    header('Location: ' . $publicUrl, true, 302);
     exit;
 }
 
