@@ -133,22 +133,30 @@ function stream_file_download(array $file, string $storageDir): void
     if ($appBasePath === '.') {
         $appBasePath = '';
     }
-    $publicUrl = ($appBasePath ? $appBasePath : '') . '/uploads/files/' . rawurlencode($storedName);
-    $publicUrl = preg_replace('~/{2,}~', '/', $publicUrl); // 去重 //
+    // 可配置公共/内部前缀，便于 nginx 直接回源静态文件
+    $publicPrefix = $config['storage']['public_prefix'] ?? '/uploads/files';
+    $internalPrefix = $config['storage']['nginx_internal_prefix'] ?? null; // 例如 /protected/files 映射到 uploads/files
+
+    $publicUrl = ($appBasePath ? $appBasePath : '') . '/' . ltrim($publicPrefix, '/');
+    $publicUrl = preg_replace('~/{2,}~', '/', rtrim($publicUrl, '/'));
+    $publicUrl .= '/' . rawurlencode($storedName);
 
     $mime = $file['mime_type'] ?: 'application/octet-stream';
     $disposition = 'inline';
-    header('Content-Type: ' . $mime);
-    header('Content-Disposition: ' . $disposition . '; filename="' . rawurlencode($file['original_name']) . '"');
-    header("Content-Disposition: {$disposition}; filename*=UTF-8''" . rawurlencode($file['original_name']));
 
-    // 如果部署了 nginx 内部跳转，可改为 X-Accel-Redirect，避免二次握手
-    if (function_exists('header')) {
-        header('X-Accel-Redirect: ' . $publicUrl);
+    if (is_string($internalPrefix) && trim($internalPrefix) !== '') {
+        $internalUrl = '/' . ltrim($internalPrefix, '/');
+        $internalUrl = preg_replace('~/{2,}~', '/', rtrim($internalUrl, '/'));
+        $internalUrl .= '/' . rawurlencode($storedName);
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: ' . $disposition . '; filename="' . rawurlencode($file['original_name']) . '"');
+        header("Content-Disposition: {$disposition}; filename*=UTF-8''" . rawurlencode($file['original_name']));
+        header('X-Accel-Redirect: ' . $internalUrl);
+        header('X-Accel-Buffering: no');
         exit;
     }
 
-    // 退化为 302 跳转
+    // 无内网映射时，统一 302 跳转到静态文件，Range/缓存由 nginx 处理
     header('Location: ' . $publicUrl, true, 302);
     exit;
 }
