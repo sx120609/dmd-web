@@ -136,7 +136,19 @@ function stream_file_download(array $file, string $storageDir): void
     $publicUrl = ($appBasePath ? $appBasePath : '') . '/uploads/files/' . rawurlencode($storedName);
     $publicUrl = preg_replace('~/{2,}~', '/', $publicUrl); // 去重 //
 
-    // 交给 nginx 处理静态文件与 Range/缓存；PHP 只做权限校验和重定向
+    $mime = $file['mime_type'] ?: 'application/octet-stream';
+    $disposition = 'inline';
+    header('Content-Type: ' . $mime);
+    header('Content-Disposition: ' . $disposition . '; filename="' . rawurlencode($file['original_name']) . '"');
+    header("Content-Disposition: {$disposition}; filename*=UTF-8''" . rawurlencode($file['original_name']));
+
+    // 如果部署了 nginx 内部跳转，可改为 X-Accel-Redirect，避免二次握手
+    if (function_exists('header')) {
+        header('X-Accel-Redirect: ' . $publicUrl);
+        exit;
+    }
+
+    // 退化为 302 跳转
     header('Location: ' . $publicUrl, true, 302);
     exit;
 }
