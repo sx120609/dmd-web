@@ -116,15 +116,24 @@ function resolve_mime_type(array $file, string $path): string
 
 function stream_file_download(array $file, string $storageDir): void
 {
-    $realPath = $storageDir . '/' . $file['stored_name'];
-
-    if (!is_file($realPath)) {
-        error_response('文件不存在', 404);
+    $storedName = $file['stored_name'] ?? '';
+    if ($storedName === '') {
+        error_response('文件记录损坏', 500);
     }
 
-    // 返回内部跳转
-    header('Content-Type: ' . $file['mime_type']);
-    header('X-Accel-Redirect: /protected-files/' . $file['stored_name']);
+    $realPath = rtrim($storageDir, '/').'/'.$storedName;
+    if (!is_file($realPath)) {
+        error_response('文件已不存在', 404);
+    }
+
+    // 只做鉴权，不自己读文件，交给 Nginx 静态输出
+    $mime = $file['mime_type'] ?: 'application/octet-stream';
+
+    header('Content-Type: '.$mime);
+    header('Content-Disposition: inline; filename="' . rawurlencode($file['original_name']) . '"');
+
+    // 让 Nginx 去 /protected-files/ 下找对应文件
+    header('X-Accel-Redirect: /protected-files/'.$storedName);
     exit;
 }
 
