@@ -146,7 +146,11 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 <script>
-    const API_BASE = 'api';
+    const BASE_PATH = '/rarelight';
+    const API_BASE = `${BASE_PATH}/api`;
+    const ROUTE_LOGIN = `${BASE_PATH}/login`;
+    const ROUTE_ADMIN = `${BASE_PATH}/admin`;
+    const ROUTE_CLOUD = `${BASE_PATH}/cloud`;
 
     function normalizeApiUrl(url) {
         return url;
@@ -1051,7 +1055,7 @@
         try {
             const data = await fetchJSON(`${API_BASE}/session.php`);
             if (!data.user) {
-                window.location.href = 'login';
+                window.location.href = ROUTE_LOGIN;
                 return;
             }
             currentUser = data.user;
@@ -1065,7 +1069,7 @@
             }
             await loadCourses();
         } catch (error) {
-            window.location.href = 'login';
+            window.location.href = ROUTE_LOGIN;
         }
     }
 
@@ -1075,16 +1079,16 @@
         } catch (error) {
             console.error(error);
         }
-        window.location.href = 'login';
+        window.location.href = ROUTE_LOGIN;
     });
 
     adminButton.addEventListener('click', () => {
-        window.location.href = 'admin';
+        window.location.href = ROUTE_ADMIN;
     });
 
     if (cloudButton) {
         cloudButton.addEventListener('click', () => {
-            window.location.href = 'cloud';
+            window.location.href = ROUTE_CLOUD;
         });
     }
 

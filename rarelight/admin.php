@@ -23,7 +23,7 @@
         <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
             <div class="user-chip" id="adminChip" style="display:none;"></div>
             <a class="btn btn-outline-secondary btn-sm" href="/rarelight/">返回首页</a>
-            <a class="btn btn-outline-primary btn-sm" href="cloud">云盘</a>
+            <a class="btn btn-outline-primary btn-sm" href="/rarelight/cloud">云盘</a>
             <button class="btn btn-outline-secondary btn-sm" id="backButton">返回课堂</button>
             <button class="btn btn-outline-danger btn-sm" id="logoutButton">退出登录</button>
         </div>
@@ -427,9 +427,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 
-    const API_BASE = 'api';
-    const ROUTE_LOGIN = 'login';
-    const ROUTE_DASHBOARD = 'dashboard';
+    const BASE_PATH = '/rarelight';
+    const API_BASE = `${BASE_PATH}/api`;
+    const ROUTE_LOGIN = `${BASE_PATH}/login`;
+    const ROUTE_DASHBOARD = `${BASE_PATH}/dashboard`;
     const FILES_ENDPOINT = `${API_BASE}/files.php`;
 
     function normalizeApiUrl(url) {

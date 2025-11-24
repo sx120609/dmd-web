@@ -642,7 +642,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const API_BASE = 'api';
+    const BASE_PATH = '/rarelight';
+    const API_BASE = `${BASE_PATH}/api`;
+    const ROUTE_DASHBOARD = `${BASE_PATH}/dashboard`;
     const FONT_KEY = 'rl_font_scale';
     const LANG_KEY = 'rl_lang';
     const i18n = {
@@ -921,7 +923,7 @@
             const data = await fetchJSON(`${API_BASE}/session.php`, { method: 'GET' });
             if (data && data.user) {
                 const name = data.user.display_name || data.user.username;
-                updateClassroomLinks('dashboard', i18n[currentLang].navLogin || '进入我的课堂');
+                updateClassroomLinks(ROUTE_DASHBOARD, i18n[currentLang].navLogin || '进入我的课堂');
                 sessionNote.textContent = `${i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。'} ${currentLang === 'zh' ? `欢迎回来，${name}。` : `Welcome back, ${name}.`}`;
                 loginForm.querySelectorAll('input, button').forEach((element) => {
                     element.disabled = true;
@@ -929,8 +931,8 @@
                 showMessage(currentLang === 'zh' ? '您已登录，可直接进入课堂。' : 'You are logged in. Enter the classroom directly.', 'success');
             } else {
                 updateClassroomLinks('#classroom', i18n[currentLang].navLogin || '进入网课');
-        sessionNote.textContent = i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。';
-    }
+                sessionNote.textContent = i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。';
+            }
         } catch (error) {
             sessionNote.textContent = i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。';
         }
@@ -958,7 +960,7 @@
             });
             showMessage('登录成功，正在跳转...', 'success');
             setTimeout(() => {
-                window.location.href = 'dashboard';
+                window.location.href = ROUTE_DASHBOARD;
             }, 350);
         } catch (error) {
             showMessage(error.message || '登录失败，请重试', 'error');

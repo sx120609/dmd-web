@@ -87,7 +87,7 @@
             <div class="user-chip" id="userChip"></div>
             <a class="btn btn-outline-secondary btn-sm rounded-pill" href="/rarelight/">返回首页</a>
             <button class="btn btn-outline-secondary btn-sm rounded-pill" id="dashboardButton">返回课堂</button>
-            <a class="btn btn-outline-primary btn-sm rounded-pill" href="admin">返回管理后台</a>
+            <a class="btn btn-outline-primary btn-sm rounded-pill" href="/rarelight/admin">返回管理后台</a>
             <button class="btn btn-outline-danger btn-sm rounded-pill" id="logoutButton">退出登录</button>
         </div>
     </div>
@@ -180,9 +180,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const API_BASE = 'api';
+    const BASE_PATH = '/rarelight';
+    const API_BASE = `${BASE_PATH}/api`;
     const sessionEndpoint = `${API_BASE}/session.php`;
     const filesEndpoint = `${API_BASE}/files.php`;
+    const ROUTE_LOGIN = `${BASE_PATH}/login`;
+    const ROUTE_DASHBOARD = `${BASE_PATH}/dashboard`;
 
     const fileTableBody = document.getElementById('fileTableBody');
     const fileCountEl = document.getElementById('fileCount');
@@ -463,11 +466,11 @@
         } catch (error) {
             console.error(error);
         }
-        window.location.href = 'login';
+        window.location.href = ROUTE_LOGIN;
     });
 
     dashboardButton.addEventListener('click', () => {
-        window.location.href = 'dashboard';
+        window.location.href = ROUTE_DASHBOARD;
     });
 
     if (prevPageButton) {
@@ -488,7 +491,7 @@
         try {
             const data = await fetchJSON(sessionEndpoint);
             if (!data.user || (data.user.role !== 'admin' && data.user.role !== 'teacher')) {
-                window.location.href = 'login';
+                window.location.href = ROUTE_LOGIN;
                 return;
             }
             const name = data.user.display_name || data.user.username || '';
@@ -497,7 +500,7 @@
             userChip.style.display = 'inline-flex';
             await loadFiles(1);
         } catch (error) {
-            window.location.href = 'login';
+            window.location.href = ROUTE_LOGIN;
         }
     }
 
