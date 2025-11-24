@@ -133,31 +133,129 @@ function stream_file_download(array $file, string $storageDir): void
     if ($appBasePath === '.') {
         $appBasePath = '';
     }
-    // 可配置公共/内部前缀，便于 nginx 直接回源静态文件
-    $publicPrefix = $config['storage']['public_prefix'] ?? '/uploads/files';
-    $internalPrefix = $config['storage']['nginx_internal_prefix'] ?? null; // 例如 /protected/files 映射到 uploads/files
+    // 直接在 PHP 内部流式输出，避免依赖外部静态映射导致 404
+    clearstatcache(true, $realPath);
+    $size = @filesize($realPath);
+    if (!is_int($size) || $size <= 0) {
+        $size = (int) ($file['size_bytes'] ?? 0);
+    }
+    if ($size <= 0) {
+        error_response('无法确定文件大小', 500);
+    }
+    $lastModified = @filemtime($realPath) ?: time();
+    $etag = '"' . md5($storedName . $size . $lastModified) . '"';
+    $mime = $file['mime_type'] ?: resolve_mime_type($file, $realPath);
 
-    $publicUrl = ($appBasePath ? $appBasePath : '') . '/' . ltrim($publicPrefix, '/');
-    $publicUrl = preg_replace('~/{2,}~', '/', rtrim($publicUrl, '/'));
-    $publicUrl .= '/' . rawurlencode($storedName);
-
-    $mime = $file['mime_type'] ?: 'application/octet-stream';
-    $disposition = 'inline';
-
-    if (is_string($internalPrefix) && trim($internalPrefix) !== '') {
-        $internalUrl = '/' . ltrim($internalPrefix, '/');
-        $internalUrl = preg_replace('~/{2,}~', '/', rtrim($internalUrl, '/'));
-        $internalUrl .= '/' . rawurlencode($storedName);
-        header('Content-Type: ' . $mime);
-        header('Content-Disposition: ' . $disposition . '; filename="' . rawurlencode($file['original_name']) . '"');
-        header("Content-Disposition: {$disposition}; filename*=UTF-8''" . rawurlencode($file['original_name']));
-        header('X-Accel-Redirect: ' . $internalUrl);
-        header('X-Accel-Buffering: no');
+    // 简单缓存命中
+    $ifNoneMatch = trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
+    $ifModifiedSince = $_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '';
+    $ifModifiedTs = $ifModifiedSince ? strtotime($ifModifiedSince) : false;
+    if (($ifNoneMatch && $ifNoneMatch === $etag) ||
+        ($ifModifiedTs !== false && $ifModifiedTs >= $lastModified)
+    ) {
+        header('ETag: ' . $etag);
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
+        header('Cache-Control: private, max-age=3600');
+        http_response_code(304);
         exit;
     }
 
-    // 无内网映射时，统一 302 跳转到静态文件，Range/缓存由 nginx 处理
-    header('Location: ' . $publicUrl, true, 302);
+    $rangeHeader = $_SERVER['HTTP_RANGE'] ?? '';
+    $ifRange = $_SERVER['HTTP_IF_RANGE'] ?? '';
+    $rangeAllowed = true;
+    if ($ifRange !== '') {
+        $ifRangeTime = strtotime($ifRange);
+        if ($ifRange !== $etag && ($ifRangeTime === false || $ifRangeTime < $lastModified)) {
+            $rangeAllowed = false;
+        }
+    }
+
+    $start = 0;
+    $end = $size - 1;
+    $httpStatus = 200;
+
+    if ($rangeAllowed && $rangeHeader && preg_match('/bytes=(\d*)-(\d*)/', $rangeHeader, $matches)) {
+        $rangeStart = $matches[1];
+        $rangeEnd = $matches[2];
+        if ($rangeStart === '' && $rangeEnd !== '') {
+            $suffixLen = (int) $rangeEnd;
+            if ($suffixLen > 0) {
+                $start = max(0, $size - $suffixLen);
+                $end = $size - 1;
+            }
+        } else {
+            if ($rangeStart !== '') {
+                $start = (int) $rangeStart;
+            }
+            if ($rangeEnd !== '') {
+                $end = (int) $rangeEnd;
+            }
+            if ($end <= 0 || $end >= $size) {
+                $end = $size - 1;
+            }
+        }
+        if ($start < 0) {
+            $start = 0;
+        }
+        if ($end < $start || $start >= $size) {
+            header('Content-Range: bytes */' . $size);
+            http_response_code(416);
+            exit;
+        }
+        $httpStatus = 206;
+    }
+
+    $length = $end - $start + 1;
+
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
+    header_remove('Content-Type');
+    http_response_code($httpStatus);
+    header('Content-Type: ' . $mime);
+    header('Content-Disposition: inline; filename="' . rawurlencode($file['original_name']) . '"');
+    header("Content-Disposition: inline; filename*=UTF-8''" . rawurlencode($file['original_name']));
+    header('Accept-Ranges: bytes');
+    header('ETag: ' . $etag);
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
+    header('Content-Length: ' . $length);
+    if ($httpStatus === 206) {
+        header("Content-Range: bytes {$start}-{$end}/{$size}");
+    }
+    header('Cache-Control: private, max-age=3600');
+    header('X-Accel-Buffering: no');
+
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') {
+        exit;
+    }
+
+    ignore_user_abort(true);
+    @set_time_limit(0);
+
+    $fp = fopen($realPath, 'rb');
+    if ($fp === false) {
+        error_response('无法读取文件', 500);
+    }
+    if ($start > 0) {
+        fseek($fp, $start);
+    }
+    $bufferSize = 1024 * 1024; // 1MB 块读取
+    $bytesLeft = $length;
+    while ($bytesLeft > 0 && !feof($fp)) {
+        $chunk = fread($fp, min($bufferSize, $bytesLeft));
+        if ($chunk === false) {
+            break;
+        }
+        echo $chunk;
+        flush();
+        $bytesLeft -= strlen($chunk);
+    }
+    fclose($fp);
     exit;
 }
 
