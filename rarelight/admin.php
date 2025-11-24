@@ -442,6 +442,14 @@
         return url;
     }
 
+    function withBasePath(path = '') {
+        if (!path) return '';
+        if (/^https?:\/\//i.test(path)) return path;
+        const normalized = path.startsWith('/') ? path : `/${path}`;
+        if (normalized.startsWith(`${BASE_PATH}/`)) return normalized;
+        return `${BASE_PATH}${normalized}`.replace(/\/{2,}/g, '/');
+    }
+
     const logoutButton = document.getElementById('logoutButton');
     const backButton = document.getElementById('backButton');
     const adminChip = document.getElementById('adminChip');
@@ -811,7 +819,8 @@
             return;
         }
         const origin = window.location.origin;
-        const value = `${origin}${finalFile.share_url}`;
+        const sharePath = withBasePath(finalFile.share_url);
+        const value = `${origin}${sharePath}`;
         if (activeCloudTargetMode === 'attachment' || targetInput.tagName === 'TEXTAREA') {
             const line = `${finalFile.original_name}|${value}`;
             const prev = (targetInput.value || '').trim();

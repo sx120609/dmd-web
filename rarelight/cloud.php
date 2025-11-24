@@ -187,6 +187,14 @@
     const ROUTE_LOGIN = `${BASE_PATH}/login`;
     const ROUTE_DASHBOARD = `${BASE_PATH}/dashboard`;
 
+    function withBasePath(path = '') {
+        if (!path) return '';
+        if (/^https?:\/\//i.test(path)) return path;
+        const normalized = path.startsWith('/') ? path : `/${path}`;
+        if (normalized.startsWith(`${BASE_PATH}/`)) return normalized;
+        return `${BASE_PATH}${normalized}`.replace(/\/{2,}/g, '/');
+    }
+
     const fileTableBody = document.getElementById('fileTableBody');
     const fileCountEl = document.getElementById('fileCount');
     const listMessage = document.getElementById('listMessage');
@@ -292,6 +300,7 @@
         files.forEach((file) => {
             const tr = document.createElement('tr');
             const status = file.is_public ? '<span class="badge text-bg-success-subtle text-success-emphasis">已开启</span>' : '<span class="badge text-bg-secondary">关闭</span>';
+            const downloadUrl = withBasePath(file.download_url);
             tr.innerHTML = `
                 <td>
                     <div class="fw-semibold">${file.original_name}</div>
@@ -303,7 +312,7 @@
                     <div class="file-actions d-inline-flex flex-wrap justify-content-end gap-2">
                         <button class="btn btn-sm btn-outline-primary" data-action="toggle">${file.is_public ? '关闭外链' : '开启外链'}</button>
                         <button class="btn btn-sm btn-outline-secondary" data-action="copy"${file.is_public ? '' : ' disabled'}>复制外链</button>
-                        <a class="btn btn-sm btn-outline-success" href="${file.download_url}" target="_blank" rel="noopener noreferrer">下载</a>
+                        <a class="btn btn-sm btn-outline-success" href="${downloadUrl}" target="_blank" rel="noopener noreferrer">下载</a>
                         <button class="btn btn-sm btn-outline-danger" data-action="delete">删除</button>
                     </div>
                 </td>
@@ -396,7 +405,7 @@
             setMessage(listMessage, '请先开启外链再复制链接', 'error');
             return;
         }
-        const link = `${window.location.origin}${file.share_url}`;
+        const link = `${window.location.origin}${withBasePath(file.share_url)}`;
         try {
             await navigator.clipboard.writeText(link);
             setMessage(listMessage, '外链已复制', 'success');
