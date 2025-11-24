@@ -108,7 +108,7 @@ function stream_file_download(array $file, string $storageDir): void
     }
 
     $size = (int) $file['size_bytes'];
-    $mime = $file['mime_type'] ?: 'application/octet-stream';
+    $mime = resolve_mime_type($file, $path);
     $start = 0;
     $end = $size - 1;
     $httpStatus = 200;
@@ -142,6 +142,8 @@ function stream_file_download(array $file, string $storageDir): void
     if ($httpStatus === 206) {
         header("Content-Range: bytes {$start}-{$end}/{$size}");
     }
+    // Enable streaming in some proxies/players by disabling buffering
+    header('X-Accel-Buffering: no');
 
     $fp = fopen($path, 'rb');
     if ($fp === false) {
@@ -163,6 +165,38 @@ function stream_file_download(array $file, string $storageDir): void
     }
     fclose($fp);
     exit;
+}
+
+function resolve_mime_type(array $file, string $path): string
+{
+    if (!empty($file['mime_type'])) {
+        return $file['mime_type'];
+    }
+    // Try finfo detection first
+    if (is_file($path)) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $detected = finfo_file($finfo, $path);
+            finfo_close($finfo);
+            if (is_string($detected) && $detected !== '') {
+                return $detected;
+            }
+        }
+    }
+    // Basic extension map for common media types
+    $ext = strtolower(pathinfo($file['original_name'] ?? $path, PATHINFO_EXTENSION));
+    return match ($ext) {
+        'mp4' => 'video/mp4',
+        'webm' => 'video/webm',
+        'mov' => 'video/quicktime',
+        'm3u8' => 'application/vnd.apple.mpegurl',
+        'mp3' => 'audio/mpeg',
+        'wav' => 'audio/wav',
+        'ogg' => 'audio/ogg',
+        'mkv' => 'video/x-matroska',
+        'avi' => 'video/x-msvideo',
+        default => 'application/octet-stream',
+    };
 }
 
 function upload_error_text(int $errorCode): string
