@@ -119,22 +119,52 @@ function stream_file_download(array $file, string $storageDir): void
     $lastModified = @filemtime($path) ?: time();
     $etag = '"' . md5($file['stored_name'] . $size . $lastModified) . '"';
 
-    // 缓存验证，避免重复下载
-    $ifNoneMatch = trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
-    $ifModifiedSince = $_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '';
-    $ifModifiedTs = $ifModifiedSince ? strtotime($ifModifiedSince) : false;
-    if (($ifNoneMatch && $ifNoneMatch === $etag) ||
-        ($ifModifiedTs !== false && $ifModifiedTs >= $lastModified)
-    ) {
-        http_response_code(304);
-        header('ETag: ' . $etag);
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
-        header('Cache-Control: private, max-age=3600');
-        exit;
+    $mime = resolve_mime_type($file, $path);
+    $start = 0;
+    $end = $size - 1;
+    $httpStatus = 200;
+    $rangeHeader = $_SERVER['HTTP_RANGE'] ?? '';
+    $ifRange = $_SERVER['HTTP_IF_RANGE'] ?? '';
+    $rangeAllowed = true;
+    if ($ifRange !== '') {
+        $ifRangeTime = strtotime($ifRange);
+        if ($ifRange !== $etag && ($ifRangeTime === false || $ifRangeTime < $lastModified)) {
+            $rangeAllowed = false;
+        }
     }
 
-    $mime = resolve_mime_type($file, $path);
-    $length = $size;
+    if ($rangeAllowed && $rangeHeader && preg_match('/bytes=(\d*)-(\d*)/', $rangeHeader, $matches)) {
+        $rangeStart = $matches[1];
+        $rangeEnd = $matches[2];
+        if ($rangeStart === '' && $rangeEnd !== '') {
+            $suffixLen = (int) $rangeEnd;
+            if ($suffixLen > 0) {
+                $start = max(0, $size - $suffixLen);
+                $end = $size - 1;
+            }
+        } else {
+            if ($rangeStart !== '') {
+                $start = (int) $rangeStart;
+            }
+            if ($rangeEnd !== '') {
+                $end = (int) $rangeEnd;
+            }
+            if ($end <= 0 || $end >= $size) {
+                $end = $size - 1;
+            }
+        }
+        if ($start < 0) {
+            $start = 0;
+        }
+        if ($end < $start || $start >= $size) {
+            header('Content-Range: bytes */' . $size);
+            http_response_code(416);
+            exit;
+        }
+        $httpStatus = 206;
+    }
+
+    $length = $end - $start + 1;
 
     // 清理输出缓冲，避免 PHP 缓冲导致延迟
     while (ob_get_level() > 0) {
@@ -142,13 +172,16 @@ function stream_file_download(array $file, string $storageDir): void
     }
 
     header_remove('Content-Type');
-    http_response_code(200);
+    http_response_code($httpStatus);
     header('Content-Type: ' . $mime);
     header('Content-Disposition: inline; filename="' . rawurlencode($file['original_name']) . '"');
-    header('Accept-Ranges: none');
+    header('Accept-Ranges: bytes');
     header('ETag: ' . $etag);
     header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
     header('Content-Length: ' . $length);
+    if ($httpStatus === 206) {
+        header("Content-Range: bytes {$start}-{$end}/{$size}");
+    }
     header('Cache-Control: private, max-age=3600');
     header('X-Accel-Buffering: no');
 
@@ -168,14 +201,19 @@ function stream_file_download(array $file, string $storageDir): void
     if ($fp === false) {
         error_response('无法读取文件', 500);
     }
+    if ($start > 0) {
+        fseek($fp, $start);
+    }
     $bufferSize = 1024 * 1024; // 1MB 块读取
-    while (!feof($fp)) {
-        $chunk = fread($fp, $bufferSize);
+    $bytesLeft = $length;
+    while ($bytesLeft > 0 && !feof($fp)) {
+        $chunk = fread($fp, min($bufferSize, $bytesLeft));
         if ($chunk === false) {
             break;
         }
         echo $chunk;
         flush();
+        $bytesLeft -= strlen($chunk);
     }
     fclose($fp);
     exit;
