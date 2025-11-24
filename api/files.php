@@ -150,17 +150,28 @@ function stream_file_download(array $file, string $storageDir): void
     }
 
     if ($rangeAllowed && $rangeHeader && preg_match('/bytes=(\d*)-(\d*)/', $rangeHeader, $matches)) {
-        if ($matches[1] !== '') {
-            $start = (int) $matches[1];
-        }
-        if ($matches[2] !== '') {
-            $end = (int) $matches[2];
+        $rangeStart = $matches[1];
+        $rangeEnd = $matches[2];
+        if ($rangeStart === '' && $rangeEnd !== '') {
+            // 后缀范围：bytes=-500 取最后 500 字节
+            $suffixLen = (int) $rangeEnd;
+            if ($suffixLen > 0) {
+                $start = max(0, $size - $suffixLen);
+                $end = $size - 1;
+            }
+        } else {
+            if ($rangeStart !== '') {
+                $start = (int) $rangeStart;
+            }
+            if ($rangeEnd !== '') {
+                $end = (int) $rangeEnd;
+            }
+            if ($end <= 0 || $end >= $size) {
+                $end = $size - 1;
+            }
         }
         if ($start < 0) {
             $start = 0;
-        }
-        if ($end <= 0 || $end >= $size) {
-            $end = $size - 1;
         }
         if ($end < $start || $start >= $size) {
             header('Content-Range: bytes */' . $size);
