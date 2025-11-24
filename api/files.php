@@ -121,18 +121,21 @@ function stream_file_download(array $file, string $storageDir): void
         error_response('文件记录损坏', 500);
     }
 
+    // 确认物理文件存在
     $realPath = rtrim($storageDir, '/').'/'.$storedName;
     if (!is_file($realPath)) {
         error_response('文件已不存在', 404);
     }
 
-    $mime = $file['mime_type'] ?: 'application/octet-stream';
+    // 真实静态文件的对外 URL（注意：这里不用 /rarelight 前缀）
+    $publicUrl = '/uploads/files/'.$storedName;
 
-    header('Content-Type: '.$mime);
-    header('Content-Disposition: inline; filename="' . rawurlencode($file['original_name']) . '"');
+    // 如果你希望浏览器直接播放视频，用 inline；如果希望强制下载，用 attachment
+    $disposition = 'inline'; // 或 'attachment'
 
-    // 交给 Nginx 内部 location /protected-files/ 来真正读文件
-    header('X-Accel-Redirect: /protected-files/'.$storedName);
+    header('Content-Type: '.($file['mime_type'] ?: 'application/octet-stream'));
+    header('Content-Disposition: '.$disposition.'; filename="' . rawurlencode($file['original_name']) . '"');
+    header('Location: '.$publicUrl, true, 302); // 302 跳转到静态文件
     exit;
 }
 
