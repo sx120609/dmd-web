@@ -450,6 +450,18 @@
         return `${BASE_PATH}${normalized}`.replace(/\/{2,}/g, '/');
     }
 
+    function buildAbsoluteWithCurrentOrigin(path = '') {
+        if (!path) return '';
+        try {
+            const url = new URL(path, window.location.origin);
+            // Force path to stay under BASE_PATH when applicable
+            const normalizedPath = withBasePath(url.pathname + url.search + url.hash);
+            return `${window.location.origin}${normalizedPath}`;
+        } catch (error) {
+            return withBasePath(path);
+        }
+    }
+
     const logoutButton = document.getElementById('logoutButton');
     const backButton = document.getElementById('backButton');
     const adminChip = document.getElementById('adminChip');
@@ -818,9 +830,7 @@
             setMessage(cloudPickerMessage, error.message || '外链开启失败', 'error');
             return;
         }
-        const origin = window.location.origin;
-        const sharePath = withBasePath(finalFile.share_url);
-        const value = sharePath.startsWith('http') ? sharePath : `${origin}${sharePath}`;
+        const value = buildAbsoluteWithCurrentOrigin(finalFile.share_url);
         if (activeCloudTargetMode === 'attachment' || targetInput.tagName === 'TEXTAREA') {
             const line = `${finalFile.original_name}|${value}`;
             const prev = (targetInput.value || '').trim();
