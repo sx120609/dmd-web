@@ -803,11 +803,22 @@
     const loginButton = document.getElementById('loginButton');
     const loginMessage = document.getElementById('loginMessage');
 
+    function withBasePath(path = '') {
+        if (!path) return '';
+        if (/^https?:\/\//i.test(path) || path.startsWith('#')) return path;
+        const normalized = path.startsWith('/') ? path : `/${path}`;
+        if (normalized.startsWith(`${BASE_PATH}/`)) return normalized;
+        return `${BASE_PATH}${normalized}`.replace(/\/{2,}/g, '/');
+    }
+
     function normalizeApiUrl(url) {
         if (url.startsWith(`${API_BASE}/`)) {
             const [path, query] = url.split('?');
             const sanitizedPath = path.replace(/\/{2,}/g, '/');
             return query ? `${sanitizedPath}?${query}` : sanitizedPath;
+        }
+        if (/^\/?api\//i.test(url)) {
+            return withBasePath(url);
         }
         return url;
     }
@@ -883,8 +894,9 @@
     }
 
     function updateClassroomLinks(target, text) {
+        const href = withBasePath(target);
         classroomLinks.forEach((link) => {
-            link.href = target;
+            link.href = href;
             if (text) {
                 link.textContent = text;
             }
