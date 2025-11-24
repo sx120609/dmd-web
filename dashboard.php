@@ -27,7 +27,7 @@
                 <div class="welcome-text" id="welcomeText">正在加载...</div>
             </div>
             <div class="user-chip" id="userChip"></div>
-            <a class="btn btn-outline-secondary btn-sm" href="/">返回首页</a>
+            <a class="btn btn-outline-secondary btn-sm" href="/rarelight/">返回首页</a>
             <button class="btn btn-outline-primary btn-sm rounded-pill" id="cloudButton" style="display:none;">云盘</button>
             <button class="btn btn-outline-primary btn-sm rounded-pill" id="adminButton" style="display:none;">进入管理后台</button>
             <button class="btn btn-outline-secondary btn-sm rounded-pill" id="logoutButton">退出登录</button>

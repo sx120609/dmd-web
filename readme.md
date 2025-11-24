@@ -13,17 +13,19 @@
 
 ## 快速开始
 
+> 以下示例假设应用部署在 `/rarelight` 路径下。
+
 1. 将项目部署到支持 PHP 的服务器，确保 URL 重写生效（Apache 使用根目录 `.htaccess`，Nginx 参考下方示例）。
-2. 首次访问 `/install`（或直接 `install.php`），按提示填写数据库与管理员信息，自动创建表结构与 `config.php`。
+2. 首次访问 `/rarelight/install`（或直接 `/rarelight/install.php`），按提示填写数据库与管理员信息，自动创建表结构与 `config.php`。
 3. 安装后删除 `install.php`，使用管理员账号登录。
-4. 学员进入 `/dashboard` 观看分配课程；老师/管理员在课堂页可跳转后台维护资源。
+4. 学员进入 `/rarelight/dashboard` 观看分配课程；老师/管理员在课堂页可跳转后台维护资源。
 
 常用路由：
-- `/login` → 登录页（index.php）
-- `/dashboard` → 课堂
-- `/admin` → 管理后台
-- `/cloud` → 云盘
-- `/api/<name>` → 对应接口
+- `/rarelight/login` → 登录页（index.php）
+- `/rarelight/dashboard` → 课堂
+- `/rarelight/admin` → 管理后台
+- `/rarelight/cloud` → 云盘
+- `/rarelight/api/<name>` → 对应接口
 
 ## 目录结构
 
@@ -52,19 +54,22 @@ uploads/files         # 云盘目录（需可写）
 ## Nginx 重写示例
 
 ```nginx
-location / {
-    try_files $uri $uri/ @rewrite;
+# 将应用挂载在 /rarelight
+location ^~ /rarelight/ {
+    try_files $uri $uri/ @rarelight_rewrite;
 }
-location @rewrite {
-    rewrite ^/login/?$ /index.php last;
-    rewrite ^/dashboard/?$ /dashboard.php last;
-    rewrite ^/admin/?$ /admin.php last;
-    rewrite ^/cloud/?$ /cloud.php last;
-    rewrite ^/install/?$ /install.php last;
-    rewrite ^/api/([a-z0-9_]+)/?$ /api/$1.php last;
-    rewrite ^/$ /index.php last;
+
+location @rarelight_rewrite {
+    rewrite ^/rarelight/login/?$ /rarelight/index.php last;
+    rewrite ^/rarelight/dashboard/?$ /rarelight/dashboard.php last;
+    rewrite ^/rarelight/admin/?$ /rarelight/admin.php last;
+    rewrite ^/rarelight/cloud/?$ /rarelight/cloud.php last;
+    rewrite ^/rarelight/install/?$ /rarelight/install.php last;
+    rewrite ^/rarelight/api/([a-z0-9_]+)/?$ /rarelight/api/$1.php last;
+    rewrite ^/rarelight/?$ /rarelight/index.php last;
 }
-location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg)$ {
+
+location ~* ^/rarelight/.*\.(css|js|png|jpg|jpeg|gif|ico|svg)$ {
     try_files $uri =404;
 }
 ```

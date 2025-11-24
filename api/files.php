@@ -12,7 +12,11 @@ if (is_string($configuredStorage) && trim($configuredStorage) !== '') {
 } else {
     $storageDir = $rootDir . '/uploads/files';
 }
-$baseUrl = '/api/files.php';
+$apiBasePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+if ($apiBasePath === '.' || $apiBasePath === '/') {
+    $apiBasePath = '';
+}
+$fileEndpoint = $apiBasePath . '/files.php';
 ensure_teacher_role_enum($mysqli);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $jsonInput = get_json_input();
@@ -57,6 +61,7 @@ function short_size(int $bytes): string
 
 function file_payload(array $row): array
 {
+    global $fileEndpoint;
     return [
         'id' => (int) $row['id'],
         'original_name' => $row['original_name'],
@@ -65,8 +70,8 @@ function file_payload(array $row): array
         'is_public' => (bool) $row['is_public'],
         'share_token' => $row['share_token'],
         'created_at' => $row['created_at'],
-        'share_url' => '/api/files.php?token=' . $row['share_token'],
-        'download_url' => '/api/files.php?id=' . $row['id'] . '&download=1'
+        'share_url' => $fileEndpoint . '?token=' . $row['share_token'],
+        'download_url' => $fileEndpoint . '?id=' . $row['id'] . '&download=1'
     ];
 }
 
