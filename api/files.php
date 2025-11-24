@@ -107,7 +107,15 @@ function stream_file_download(array $file, string $storageDir): void
         error_response('文件已不存在', 404);
     }
 
-    $size = (int) $file['size_bytes'];
+    clearstatcache(true, $path);
+    $actualSize = @filesize($path);
+    $size = is_int($actualSize) && $actualSize > 0 ? $actualSize : (int) $file['size_bytes'];
+    if ($size <= 0) {
+        $size = (int) $file['size_bytes'];
+    }
+    if ($size <= 0) {
+        error_response('无法确定文件大小', 500);
+    }
     $mime = resolve_mime_type($file, $path);
     $start = 0;
     $end = $size - 1;
@@ -142,8 +150,19 @@ function stream_file_download(array $file, string $storageDir): void
     if ($httpStatus === 206) {
         header("Content-Range: bytes {$start}-{$end}/{$size}");
     }
+    // Allow browsers/players to cache the stream and avoid repeated range probes
+    header('Cache-Control: private, max-age=3600');
     // Enable streaming in some proxies/players by disabling buffering
     header('X-Accel-Buffering: no');
+
+    // Release session lock before long streaming to avoid blocking other requests
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') {
+        exit;
+    }
 
     $fp = fopen($path, 'rb');
     if ($fp === false) {
