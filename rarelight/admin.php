@@ -820,7 +820,7 @@
         }
         const origin = window.location.origin;
         const sharePath = withBasePath(finalFile.share_url);
-        const value = `${origin}${sharePath}`;
+        const value = sharePath.startsWith('http') ? sharePath : `${origin}${sharePath}`;
         if (activeCloudTargetMode === 'attachment' || targetInput.tagName === 'TEXTAREA') {
             const line = `${finalFile.original_name}|${value}`;
             const prev = (targetInput.value || '').trim();

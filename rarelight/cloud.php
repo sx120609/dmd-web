@@ -195,6 +195,12 @@
         return `${BASE_PATH}${normalized}`.replace(/\/{2,}/g, '/');
     }
 
+    function buildAbsoluteUrl(path = '') {
+        if (!path) return '';
+        if (/^https?:\/\//i.test(path)) return path;
+        return `${window.location.origin}${withBasePath(path)}`;
+    }
+
     const fileTableBody = document.getElementById('fileTableBody');
     const fileCountEl = document.getElementById('fileCount');
     const listMessage = document.getElementById('listMessage');
@@ -300,7 +306,7 @@
         files.forEach((file) => {
             const tr = document.createElement('tr');
             const status = file.is_public ? '<span class="badge text-bg-success-subtle text-success-emphasis">已开启</span>' : '<span class="badge text-bg-secondary">关闭</span>';
-            const downloadUrl = withBasePath(file.download_url);
+            const downloadUrl = buildAbsoluteUrl(file.download_url);
             tr.innerHTML = `
                 <td>
                     <div class="fw-semibold">${file.original_name}</div>
@@ -405,7 +411,7 @@
             setMessage(listMessage, '请先开启外链再复制链接', 'error');
             return;
         }
-        const link = `${window.location.origin}${withBasePath(file.share_url)}`;
+        const link = buildAbsoluteUrl(file.share_url);
         try {
             await navigator.clipboard.writeText(link);
             setMessage(listMessage, '外链已复制', 'success');

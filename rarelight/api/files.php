@@ -17,6 +17,16 @@ if ($apiBasePath === '.' || $apiBasePath === '/') {
     $apiBasePath = '';
 }
 $fileEndpoint = $apiBasePath . '/files.php';
+$scheme = 'http';
+if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) {
+    $scheme = 'https';
+}
+if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+    $scheme = explode(',', $_SERVER['HTTP_X_FORWARDED_PROTO'])[0];
+}
+$host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? ($_SERVER['HTTP_HOST'] ?? '');
+$origin = $host ? ($scheme . '://' . $host) : '';
+$fileEndpointFull = $origin ? ($origin . $fileEndpoint) : $fileEndpoint;
 ensure_teacher_role_enum($mysqli);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $jsonInput = get_json_input();
@@ -61,7 +71,8 @@ function short_size(int $bytes): string
 
 function file_payload(array $row): array
 {
-    global $fileEndpoint;
+    global $fileEndpoint, $fileEndpointFull;
+    $base = $fileEndpointFull ?: $fileEndpoint;
     return [
         'id' => (int) $row['id'],
         'original_name' => $row['original_name'],
@@ -70,8 +81,8 @@ function file_payload(array $row): array
         'is_public' => (bool) $row['is_public'],
         'share_token' => $row['share_token'],
         'created_at' => $row['created_at'],
-        'share_url' => $fileEndpoint . '?token=' . $row['share_token'],
-        'download_url' => $fileEndpoint . '?id=' . $row['id'] . '&download=1'
+        'share_url' => $base . '?token=' . $row['share_token'],
+        'download_url' => $base . '?id=' . $row['id'] . '&download=1'
     ];
 }
 
