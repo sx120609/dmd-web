@@ -34,6 +34,18 @@
             min-height: 100vh;
         }
 
+        /* Reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(22px) scale(0.98);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
         .site-nav {
             position: sticky;
             top: 0;
@@ -575,11 +587,11 @@
             </div>
         </section>
 
-        <section class="section">
+        <section class="section reveal" data-reveal>
             <div class="container-xxl">
                 <div class="classroom" id="classroom">
                     <div class="classroom-grid">
-                        <div>
+                        <div class="reveal" data-reveal>
                             <p class="eyebrow mb-1" data-i18n="classroomEyebrow">Rare Light School</p>
                             <h3 class="fw-bold" data-i18n="classroomTitle">网课入口</h3>
                             <p class="text-secondary" data-i18n="classroomDesc">患儿与家长可在此登录进入课堂；已分配课程的用户将直接跳转至学习页面。</p>
@@ -587,7 +599,7 @@
                                 <a class="primary-button" data-classroom-link href="#classroom" data-i18n="ctaImmediate">立即进入网课</a>
                             </div>
                         </div>
-                        <div class="login-panel">
+                        <div class="login-panel reveal" data-reveal>
                             <h4 class="fw-bold mb-2" data-i18n="loginTitle">课堂登录</h4>
                             <p class="text-secondary mb-3" data-i18n="loginDesc">请输入管理员分配的账号登录。如果您尚未拥有账户，请联系我们的协调员。</p>
                             <form id="loginForm" autocomplete="on">
@@ -608,22 +620,22 @@
             </div>
         </section>
 
-        <section class="section" id="contact">
+        <section class="section reveal" id="contact" data-reveal>
             <div class="container-xxl">
                 <header>
                     <p class="eyebrow mb-1" data-i18n="contactEyebrow">联系与合作</p>
                     <h2 data-i18n="contactTitle">一起为罕见病儿童点亮更多光</h2>
                 </header>
                 <div class="feature-grid">
-                    <div class="feature-card">
+                    <div class="feature-card reveal" data-reveal>
                         <h5 class="fw-bold mb-1" data-i18n="contactVolunteer">成为志愿者</h5>
                         <p class="text-secondary mb-0" data-i18n="contactVolunteerDesc">加入陪伴小组、教学与运营支持团队。</p>
                     </div>
-                    <div class="feature-card">
+                    <div class="feature-card reveal" data-reveal>
                         <h5 class="fw-bold mb-1" data-i18n="contactPartner">机构合作</h5>
                         <p class="text-secondary mb-0" data-i18n="contactPartnerDesc">医疗、教育、公益、企业伙伴欢迎联系共建项目。</p>
                     </div>
-                    <div class="feature-card">
+                    <div class="feature-card reveal" data-reveal>
                         <h5 class="fw-bold mb-1" data-i18n="contactFamily">家庭申请</h5>
                         <p class="text-secondary mb-0" data-i18n="contactFamilyDesc">罕见病患儿家庭可申请课堂访问与陪伴支持。</p>
                     </div>
