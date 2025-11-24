@@ -12,21 +12,7 @@ if (is_string($configuredStorage) && trim($configuredStorage) !== '') {
 } else {
     $storageDir = $rootDir . '/uploads/files';
 }
-$apiBasePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
-if ($apiBasePath === '.' || $apiBasePath === '/') {
-    $apiBasePath = '';
-}
-$fileEndpoint = $apiBasePath . '/files.php';
-$scheme = 'http';
-if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) {
-    $scheme = 'https';
-}
-if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
-    $scheme = explode(',', $_SERVER['HTTP_X_FORWARDED_PROTO'])[0];
-}
-$host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? ($_SERVER['HTTP_HOST'] ?? '');
-$origin = $host ? ($scheme . '://' . $host) : '';
-$fileEndpointFull = $origin ? ($origin . $fileEndpoint) : $fileEndpoint;
+$baseUrl = '/api/files.php';
 ensure_teacher_role_enum($mysqli);
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $jsonInput = get_json_input();
@@ -71,8 +57,6 @@ function short_size(int $bytes): string
 
 function file_payload(array $row): array
 {
-    global $fileEndpoint, $fileEndpointFull;
-    $base = $fileEndpointFull ?: $fileEndpoint;
     return [
         'id' => (int) $row['id'],
         'original_name' => $row['original_name'],
@@ -81,8 +65,8 @@ function file_payload(array $row): array
         'is_public' => (bool) $row['is_public'],
         'share_token' => $row['share_token'],
         'created_at' => $row['created_at'],
-        'share_url' => $base . '?token=' . $row['share_token'],
-        'download_url' => $base . '?id=' . $row['id'] . '&download=1'
+        'share_url' => '/api/files.php?token=' . $row['share_token'],
+        'download_url' => '/api/files.php?id=' . $row['id'] . '&download=1'
     ];
 }
 
@@ -107,95 +91,41 @@ function stream_file_download(array $file, string $storageDir): void
         error_response('文件已不存在', 404);
     }
 
-    clearstatcache(true, $path);
-    $actualSize = @filesize($path);
-    $size = is_int($actualSize) && $actualSize > 0 ? $actualSize : (int) $file['size_bytes'];
-    if ($size <= 0) {
-        $size = (int) $file['size_bytes'];
-    }
-    if ($size <= 0) {
-        error_response('无法确定文件大小', 500);
-    }
-    $lastModified = @filemtime($path) ?: time();
-    $etag = '"' . md5($file['stored_name'] . $size . $lastModified) . '"';
-
-    $mime = resolve_mime_type($file, $path);
+    $size = (int) $file['size_bytes'];
+    $mime = $file['mime_type'] ?: 'application/octet-stream';
     $start = 0;
     $end = $size - 1;
     $httpStatus = 200;
-    $rangeHeader = $_SERVER['HTTP_RANGE'] ?? '';
-    $ifRange = $_SERVER['HTTP_IF_RANGE'] ?? '';
-    $rangeAllowed = true;
-    if ($ifRange !== '') {
-        $ifRangeTime = strtotime($ifRange);
-        if ($ifRange !== $etag && ($ifRangeTime === false || $ifRangeTime < $lastModified)) {
-            $rangeAllowed = false;
-        }
-    }
 
-    if ($rangeAllowed && $rangeHeader && preg_match('/bytes=(\d*)-(\d*)/', $rangeHeader, $matches)) {
-        $rangeStart = $matches[1];
-        $rangeEnd = $matches[2];
-        if ($rangeStart === '' && $rangeEnd !== '') {
-            $suffixLen = (int) $rangeEnd;
-            if ($suffixLen > 0) {
-                $start = max(0, $size - $suffixLen);
-                $end = $size - 1;
+    if (isset($_SERVER['HTTP_RANGE'])) {
+        $rangeHeader = $_SERVER['HTTP_RANGE'];
+        if (preg_match('/bytes=(\d*)-(\d*)/', $rangeHeader, $matches)) {
+            if ($matches[1] !== '') {
+                $start = (int) $matches[1];
             }
-        } else {
-            if ($rangeStart !== '') {
-                $start = (int) $rangeStart;
+            if ($matches[2] !== '') {
+                $end = (int) $matches[2];
             }
-            if ($rangeEnd !== '') {
-                $end = (int) $rangeEnd;
+            if ($end < $start || $start >= $size) {
+                header('Content-Range: bytes */' . $size);
+                http_response_code(416);
+                exit;
             }
-            if ($end <= 0 || $end >= $size) {
-                $end = $size - 1;
-            }
+            $httpStatus = 206;
         }
-        if ($start < 0) {
-            $start = 0;
-        }
-        if ($end < $start || $start >= $size) {
-            header('Content-Range: bytes */' . $size);
-            http_response_code(416);
-            exit;
-        }
-        $httpStatus = 206;
     }
 
     $length = $end - $start + 1;
-
-    // 清理输出缓冲，避免 PHP 缓冲导致延迟
-    while (ob_get_level() > 0) {
-        ob_end_clean();
-    }
 
     header_remove('Content-Type');
     http_response_code($httpStatus);
     header('Content-Type: ' . $mime);
     header('Content-Disposition: inline; filename="' . rawurlencode($file['original_name']) . '"');
     header('Accept-Ranges: bytes');
-    header('ETag: ' . $etag);
-    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
     header('Content-Length: ' . $length);
     if ($httpStatus === 206) {
         header("Content-Range: bytes {$start}-{$end}/{$size}");
     }
-    header('Cache-Control: private, max-age=3600');
-    header('X-Accel-Buffering: no');
-
-    // Release session lock before long streaming to avoid blocking other requests
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        session_write_close();
-    }
-
-    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') {
-        exit;
-    }
-
-    ignore_user_abort(true);
-    @set_time_limit(0);
 
     $fp = fopen($path, 'rb');
     if ($fp === false) {
@@ -204,7 +134,7 @@ function stream_file_download(array $file, string $storageDir): void
     if ($start > 0) {
         fseek($fp, $start);
     }
-    $bufferSize = 1024 * 1024; // 1MB 块读取
+    $bufferSize = 8192;
     $bytesLeft = $length;
     while ($bytesLeft > 0 && !feof($fp)) {
         $chunk = fread($fp, min($bufferSize, $bytesLeft));
@@ -217,38 +147,6 @@ function stream_file_download(array $file, string $storageDir): void
     }
     fclose($fp);
     exit;
-}
-
-function resolve_mime_type(array $file, string $path): string
-{
-    if (!empty($file['mime_type'])) {
-        return $file['mime_type'];
-    }
-    // Try finfo detection first
-    if (is_file($path)) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        if ($finfo) {
-            $detected = finfo_file($finfo, $path);
-            finfo_close($finfo);
-            if (is_string($detected) && $detected !== '') {
-                return $detected;
-            }
-        }
-    }
-    // Basic extension map for common media types
-    $ext = strtolower(pathinfo($file['original_name'] ?? $path, PATHINFO_EXTENSION));
-    return match ($ext) {
-        'mp4' => 'video/mp4',
-        'webm' => 'video/webm',
-        'mov' => 'video/quicktime',
-        'm3u8' => 'application/vnd.apple.mpegurl',
-        'mp3' => 'audio/mpeg',
-        'wav' => 'audio/wav',
-        'ogg' => 'audio/ogg',
-        'mkv' => 'video/x-matroska',
-        'avi' => 'video/x-msvideo',
-        default => 'application/octet-stream',
-    };
 }
 
 function upload_error_text(int $errorCode): string
