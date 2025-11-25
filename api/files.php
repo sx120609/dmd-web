@@ -126,6 +126,34 @@ function stream_file_download(array $file, string $storageDir): void
         error_response('文件已不存在', 404);
     }
 
+    // 若能构造可访问的静态地址，则优先重定向，绕过 PHP 输出
+    $publicPrefix = $config['storage']['public_prefix'] ?? '/uploads/files';
+    if (is_string($publicPrefix) && trim($publicPrefix) !== '') {
+        $scriptPath = $_SERVER['SCRIPT_NAME'] ?? '';
+        $apiDir = rtrim(str_replace('\\', '/', dirname($scriptPath)), '/');
+        $appBasePath = rtrim(dirname($apiDir), '/'); // 去掉 /api 层
+        if ($appBasePath === '.') {
+            $appBasePath = '';
+        }
+        $path = ($appBasePath ? $appBasePath : '') . '/' . ltrim($publicPrefix, '/');
+        $path = preg_replace('~/{2,}~', '/', rtrim($path, '/'));
+        $path .= '/' . rawurlencode($storedName);
+
+        $scheme = 'http';
+        $forwardProto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '';
+        if ($forwardProto) {
+            $scheme = explode(',', $forwardProto)[0];
+        } elseif ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) {
+            $scheme = 'https';
+        }
+        $host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? ($_SERVER['HTTP_HOST'] ?? '');
+        if ($host !== '') {
+            $absoluteUrl = $scheme . '://' . $host . $path;
+            header('Location: ' . $absoluteUrl, true, 302);
+            exit;
+        }
+    }
+
     // 直接由 PHP 输出文件内容（支持 Range），避免域名/前缀偏差
     clearstatcache(true, $realPath);
     $size = @filesize($realPath);
