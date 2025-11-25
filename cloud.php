@@ -364,8 +364,6 @@
 
         const concurrency = 6;
         let cursor = 0;
-        let lastProgressBytes = uploadedBytes;
-        let lastProgressTime = startTime;
 
         const uploadChunk = async (chunkIndex) => {
             const start = chunkIndex * chunkSize;
@@ -392,9 +390,7 @@
             uploadedBytes += blob.size;
             const now = performance.now();
             const pct = Math.round((uploadedBytes / file.size) * 100);
-            const speed = formatSpeed(uploadedBytes - lastProgressBytes, now - lastProgressTime);
-            lastProgressBytes = uploadedBytes;
-            lastProgressTime = now;
+            const speed = formatSpeed(uploadedBytes, now - startTime); // 平均速度
             setUploadProgress(pct, `文件 ${index + 1}/${totalFiles} · ${pct}%${speed ? ` · ${speed}` : ''}`);
         };
 
