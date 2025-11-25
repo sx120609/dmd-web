@@ -185,7 +185,7 @@
     const sessionEndpoint = `${API_BASE}/session.php`;
     const filesEndpoint = `${API_BASE}/files.php`;
     const filesMultipartEndpoint = `${API_BASE}/files_multipart.php`;
-    const CHUNK_SIZE = 100 * 1024 * 1024; // 100MB
+    const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB 分片，提升进度感知与续传体验
     const ROUTE_LOGIN = `${BASE_PATH}/login`;
     const ROUTE_DASHBOARD = `${BASE_PATH}/dashboard`;
 
@@ -314,6 +314,15 @@
         return `${hash}-${file.size}`;
     }
 
+    function formatSpeed(bytes, elapsedMs) {
+        if (!elapsedMs) return '';
+        const bytesPerSec = bytes / (elapsedMs / 1000);
+        const units = ['B/s', 'KB/s', 'MB/s', 'GB/s'];
+        const idx = Math.min(units.length - 1, Math.floor(Math.log(bytesPerSec) / Math.log(1024)));
+        const val = bytesPerSec / (1024 ** idx);
+        return `${val.toFixed(val >= 10 || idx === 0 ? 0 : 1)} ${units[idx]}`;
+    }
+
     async function uploadFileChunked(file, index, totalFiles) {
         const uploadId = await computeUploadId(file);
         const initResp = await fetchJSON(`${filesMultipartEndpoint}`, {
@@ -335,6 +344,18 @@
             const end = Math.min(file.size, (cur + 1) * CHUNK_SIZE);
             return acc + Math.max(0, end - start);
         }, 0);
+        const startTime = performance.now();
+        const missing = [];
+        for (let i = 0; i < totalChunks; i += 1) {
+            if (!uploadedChunks.includes(i)) {
+                missing.push(i);
+            }
+        }
+
+        const concurrency = 3;
+        let cursor = 0;
+        let lastProgressBytes = uploadedBytes;
+        let lastProgressTime = startTime;
 
         const uploadChunk = async (chunkIndex) => {
             const start = chunkIndex * CHUNK_SIZE;
@@ -359,18 +380,35 @@
                 throw new Error(msg);
             }
             uploadedBytes += blob.size;
+            const now = performance.now();
             const pct = Math.round((uploadedBytes / file.size) * 100);
-            setUploadProgress(pct, `文件 ${index + 1}/${totalFiles} · ${pct}%`);
+            const speed = formatSpeed(uploadedBytes - lastProgressBytes, now - lastProgressTime);
+            lastProgressBytes = uploadedBytes;
+            lastProgressTime = now;
+            setUploadProgress(pct, `文件 ${index + 1}/${totalFiles} · ${pct}%${speed ? ` · ${speed}` : ''}`);
         };
 
-        for (let i = 0; i < totalChunks; i += 1) {
-            if (uploadedChunks.includes(i)) {
-                const start = i * CHUNK_SIZE;
-                const end = Math.min(file.size, start + CHUNK_SIZE);
-                uploadedBytes += Math.max(0, end - start);
-                continue;
+        const workers = Array.from({ length: concurrency }).map(async () => {
+            while (cursor < missing.length) {
+                const current = cursor;
+                cursor += 1;
+                await uploadChunk(missing[current]);
             }
-            await uploadChunk(i);
+        });
+        await Promise.all(workers);
+
+        // 二次校验已传分片再合并
+        const statusResp = await fetchJSON(`${filesMultipartEndpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'status',
+                upload_id: uploadId
+            })
+        });
+        const finalUploaded = Array.isArray(statusResp.uploaded_chunks) ? statusResp.uploaded_chunks.length : 0;
+        if (finalUploaded < totalChunks) {
+            throw new Error('分片未传完，请重试');
         }
 
         const completeResp = await fetchJSON(`${filesMultipartEndpoint}`, {
