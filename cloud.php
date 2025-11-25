@@ -121,7 +121,7 @@
                             <p class="text-uppercase small text-secondary mb-1">上传文件</p>
                             <h4 class="mb-0">添加新文件</h4>
                         </div>
-                        <span class="pill-badge muted" id="quotaInfo">分片上传·断点重连</span>
+                        <span class="pill-badge muted" id="quotaInfo">分片上传</span>
                     </div>
                     <form id="uploadForm" class="d-flex flex-column gap-3">
                         <div>
