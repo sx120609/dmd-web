@@ -151,15 +151,8 @@ function stream_file_download(array $file, string $storageDir): void
         exit;
     }
 
-    // 构造绝对 URL，避免前缀缺失导致 404
-    $scheme = 'http';
-    if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) {
-        $scheme = 'https';
-    }
-    $host = $_SERVER['HTTP_HOST'] ?? '';
-    $absoluteUrl = $host ? ($scheme . '://' . $host . $publicUrl) : $publicUrl;
-
-    header('Location: ' . $absoluteUrl, true, 302);
+    // 使用相对路径跳转，适配 organic 的反代域名
+    header('Location: ' . $publicUrl, true, 302);
     exit;
 }
 
