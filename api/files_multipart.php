@@ -4,6 +4,7 @@ ensure_cloud_files_table($mysqli);
 ensure_teacher_role_enum($mysqli);
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'POST';
+$jsonInput = get_json_input();
 $currentUser = require_admin_or_teacher($mysqli);
 
 $configuredStorage = $config['storage']['cloud_dir'] ?? null;
@@ -132,9 +133,9 @@ function fetch_file_by_id(mysqli $mysqli, int $id): ?array
     return $row;
 }
 
-$action = $_REQUEST['action'] ?? '';
-if ($method === 'POST' && isset($_REQUEST['_method'])) {
-    $override = strtoupper((string) $_REQUEST['_method']);
+$action = $_REQUEST['action'] ?? ($jsonInput['action'] ?? '');
+if ($method === 'POST' && (isset($_REQUEST['_method']) || isset($jsonInput['_method']))) {
+    $override = strtoupper((string) ($_REQUEST['_method'] ?? $jsonInput['_method'] ?? ''));
     if (in_array($override, ['PATCH', 'DELETE'], true)) {
         $method = $override;
     }
@@ -148,11 +149,11 @@ if (!in_array($action, ['init', 'chunk', 'complete', 'status'], true)) {
     error_response('未知的分片动作', 400);
 }
 
-$uploadId = isset($_REQUEST['upload_id']) ? sanitize_upload_id((string) $_REQUEST['upload_id']) : '';
-$originalName = isset($_REQUEST['filename']) ? basename((string) $_REQUEST['filename']) : '';
-$sizeBytes = isset($_REQUEST['size_bytes']) ? (int) $_REQUEST['size_bytes'] : 0;
-$mimeType = isset($_REQUEST['mime_type']) ? (string) $_REQUEST['mime_type'] : '';
-$chunkSizeClient = isset($_REQUEST['chunk_size']) ? (int) $_REQUEST['chunk_size'] : 0;
+$uploadId = isset($_REQUEST['upload_id']) ? sanitize_upload_id((string) $_REQUEST['upload_id']) : sanitize_upload_id((string) ($jsonInput['upload_id'] ?? ''));
+$originalName = isset($_REQUEST['filename']) ? basename((string) $_REQUEST['filename']) : basename((string) ($jsonInput['filename'] ?? ''));
+$sizeBytes = isset($_REQUEST['size_bytes']) ? (int) $_REQUEST['size_bytes'] : (int) ($jsonInput['size_bytes'] ?? 0);
+$mimeType = isset($_REQUEST['mime_type']) ? (string) $_REQUEST['mime_type'] : (string) ($jsonInput['mime_type'] ?? '');
+$chunkSizeClient = isset($_REQUEST['chunk_size']) ? (int) $_REQUEST['chunk_size'] : (int) ($jsonInput['chunk_size'] ?? 0);
 
 ensure_dir($chunkBaseDir);
 
