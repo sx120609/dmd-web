@@ -184,6 +184,8 @@
     const API_BASE = `${BASE_PATH}/api`;
     const sessionEndpoint = `${API_BASE}/session.php`;
     const filesEndpoint = `${API_BASE}/files.php`;
+    const filesMultipartEndpoint = `${API_BASE}/files_multipart.php`;
+    const CHUNK_SIZE = 100 * 1024 * 1024; // 100MB
     const ROUTE_LOGIN = `${BASE_PATH}/login`;
     const ROUTE_DASHBOARD = `${BASE_PATH}/dashboard`;
 
@@ -294,6 +296,97 @@
         if (uploadProgressText) {
             uploadProgressText.textContent = '';
         }
+    }
+
+    async function hashString(input) {
+        if (!window.crypto || !crypto.subtle) {
+            return btoa(input).replace(/=+$/, '');
+        }
+        const encoder = new TextEncoder();
+        const data = encoder.encode(input);
+        const digest = await crypto.subtle.digest('SHA-1', data);
+        return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function computeUploadId(file) {
+        const base = `${file.name}|${file.size}|${file.lastModified || 0}`;
+        const hash = await hashString(base);
+        return `${hash}-${file.size}`;
+    }
+
+    async function uploadFileChunked(file, index, totalFiles) {
+        const uploadId = await computeUploadId(file);
+        const initResp = await fetchJSON(`${filesMultipartEndpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'init',
+                upload_id: uploadId,
+                filename: file.name,
+                size_bytes: file.size,
+                mime_type: file.type || 'application/octet-stream',
+                chunk_size: CHUNK_SIZE
+            })
+        });
+        const uploadedChunks = Array.isArray(initResp.uploaded_chunks) ? initResp.uploaded_chunks : [];
+        const totalChunks = Math.max(1, Math.ceil(file.size / CHUNK_SIZE));
+        let uploadedBytes = uploadedChunks.reduce((acc, cur) => {
+            const start = cur * CHUNK_SIZE;
+            const end = Math.min(file.size, (cur + 1) * CHUNK_SIZE);
+            return acc + Math.max(0, end - start);
+        }, 0);
+
+        const uploadChunk = async (chunkIndex) => {
+            const start = chunkIndex * CHUNK_SIZE;
+            const end = Math.min(file.size, start + CHUNK_SIZE);
+            const blob = file.slice(start, end);
+            const resp = await fetch(`${filesMultipartEndpoint}?action=chunk&upload_id=${encodeURIComponent(uploadId)}&index=${chunkIndex}`, {
+                method: 'POST',
+                credentials: 'include',
+                body: blob,
+                headers: {
+                    'Content-Type': 'application/octet-stream'
+                }
+            });
+            if (!resp.ok) {
+                let msg = `分片 ${chunkIndex} 上传失败（${resp.status}）`;
+                try {
+                    const data = await resp.json();
+                    if (data && (data.error || data.message)) {
+                        msg = data.error || data.message;
+                    }
+                } catch (e) { /* ignore */ }
+                throw new Error(msg);
+            }
+            uploadedBytes += blob.size;
+            const pct = Math.round((uploadedBytes / file.size) * 100);
+            setUploadProgress(pct, `文件 ${index + 1}/${totalFiles} · ${pct}%`);
+        };
+
+        for (let i = 0; i < totalChunks; i += 1) {
+            if (uploadedChunks.includes(i)) {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min(file.size, start + CHUNK_SIZE);
+                uploadedBytes += Math.max(0, end - start);
+                continue;
+            }
+            await uploadChunk(i);
+        }
+
+        const completeResp = await fetchJSON(`${filesMultipartEndpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                action: 'complete',
+                upload_id: uploadId,
+                filename: file.name,
+                size_bytes: file.size,
+                mime_type: file.type || 'application/octet-stream',
+                total_chunks: totalChunks
+            })
+        });
+        return completeResp;
     }
 
     function renderFiles(files = []) {
@@ -431,37 +524,10 @@
         resetUploadProgress();
         setMessage(uploadMessage, `正在上传 ${files.length} 个文件，请稍候...`);
         const total = files.length;
-        const uploadSingle = (file, index) => new Promise((resolve, reject) => {
-            const formData = new FormData();
-            formData.append('file', file);
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', normalizeApiUrl(filesEndpoint), true);
-            xhr.withCredentials = true;
-            xhr.upload.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    const pct = Math.round((e.loaded / e.total) * 100);
-                    setUploadProgress(pct, `文件 ${index + 1}/${total} · ${pct}%`);
-                }
-            };
-            xhr.onerror = () => reject(new Error('上传失败，请检查网络'));
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    resolve();
-                } else {
-                    let responseData = null;
-                    try {
-                        responseData = JSON.parse(xhr.responseText || '{}');
-                    } catch (err) { /* ignore */ }
-                    const message = (responseData && (responseData.message || responseData.error)) || `上传失败（${xhr.status}）`;
-                    reject(new Error(message));
-                }
-            };
-            xhr.send(formData);
-        });
 
         try {
             for (let i = 0; i < files.length; i += 1) {
-                await uploadSingle(files[i], i);
+                await uploadFileChunked(files[i], i, total);
             }
             setMessage(uploadMessage, '全部上传成功', 'success');
             resetUploadProgress();
