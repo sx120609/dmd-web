@@ -404,16 +404,43 @@
         await Promise.all(workers);
 
         // 二次校验已传分片再合并
-        const statusResp = await fetchJSON(`${filesMultipartEndpoint}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'status',
-                upload_id: uploadId
-            })
-        });
-        const finalUploaded = Array.isArray(statusResp.uploaded_chunks) ? statusResp.uploaded_chunks.length : 0;
-        if (finalUploaded < totalChunks) {
+        const ensureAllChunks = async () => {
+            const statusResp = await fetchJSON(`${filesMultipartEndpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'status',
+                    upload_id: uploadId
+                })
+            });
+            const uploadedList = Array.isArray(statusResp.uploaded_chunks) ? statusResp.uploaded_chunks : [];
+            if (uploadedList.length >= totalChunks) {
+                return [];
+            }
+            const missingAgain = [];
+            for (let i = 0; i < totalChunks; i += 1) {
+                if (!uploadedList.includes(i)) {
+                    missingAgain.push(i);
+                }
+            }
+            return missingAgain;
+        };
+
+        const missingAgain = await ensureAllChunks();
+        if (missingAgain.length) {
+            cursor = 0;
+            const retry = Array.from({ length: concurrency }).map(async () => {
+                while (cursor < missingAgain.length) {
+                    const current = cursor;
+                    cursor += 1;
+                    await uploadChunk(missingAgain[current]);
+                }
+            });
+            await Promise.all(retry);
+        }
+
+        const finalMissing = await ensureAllChunks();
+        if (finalMissing.length) {
             throw new Error('分片未传完，请重试');
         }
 
