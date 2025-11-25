@@ -194,9 +194,11 @@ if ($action === 'chunk') {
     $chunkDir = $chunkBaseDir . '/' . $uploadId;
     ensure_dir($chunkDir);
     $contentLength = isset($_SERVER['CONTENT_LENGTH']) ? (int) $_SERVER['CONTENT_LENGTH'] : 0;
-    if ($contentLength <= 0) {
-        $contentLength = $chunkSizeClient > 0 ? $chunkSizeClient : 0;
+    $expectedChunkSize = isset($_GET['size']) ? (int) $_GET['size'] : (isset($_REQUEST['size']) ? (int) $_REQUEST['size'] : 0);
+    if ($expectedChunkSize <= 0) {
+        $expectedChunkSize = $chunkSizeClient > 0 ? $chunkSizeClient : $contentLength;
     }
+    $contentLength = $contentLength > 0 ? $contentLength : $expectedChunkSize;
     if ($contentLength > 0 && $contentLength > $maxChunkSize) {
         error_response('单个分片过大', 413);
     }
@@ -213,6 +215,12 @@ if ($action === 'chunk') {
     stream_copy_to_stream($input, $fp);
     fclose($fp);
     fclose($input);
+    clearstatcache(true, $chunkPath);
+    $written = @filesize($chunkPath);
+    if ($expectedChunkSize > 0 && $written !== $expectedChunkSize) {
+        @unlink($chunkPath);
+        error_response('分片大小不一致', 400);
+    }
     json_response(['success' => true, 'index' => $index]);
 }
 
@@ -234,6 +242,19 @@ if ($action === 'complete') {
     $available = list_uploaded_chunks($chunkDir);
     if (count($available) < $totalChunks) {
         error_response('分片未传完', 400);
+    }
+    // 合并前再校验总大小
+    $sumSize = 0;
+    foreach ($available as $idx) {
+        $p = $chunkDir . '/' . $idx . '.part';
+        $sz = @filesize($p);
+        if (!is_int($sz) || $sz <= 0) {
+            error_response("分片 {$idx} 大小异常", 400);
+        }
+        $sumSize += $sz;
+    }
+    if ($sizeBytes > 0 && $sumSize !== $sizeBytes) {
+        error_response('分片总大小不一致', 400);
     }
 
     ensure_storage_dir($storageDir);

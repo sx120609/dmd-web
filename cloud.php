@@ -361,7 +361,7 @@
             const start = chunkIndex * CHUNK_SIZE;
             const end = Math.min(file.size, start + CHUNK_SIZE);
             const blob = file.slice(start, end);
-            const resp = await fetch(`${filesMultipartEndpoint}?action=chunk&upload_id=${encodeURIComponent(uploadId)}&index=${chunkIndex}`, {
+            const resp = await fetch(`${filesMultipartEndpoint}?action=chunk&upload_id=${encodeURIComponent(uploadId)}&index=${chunkIndex}&size=${blob.size}&total_chunks=${totalChunks}`, {
                 method: 'POST',
                 credentials: 'include',
                 body: blob,
