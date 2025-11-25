@@ -185,7 +185,6 @@
     const sessionEndpoint = `${API_BASE}/session.php`;
     const filesEndpoint = `${API_BASE}/files.php`;
     const filesMultipartEndpoint = `${API_BASE}/files_multipart.php`;
-    const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB 分片，提升进度感知与续传体验
     const ROUTE_LOGIN = `${BASE_PATH}/login`;
     const ROUTE_DASHBOARD = `${BASE_PATH}/dashboard`;
 
@@ -314,6 +313,16 @@
         return `${hash}-${file.size}`;
     }
 
+    function pickChunkSize(sizeBytes) {
+        if (sizeBytes < 200 * 1024 * 1024) {
+            return 2 * 1024 * 1024; // 2MB
+        }
+        if (sizeBytes <= 2 * 1024 * 1024 * 1024) {
+            return 5 * 1024 * 1024; // 5MB
+        }
+        return 10 * 1024 * 1024; // 10MB
+    }
+
     function formatSpeed(bytes, elapsedMs) {
         if (!elapsedMs) return '';
         const bytesPerSec = bytes / (elapsedMs / 1000);
@@ -325,6 +334,7 @@
 
     async function uploadFileChunked(file, index, totalFiles) {
         const uploadId = await computeUploadId(file);
+        const chunkSize = pickChunkSize(file.size);
         const initResp = await fetchJSON(`${filesMultipartEndpoint}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -334,14 +344,14 @@
                 filename: file.name,
                 size_bytes: file.size,
                 mime_type: file.type || 'application/octet-stream',
-                chunk_size: CHUNK_SIZE
+                chunk_size: chunkSize
             })
         });
         const uploadedChunks = Array.isArray(initResp.uploaded_chunks) ? initResp.uploaded_chunks : [];
-        const totalChunks = Math.max(1, Math.ceil(file.size / CHUNK_SIZE));
+        const totalChunks = Math.max(1, Math.ceil(file.size / chunkSize));
         let uploadedBytes = uploadedChunks.reduce((acc, cur) => {
-            const start = cur * CHUNK_SIZE;
-            const end = Math.min(file.size, (cur + 1) * CHUNK_SIZE);
+            const start = cur * chunkSize;
+            const end = Math.min(file.size, (cur + 1) * chunkSize);
             return acc + Math.max(0, end - start);
         }, 0);
         const startTime = performance.now();
@@ -352,14 +362,14 @@
             }
         }
 
-        const concurrency = 3;
+        const concurrency = 6;
         let cursor = 0;
         let lastProgressBytes = uploadedBytes;
         let lastProgressTime = startTime;
 
         const uploadChunk = async (chunkIndex) => {
-            const start = chunkIndex * CHUNK_SIZE;
-            const end = Math.min(file.size, start + CHUNK_SIZE);
+            const start = chunkIndex * chunkSize;
+            const end = Math.min(file.size, start + chunkSize);
             const blob = file.slice(start, end);
             const resp = await fetch(`${filesMultipartEndpoint}?action=chunk&upload_id=${encodeURIComponent(uploadId)}&index=${chunkIndex}&size=${blob.size}&total_chunks=${totalChunks}`, {
                 method: 'POST',
