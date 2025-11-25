@@ -133,6 +133,41 @@ function fetch_file_by_id(mysqli $mysqli, int $id): ?array
     return $row;
 }
 
+function meta_path(string $chunkDir): string
+{
+    return rtrim($chunkDir, '/').'/._meta.json';
+}
+
+function read_meta(string $chunkDir): array
+{
+    $metaFile = meta_path($chunkDir);
+    if (!is_file($metaFile)) {
+        return [];
+    }
+    $json = @file_get_contents($metaFile);
+    $data = json_decode((string) $json, true);
+    return is_array($data) ? $data : [];
+}
+
+function write_meta(string $chunkDir, array $meta): void
+{
+    $metaFile = meta_path($chunkDir);
+    @file_put_contents($metaFile, json_encode($meta, JSON_UNESCAPED_UNICODE));
+}
+
+$cleanup_dir = function (string $dir): void {
+    if (!is_dir($dir)) {
+        return;
+    }
+    $files = glob($dir . '/*');
+    if (is_array($files)) {
+        foreach ($files as $file) {
+            @unlink($file);
+        }
+    }
+    @rmdir($dir);
+};
+
 $action = $_REQUEST['action'] ?? ($jsonInput['action'] ?? '');
 if ($method === 'POST' && (isset($_REQUEST['_method']) || isset($jsonInput['_method']))) {
     $override = strtoupper((string) ($_REQUEST['_method'] ?? $jsonInput['_method'] ?? ''));
@@ -163,6 +198,30 @@ if ($action === 'init') {
     }
     $chunkDir = $chunkBaseDir . '/' . $uploadId;
     ensure_dir($chunkDir);
+    $meta = read_meta($chunkDir);
+    $incomingSize = $sizeBytes;
+    $incomingChunkSize = $chunkSizeClient > 0 ? $chunkSizeClient : $maxChunkSize;
+    $shouldReset = false;
+    if (!empty($meta)) {
+        $metaSize = (int) ($meta['size_bytes'] ?? 0);
+        $metaChunk = (int) ($meta['chunk_size'] ?? 0);
+        if (($incomingSize > 0 && $metaSize > 0 && $metaSize !== $incomingSize) ||
+            ($incomingChunkSize > 0 && $metaChunk > 0 && $metaChunk !== $incomingChunkSize)) {
+            $shouldReset = true;
+        }
+    }
+    if ($shouldReset) {
+        ($cleanup_dir)($chunkDir);
+        ensure_dir($chunkDir);
+        $meta = [];
+    }
+    $meta = [
+        'size_bytes' => $incomingSize,
+        'chunk_size' => $incomingChunkSize,
+        'filename' => $originalName,
+        'mime_type' => $mimeType
+    ];
+    write_meta($chunkDir, $meta);
     $uploaded = list_uploaded_chunks($chunkDir);
     json_response([
         'upload_id' => $uploadId,
@@ -177,9 +236,11 @@ if ($action === 'status') {
     }
     $chunkDir = $chunkBaseDir . '/' . $uploadId;
     $uploaded = list_uploaded_chunks($chunkDir);
+    $meta = read_meta($chunkDir);
     json_response([
         'upload_id' => $uploadId,
-        'uploaded_chunks' => $uploaded
+        'uploaded_chunks' => $uploaded,
+        'meta' => $meta
     ]);
 }
 
@@ -193,10 +254,12 @@ if ($action === 'chunk') {
     }
     $chunkDir = $chunkBaseDir . '/' . $uploadId;
     ensure_dir($chunkDir);
+    $meta = read_meta($chunkDir);
+    $declaredChunkSize = (int) ($meta['chunk_size'] ?? $chunkSizeClient);
     $contentLength = isset($_SERVER['CONTENT_LENGTH']) ? (int) $_SERVER['CONTENT_LENGTH'] : 0;
     $expectedChunkSize = isset($_GET['size']) ? (int) $_GET['size'] : (isset($_REQUEST['size']) ? (int) $_REQUEST['size'] : 0);
     if ($expectedChunkSize <= 0) {
-        $expectedChunkSize = $chunkSizeClient > 0 ? $chunkSizeClient : $contentLength;
+        $expectedChunkSize = $declaredChunkSize > 0 ? $declaredChunkSize : $contentLength;
     }
     $contentLength = $contentLength > 0 ? $contentLength : $expectedChunkSize;
     if ($contentLength > 0 && $contentLength > $maxChunkSize) {
@@ -242,6 +305,13 @@ if ($action === 'complete') {
     $available = list_uploaded_chunks($chunkDir);
     if (count($available) < $totalChunks) {
         error_response('分片未传完', 400);
+    }
+    $meta = read_meta($chunkDir);
+    if (!empty($meta)) {
+        $metaSize = (int) ($meta['size_bytes'] ?? 0);
+        if ($metaSize > 0) {
+            $sizeBytes = $metaSize;
+        }
     }
     // 合并前再校验总大小
     $sumSize = 0;
