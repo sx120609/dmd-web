@@ -128,18 +128,20 @@ function stream_file_download(array $file, string $storageDir): void
 
     // 解析应用根路径，支持反代前缀（可在 config.php 的 storage.public_base_path 覆盖）
     $basePathOverride = $config['storage']['public_base_path'] ?? '';
+    $forwardedPrefix = $_SERVER['HTTP_X_FORWARDED_PREFIX'] ?? '';
     if (is_string($basePathOverride) && trim($basePathOverride) !== '') {
         $appBasePath = '/' . trim($basePathOverride, '/');
     } else {
-        $scriptPath = $_SERVER['SCRIPT_NAME'] ?? '';
-        $apiDir = rtrim(str_replace('\\', '/', dirname($scriptPath)), '/');
-        $appBasePath = rtrim(dirname($apiDir), '/'); // 去掉 /api 层
-        if ($appBasePath === '.') {
-            $appBasePath = '';
-        }
-        $forwardedPrefix = $_SERVER['HTTP_X_FORWARDED_PREFIX'] ?? '';
         if (is_string($forwardedPrefix) && trim($forwardedPrefix) !== '') {
             $appBasePath = '/' . trim($forwardedPrefix, '/');
+        } else {
+            $scriptPath = $_SERVER['SCRIPT_NAME'] ?? '';
+            $apiDir = rtrim(str_replace('\\', '/', dirname($scriptPath)), '/');
+            $appBasePath = rtrim(dirname($apiDir), '/'); // 去掉 /api 层
+            if ($appBasePath === '.' || $appBasePath === '') {
+                // 保底以 /rarelight 作为前缀，避免被反代剥掉导致 /uploads 开头
+                $appBasePath = '/rarelight';
+            }
         }
     }
     // 直接跳转到静态文件，Range/缓存交给 nginx 或前置静态服务
