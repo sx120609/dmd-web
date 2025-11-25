@@ -126,12 +126,21 @@ function stream_file_download(array $file, string $storageDir): void
         error_response('文件已不存在', 404);
     }
 
-    // 解析应用根路径，例如 /rarelight/api/files.php -> appBasePath = /rarelight
-    $scriptPath = $_SERVER['SCRIPT_NAME'] ?? '';
-    $apiDir = rtrim(str_replace('\\', '/', dirname($scriptPath)), '/');
-    $appBasePath = rtrim(dirname($apiDir), '/'); // 去掉 /api 层
-    if ($appBasePath === '.') {
-        $appBasePath = '';
+    // 解析应用根路径，支持反代前缀（可在 config.php 的 storage.public_base_path 覆盖）
+    $basePathOverride = $config['storage']['public_base_path'] ?? '';
+    if (is_string($basePathOverride) && trim($basePathOverride) !== '') {
+        $appBasePath = '/' . trim($basePathOverride, '/');
+    } else {
+        $scriptPath = $_SERVER['SCRIPT_NAME'] ?? '';
+        $apiDir = rtrim(str_replace('\\', '/', dirname($scriptPath)), '/');
+        $appBasePath = rtrim(dirname($apiDir), '/'); // 去掉 /api 层
+        if ($appBasePath === '.') {
+            $appBasePath = '';
+        }
+        $forwardedPrefix = $_SERVER['HTTP_X_FORWARDED_PREFIX'] ?? '';
+        if (is_string($forwardedPrefix) && trim($forwardedPrefix) !== '') {
+            $appBasePath = '/' . trim($forwardedPrefix, '/');
+        }
     }
     // 直接跳转到静态文件，Range/缓存交给 nginx 或前置静态服务
     $publicPrefix = $config['storage']['public_prefix'] ?? '/uploads/files';
