@@ -223,7 +223,7 @@ if ($action === 'complete') {
     if ($originalName === '' || $sizeBytes <= 0) {
         error_response('缺少文件名或大小');
     }
-    $totalChunks = isset($_REQUEST['total_chunks']) ? (int) $_REQUEST['total_chunks'] : 0;
+    $totalChunks = isset($_REQUEST['total_chunks']) ? (int) $_REQUEST['total_chunks'] : (int) ($jsonInput['total_chunks'] ?? 0);
     if ($totalChunks <= 0) {
         error_response('缺少分片数量');
     }
