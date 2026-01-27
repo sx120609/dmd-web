@@ -311,6 +311,13 @@
                 <div class="row g-4 align-items-start">
                     <div class="col-12 col-xl-5 col-xxl-4">
                         <form id="assignCourseForm" class="card surface-section form-grid surface-form">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h3 class="mb-1">分配课程</h3>
+                                    <p class="hint mb-0">单个分配或使用右侧按钮批量导入。</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="openAssignImportModal">批量分配</button>
+                            </div>
                             <div>
                                 <label for="assignUserSelect">选择用户</label>
                                 <select id="assignUserSelect" name="user_id" required></select>
@@ -360,6 +367,33 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
                 <button type="button" class="primary-button" id="userImportButton">导入用户</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 批量分配课程弹窗 -->
+<div class="modal fade" id="assignImportModal" tabindex="-1" aria-labelledby="assignImportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignImportModalLabel">批量分配课程</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="hint">下载模板 CSV，填写后上传。字段：username, course_id, course_title（course_id 与 course_title 二选一）。</p>
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="downloadAssignTemplate">下载模板</button>
+                    <small class="text-secondary">文件大小限制 5MB</small>
+                </div>
+                <div class="mb-3">
+                    <label for="assignImportFile" class="form-label">上传填写好的 CSV</label>
+                    <input id="assignImportFile" type="file" accept=".csv,text/csv" class="form-control">
+                </div>
+                <div class="message" id="assignImportMessage" hidden></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="primary-button" id="assignImportButton">导入分配</button>
             </div>
         </div>
     </div>
@@ -481,11 +515,17 @@
     const createUserForm = document.getElementById('createUserForm');
     const createUserMessage = document.getElementById('createUserMessage');
     const downloadUserTemplateButton = document.getElementById('downloadUserTemplate');
+    const downloadAssignTemplateButton = document.getElementById('downloadAssignTemplate');
     const userImportFileInput = document.getElementById('userImportFile');
     const userImportButton = document.getElementById('userImportButton');
     const userImportMessage = document.getElementById('userImportMessage');
     const userImportModalEl = document.getElementById('userImportModal');
+    const assignImportFileInput = document.getElementById('assignImportFile');
+    const assignImportButton = document.getElementById('assignImportButton');
+    const assignImportMessage = document.getElementById('assignImportMessage');
+    const assignImportModalEl = document.getElementById('assignImportModal');
     let userImportModal = null;
+    let assignImportModal = null;
     const userListEl = document.getElementById('userList');
     const updateUserForm = document.getElementById('updateUserForm');
     const updateUserMessage = document.getElementById('updateUserMessage');
@@ -497,6 +537,7 @@
     const deleteUserButton = document.getElementById('deleteUserButton');
     const deleteUserMessage = document.getElementById('deleteUserMessage');
     const openUserImportModalButton = document.getElementById('openUserImportModal');
+    const openAssignImportModalButton = document.getElementById('openAssignImportModal');
     const userDetailTitle = document.getElementById('userDetailTitle');
     const userDetailSubtitle = document.getElementById('userDetailSubtitle');
     const userDetailRoleChip = document.getElementById('userDetailRoleChip');
@@ -644,6 +685,15 @@
         }
     }
 
+    function resetAssignImportModal() {
+        if (assignImportMessage) {
+            setMessage(assignImportMessage);
+        }
+        if (assignImportFileInput) {
+            assignImportFileInput.value = '';
+        }
+    }
+
     function clearDanglingBackdrops() {
         document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
         document.body.classList.remove('modal-open');
@@ -663,6 +713,23 @@
         const a = document.createElement('a');
         a.href = url;
         a.download = 'user_import_template.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function downloadAssignTemplate() {
+        const content = [
+            ['username', 'course_id', 'course_title'],
+            ['student01', '1', ''],
+            ['student02', '', '罕见病基础课']
+        ].map((row) => row.join(',')).join('\n');
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'course_assignments_template.csv';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -731,6 +798,57 @@
             if (userImportButton) {
                 userImportButton.disabled = false;
                 userImportButton.textContent = originalLabel || '导入用户';
+            }
+        }
+    }
+
+    async function importAssignments() {
+        if (!assignImportFileInput) return;
+        const file = assignImportFileInput.files && assignImportFileInput.files[0];
+        if (!file) {
+            setMessage(assignImportMessage, '请选择要导入的 CSV 文件', 'error');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            setMessage(assignImportMessage, '文件过大，请控制在 5MB 内', 'error');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', file);
+        const originalLabel = assignImportButton ? assignImportButton.textContent : '';
+        if (assignImportButton) {
+            assignImportButton.disabled = true;
+            assignImportButton.textContent = '导入中...';
+        }
+        setMessage(assignImportMessage, '正在导入，请稍候...');
+        try {
+            const result = await fetchJSON(`${API_BASE}/course_assignments_import.php`, {
+                method: 'POST',
+                body: formData
+            });
+            const inserted = Number(result.inserted ?? result.inserted_count ?? 0);
+            const skipped = Number(result.skipped ?? result.skipped_count ?? 0);
+            const errors = Array.isArray(result.errors) ? result.errors : [];
+            const parts = [
+                `分配成功：${inserted} 条`,
+                `跳过：${skipped} 条`
+            ];
+            if (errors.length) {
+                parts.push(`错误 ${errors.length} 条：${errors.map((e) => (e && e.message) || e).join('；')}`);
+            }
+            setMessage(assignImportMessage, parts.join('；'), errors.length ? 'error' : 'success');
+            assignImportFileInput.value = '';
+
+            const selectedUserId = parseInt(assignUserSelect.value, 10);
+            if (selectedUserId) {
+                await loadAssignmentsForUser(selectedUserId);
+            }
+        } catch (error) {
+            setMessage(assignImportMessage, error.message || '导入失败', 'error');
+        } finally {
+            if (assignImportButton) {
+                assignImportButton.disabled = false;
+                assignImportButton.textContent = originalLabel || '导入分配';
             }
         }
     }
@@ -1791,8 +1909,14 @@
     if (downloadUserTemplateButton) {
         downloadUserTemplateButton.addEventListener('click', downloadUserTemplate);
     }
+    if (downloadAssignTemplateButton) {
+        downloadAssignTemplateButton.addEventListener('click', downloadAssignTemplate);
+    }
     if (userImportButton) {
         userImportButton.addEventListener('click', importUsers);
+    }
+    if (assignImportButton) {
+        assignImportButton.addEventListener('click', importAssignments);
     }
     if (userImportModalEl && typeof bootstrap !== 'undefined') {
         userImportModal = new bootstrap.Modal(userImportModalEl);
@@ -1800,6 +1924,13 @@
             resetUserImportModal();
         });
         userImportModalEl.addEventListener('hidden.bs.modal', clearDanglingBackdrops);
+    }
+    if (assignImportModalEl && typeof bootstrap !== 'undefined') {
+        assignImportModal = new bootstrap.Modal(assignImportModalEl);
+        assignImportModalEl.addEventListener('show.bs.modal', () => {
+            resetAssignImportModal();
+        });
+        assignImportModalEl.addEventListener('hidden.bs.modal', clearDanglingBackdrops);
     }
     if (openUserImportModalButton) {
         openUserImportModalButton.addEventListener('click', (event) => {
@@ -1811,6 +1942,19 @@
                 clearDanglingBackdrops();
                 resetUserImportModal();
                 userImportModal.show();
+            }
+        });
+    }
+    if (openAssignImportModalButton) {
+        openAssignImportModalButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (!assignImportModal && assignImportModalEl && typeof bootstrap !== 'undefined') {
+                assignImportModal = new bootstrap.Modal(assignImportModalEl);
+            }
+            if (assignImportModal) {
+                clearDanglingBackdrops();
+                resetAssignImportModal();
+                assignImportModal.show();
             }
         });
     }
