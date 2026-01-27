@@ -38,11 +38,11 @@ $normalize = static function ($value) {
     return trim($v);
 };
 
-$expectedHeaders = ['username', 'course_id', 'course_title'];
+$expectedHeaders = ['username', 'course_id'];
 $header = array_map($normalize, $header);
 if (array_map('strtolower', $header) !== $expectedHeaders) {
     fclose($handle);
-    error_response('表头需为：username,course_id,course_title（CSV 格式）');
+    error_response('表头需为：username,course_id（CSV 格式）');
 }
 
 $userStmt = $mysqli->prepare('SELECT id FROM users WHERE username = ? LIMIT 1');
@@ -58,20 +58,11 @@ if (!$courseIdStmt) {
     error_response('无法准备课程查询');
 }
 
-$courseTitleStmt = $mysqli->prepare('SELECT id, title FROM courses WHERE title = ? LIMIT 2');
-if (!$courseTitleStmt) {
-    fclose($handle);
-    $userStmt->close();
-    $courseIdStmt->close();
-    error_response('无法准备课程查询');
-}
-
 $insertStmt = $mysqli->prepare('INSERT IGNORE INTO user_courses (user_id, course_id) VALUES (?, ?)');
 if (!$insertStmt) {
     fclose($handle);
     $userStmt->close();
     $courseIdStmt->close();
-    $courseTitleStmt->close();
     error_response('无法准备写入分配');
 }
 
@@ -86,10 +77,17 @@ while (($row = fgetcsv($handle)) !== false) {
         continue;
     }
     $row = array_map($normalize, $row);
-    [$username, $courseIdRaw, $courseTitle] = array_pad($row, 3, '');
+    [$username, $courseIdRaw] = array_pad($row, 2, '');
 
-    if ($username === '' || ($courseIdRaw === '' && $courseTitle === '')) {
-        $errors[] = "第 {$rowNumber} 行缺少用户名或课程信息，已跳过";
+    if ($username === '' || $courseIdRaw === '') {
+        $errors[] = "第 {$rowNumber} 行缺少用户名或课程ID，已跳过";
+        $skipped++;
+        continue;
+    }
+
+    $courseId = (int) $courseIdRaw;
+    if ($courseId <= 0) {
+        $errors[] = "第 {$rowNumber} 行课程ID无效（{$courseIdRaw}），已跳过";
         $skipped++;
         continue;
     }
@@ -106,52 +104,19 @@ while (($row = fgetcsv($handle)) !== false) {
     }
     $userId = (int) $userRow['id'];
 
-    $resolvedCourseId = 0;
-    $resolvedCourseTitle = '';
-
-    if ($courseIdRaw !== '') {
-        $courseId = (int) $courseIdRaw;
-        if ($courseId > 0) {
-            $courseIdStmt->bind_param('i', $courseId);
-            $courseIdStmt->execute();
-            $courseResult = $courseIdStmt->get_result();
-            $courseRow = $courseResult->fetch_assoc();
-            $courseResult->free();
-            if ($courseRow) {
-                $resolvedCourseId = (int) $courseRow['id'];
-                $resolvedCourseTitle = $courseRow['title'] ?? '';
-            }
-        }
-        if ($resolvedCourseId <= 0) {
-            $errors[] = "第 {$rowNumber} 行课程ID无效（{$courseIdRaw}），已跳过";
-            $skipped++;
-            continue;
-        }
-    } else {
-        $courseTitle = trim($courseTitle);
-        $courseTitleStmt->bind_param('s', $courseTitle);
-        $courseTitleStmt->execute();
-        $courseResult = $courseTitleStmt->get_result();
-        $courseRows = [];
-        while ($courseRow = $courseResult->fetch_assoc()) {
-            $courseRows[] = $courseRow;
-        }
-        $courseResult->free();
-        if (count($courseRows) === 0) {
-            $errors[] = "第 {$rowNumber} 行课程不存在（{$courseTitle}），已跳过";
-            $skipped++;
-            continue;
-        }
-        if (count($courseRows) > 1) {
-            $errors[] = "第 {$rowNumber} 行课程名称重复（{$courseTitle}），请填写 course_id";
-            $skipped++;
-            continue;
-        }
-        $resolvedCourseId = (int) $courseRows[0]['id'];
-        $resolvedCourseTitle = $courseRows[0]['title'] ?? '';
+    $courseIdStmt->bind_param('i', $courseId);
+    $courseIdStmt->execute();
+    $courseResult = $courseIdStmt->get_result();
+    $courseRow = $courseResult->fetch_assoc();
+    $courseResult->free();
+    if (!$courseRow) {
+        $errors[] = "第 {$rowNumber} 行课程ID不存在（{$courseIdRaw}），已跳过";
+        $skipped++;
+        continue;
     }
+    $resolvedCourseTitle = $courseRow['title'] ?? '';
 
-    $insertStmt->bind_param('ii', $userId, $resolvedCourseId);
+    $insertStmt->bind_param('ii', $userId, $courseId);
     if (!$insertStmt->execute()) {
         $errors[] = "第 {$rowNumber} 行写入失败（{$username} - {$resolvedCourseTitle}）";
         $skipped++;
@@ -168,7 +133,6 @@ while (($row = fgetcsv($handle)) !== false) {
 fclose($handle);
 $userStmt->close();
 $courseIdStmt->close();
-$courseTitleStmt->close();
 $insertStmt->close();
 
 json_response([

@@ -380,7 +380,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="hint">下载模板 CSV，填写后上传。字段：username, course_id, course_title（course_id 与 course_title 二选一）。</p>
+                <p class="hint">下载模板 CSV，填写后上传。字段：username, course_id。</p>
                 <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
                     <button type="button" class="btn btn-outline-primary btn-sm" id="downloadAssignTemplate">下载模板</button>
                     <small class="text-secondary">文件大小限制 5MB</small>
@@ -721,9 +721,9 @@
 
     function downloadAssignTemplate() {
         const content = [
-            ['username', 'course_id', 'course_title'],
-            ['student01', '1', ''],
-            ['student02', '', '罕见病基础课']
+            ['username', 'course_id'],
+            ['student01', '1'],
+            ['student02', '2']
         ].map((row) => row.join(',')).join('\n');
         const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
