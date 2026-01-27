@@ -170,6 +170,32 @@ function ensure_teacher_role_enum(mysqli $mysqli): void
     $mysqli->query("ALTER TABLE `users` MODIFY `role` ENUM('student','admin','teacher') NOT NULL DEFAULT 'student'");
 }
 
+function ensure_user_progress_table(mysqli $mysqli): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+    $mysqli->query(
+        "CREATE TABLE IF NOT EXISTS `user_lesson_progress` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `user_id` INT NOT NULL,
+            `course_id` INT NOT NULL,
+            `lesson_id` INT NOT NULL,
+            `visited_at` TIMESTAMP NULL DEFAULT NULL,
+            `completed_at` TIMESTAMP NULL DEFAULT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY `uniq_user_lesson` (`user_id`, `lesson_id`),
+            INDEX `idx_user_course` (`user_id`, `course_id`),
+            CONSTRAINT `fk_progress_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+            CONSTRAINT `fk_progress_course` FOREIGN KEY (`course_id`) REFERENCES `courses`(`id`) ON DELETE CASCADE,
+            CONSTRAINT `fk_progress_lesson` FOREIGN KEY (`lesson_id`) REFERENCES `lessons`(`id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+    );
+}
+
 function json_response($data, int $status = 200): void
 {
     http_response_code($status);

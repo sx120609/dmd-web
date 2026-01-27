@@ -209,7 +209,6 @@
         sort: 'default'
     };
     let progressStore = {};
-    let progressKey = '';
 
     function closeAllDrawers() {
         document.body.classList.remove('course-drawer-open', 'lesson-drawer-open');
@@ -585,23 +584,41 @@
         }
     }
 
-    function loadProgressStore(userId = 'guest') {
-        progressKey = `rl_progress_${userId}`;
+    async function loadProgressStore() {
+        progressStore = {};
         try {
-            const raw = localStorage.getItem(progressKey);
-            progressStore = raw ? JSON.parse(raw) : {};
+            const data = await fetchJSON(`${API_BASE}/progress.php`);
+            const records = Array.isArray(data.progress) ? data.progress : [];
+            records.forEach((row) => {
+                const courseId = Number(row.course_id);
+                const lessonId = Number(row.lesson_id);
+                if (!courseId || !lessonId) return;
+                if (!progressStore[courseId]) {
+                    progressStore[courseId] = { visited: [], completed: [], total: 0 };
+                }
+                if (row.visited && !progressStore[courseId].visited.includes(lessonId)) {
+                    progressStore[courseId].visited.push(lessonId);
+                }
+                if (row.completed && !progressStore[courseId].completed.includes(lessonId)) {
+                    progressStore[courseId].completed.push(lessonId);
+                }
+            });
         } catch (error) {
             progressStore = {};
         }
     }
 
-    function saveProgressStore() {
-        if (!progressKey) return;
-        try {
-            localStorage.setItem(progressKey, JSON.stringify(progressStore));
-        } catch (error) {
-            // ignore storage errors
-        }
+    function postProgressUpdate(action, courseId, lessonId) {
+        if (!courseId || !lessonId || !action) return Promise.resolve(null);
+        return fetchJSON(`${API_BASE}/progress.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action,
+                course_id: courseId,
+                lesson_id: lessonId
+            })
+        }).catch(() => null);
     }
 
     function markLessonVisited(courseId, lessonId, totalLessons = 0) {
@@ -625,7 +642,7 @@
             record.total = currentLessons.length;
         }
         progressStore[courseId] = record;
-        saveProgressStore();
+        postProgressUpdate('visit', courseId, lessonId);
     }
 
     function updateCourseTotalLessons(courseId, lessonCount) {
@@ -635,7 +652,6 @@
         } else if (lessonCount > 0) {
             progressStore[courseId].total = lessonCount;
         }
-        saveProgressStore();
     }
 
     function getCourseProgress(courseId, lessonCount = 0) {
@@ -676,7 +692,7 @@
             record.completed = record.completed.filter((id) => id !== lessonId);
         }
         progressStore[courseId] = record;
-        saveProgressStore();
+        postProgressUpdate(isCompleted ? 'complete' : 'uncomplete', courseId, lessonId);
     }
 
     function refreshProgressUI() {
@@ -1059,7 +1075,7 @@
                 return;
             }
             currentUser = data.user;
-            loadProgressStore(currentUser.id || 'guest');
+            await loadProgressStore();
             showWelcome(currentUser);
             if (currentUser.role === 'admin' || currentUser.role === 'teacher') {
                 adminButton.style.display = 'inline-flex';
