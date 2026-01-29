@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>云盘 · Rare Light</title>
-    <link rel="icon" type="image/svg+xml" href="/rarelight/favicon.svg">
+    <?php $basePath = dirname($_SERVER['SCRIPT_NAME']); ?>
+    <link rel="icon" type="image/svg+xml" href="<?php echo $basePath; ?>/favicon.svg">
+    <link rel="shortcut icon" href="<?php echo $basePath; ?>/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
