@@ -381,8 +381,8 @@ if (file_exists($configFile)) {
             <a href="/rarelight/" class="nav-brand">
                 <span class="brand-mark">RL</span>
                 <div class="brand-text">
-                    <div class="small text-uppercase">RARE LIGHT</div>
-                    <div class="fw-bold">Rare Light · 罕见病儿童公益</div>
+                    <div class="small text-uppercase" data-i18n="brandTagline">RARE LIGHT</div>
+                    <div class="fw-bold" data-i18n="brandTitle">Rare Light · 罕见病儿童公益</div>
                 </div>
             </a>
             <div class="d-flex align-items-center">
@@ -493,6 +493,8 @@ if (file_exists($configFile)) {
 
         const i18n = {
             zh: {
+                brandTagline: 'Rare Light',
+                brandTitle: 'Rare Light · 罕见病儿童公益',
                 pageTitle: '项目日志 · Rare Light',
                 navHome: '返回首页',
                 navLogin: '进入课堂',
@@ -506,6 +508,8 @@ if (file_exists($configFile)) {
                 readMore: '阅读完整文章'
             },
             en: {
+                brandTagline: 'Rare Light',
+                brandTitle: 'Rare Light · Rare Disease Care',
                 pageTitle: 'Project Log · Rare Light',
                 navHome: 'Home',
                 navLogin: 'Enter Classroom',
