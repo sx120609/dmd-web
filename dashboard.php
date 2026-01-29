@@ -48,7 +48,7 @@
             color: var(--rl-text-main);
             min-height: 100vh;
             overflow-x: hidden;
-            /* 防止横向滚动 */
+            overflow-y: auto;
         }
 
         /* --- 导航栏 --- */
@@ -154,18 +154,20 @@
             grid-template-columns: var(--sidebar-width) 1fr;
             gap: 1.5rem;
             padding: 1.5rem 0 3rem;
-            min-height: calc(100vh - var(--header-height));
             max-width: 1600px;
             margin: 0 auto;
             align-items: start;
-            /* 让侧边栏内容自然高度 */
         }
 
-        /* 侧边栏 */
+        /* 侧边栏 - 自然高度，完整显示所有内容 */
         .sidebar {
             display: flex;
             flex-direction: column;
             gap: 1rem;
+        }
+
+        /* 主舞台 - 使用sticky让视频区域在滚动时保持可见 */
+        .stage {
             position: sticky;
             top: calc(var(--header-height) + 1.5rem);
             max-height: calc(100vh - var(--header-height) - 3rem);
@@ -178,9 +180,6 @@
             border: var(--glass-border);
             border-radius: 16px;
             box-shadow: var(--glass-shadow);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
         }
 
         .panel-header {
