@@ -1,3 +1,165 @@
+<?php
+$blogPosts = [];
+$blogEditPost = null;
+$blogFlash = ['type' => '', 'message' => ''];
+$blogTabActive = (($_GET['tab'] ?? '') === 'posts');
+$blogPostId = isset($_GET['post_id']) ? (int) $_GET['post_id'] : 0;
+
+$configFile = __DIR__ . '/config.php';
+if (file_exists($configFile)) {
+    $config = require $configFile;
+    if (!empty($config['session_name'])) {
+        session_name($config['session_name']);
+    }
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    $mysqli = @new mysqli(
+        $config['db']['host'] ?? '127.0.0.1',
+        $config['db']['user'] ?? 'root',
+        $config['db']['password'] ?? '',
+        $config['db']['database'] ?? '',
+        $config['db']['port'] ?? 3306
+    );
+
+    if (!$mysqli->connect_errno) {
+        if (!empty($config['db']['charset'])) {
+            $mysqli->set_charset($config['db']['charset']);
+        }
+        $mysqli->query(
+            "CREATE TABLE IF NOT EXISTS `blog_posts` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `title` VARCHAR(200) NOT NULL,
+                `summary` TEXT,
+                `content` MEDIUMTEXT NOT NULL,
+                `link_url` VARCHAR(500) DEFAULT NULL,
+                `published_at` DATE DEFAULT NULL,
+                `tags` VARCHAR(255) DEFAULT NULL,
+                `author` VARCHAR(120) DEFAULT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+        );
+        $check = $mysqli->query("SHOW COLUMNS FROM `blog_posts` LIKE 'link_url'");
+        if ($check instanceof mysqli_result) {
+            $hasLink = $check->num_rows > 0;
+            $check->free();
+            if (!$hasLink) {
+                $mysqli->query("ALTER TABLE `blog_posts` ADD COLUMN `link_url` VARCHAR(500) DEFAULT NULL AFTER `content`");
+            }
+        }
+        $check = $mysqli->query("SHOW COLUMNS FROM `blog_posts` LIKE 'published_at'");
+        if ($check instanceof mysqli_result) {
+            $hasDate = $check->num_rows > 0;
+            $check->free();
+            if (!$hasDate) {
+                $mysqli->query("ALTER TABLE `blog_posts` ADD COLUMN `published_at` DATE DEFAULT NULL AFTER `link_url`");
+            }
+        }
+
+        $currentUser = null;
+        $isAdmin = false;
+        if (!empty($_SESSION['user_id'])) {
+            $stmt = $mysqli->prepare('SELECT id, username, display_name, role FROM users WHERE id = ? LIMIT 1');
+            if ($stmt) {
+                $stmt->bind_param('i', $_SESSION['user_id']);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $currentUser = $result->fetch_assoc() ?: null;
+                $stmt->close();
+            }
+        }
+        $isAdmin = $currentUser && ($currentUser['role'] ?? '') === 'admin';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_action'])) {
+            if (!$isAdmin) {
+                $blogFlash = ['type' => 'error', 'message' => '没有权限操作文章'];
+            } else {
+                $action = $_POST['post_action'];
+                $title = trim((string) ($_POST['title'] ?? ''));
+                $linkUrl = trim((string) ($_POST['link_url'] ?? ''));
+                $publishedAt = trim((string) ($_POST['published_at'] ?? ''));
+                $author = trim((string) ($_POST['author'] ?? ''));
+                $tags = trim((string) ($_POST['tags'] ?? ''));
+                $summary = trim((string) ($_POST['summary'] ?? ''));
+                $content = '';
+
+                if ($action === 'create') {
+                    if ($title === '' || $linkUrl === '') {
+                        $blogFlash = ['type' => 'error', 'message' => '标题与链接不能为空'];
+                    } else {
+                        $stmt = $mysqli->prepare('INSERT INTO blog_posts (title, summary, content, link_url, published_at, tags, author) VALUES (?, ?, ?, ?, ?, ?, ?)');
+                        if ($stmt) {
+                            $stmt->bind_param('sssssss', $title, $summary, $content, $linkUrl, $publishedAt, $tags, $author);
+                            if ($stmt->execute()) {
+                                $newId = $stmt->insert_id;
+                                $stmt->close();
+                                header('Location: /rarelight/admin?tab=posts&post_id=' . $newId . '#posts');
+                                exit;
+                            }
+                            $stmt->close();
+                        }
+                        $blogFlash = ['type' => 'error', 'message' => '发布失败'];
+                    }
+                } elseif ($action === 'update') {
+                    $postId = (int) ($_POST['post_id'] ?? 0);
+                    if ($postId <= 0) {
+                        $blogFlash = ['type' => 'error', 'message' => '文章ID无效'];
+                    } elseif ($title === '' || $linkUrl === '') {
+                        $blogFlash = ['type' => 'error', 'message' => '标题与链接不能为空'];
+                    } else {
+                        $stmt = $mysqli->prepare('UPDATE blog_posts SET title = ?, summary = ?, content = ?, link_url = ?, published_at = ?, tags = ?, author = ? WHERE id = ?');
+                        if ($stmt) {
+                            $stmt->bind_param('sssssssi', $title, $summary, $content, $linkUrl, $publishedAt, $tags, $author, $postId);
+                            if ($stmt->execute()) {
+                                $stmt->close();
+                                header('Location: /rarelight/admin?tab=posts&post_id=' . $postId . '#posts');
+                                exit;
+                            }
+                            $stmt->close();
+                        }
+                        $blogFlash = ['type' => 'error', 'message' => '保存失败'];
+                    }
+                } elseif ($action === 'delete') {
+                    $postId = (int) ($_POST['post_id'] ?? 0);
+                    if ($postId > 0) {
+                        $stmt = $mysqli->prepare('DELETE FROM blog_posts WHERE id = ? LIMIT 1');
+                        if ($stmt) {
+                            $stmt->bind_param('i', $postId);
+                            $stmt->execute();
+                            $stmt->close();
+                            header('Location: /rarelight/admin?tab=posts#posts');
+                            exit;
+                        }
+                    }
+                    $blogFlash = ['type' => 'error', 'message' => '删除失败'];
+                }
+            }
+        }
+
+        $postsResult = $mysqli->query('SELECT id, title, summary, link_url, published_at, author, tags, created_at FROM blog_posts ORDER BY COALESCE(published_at, created_at) DESC, id DESC');
+        if ($postsResult) {
+            while ($row = $postsResult->fetch_assoc()) {
+                $row['id'] = (int) $row['id'];
+                $blogPosts[] = $row;
+            }
+            $postsResult->free();
+        }
+
+        if ($blogPostId > 0) {
+            $stmt = $mysqli->prepare('SELECT id, title, summary, link_url, published_at, author, tags FROM blog_posts WHERE id = ? LIMIT 1');
+            if ($stmt) {
+                $stmt->bind_param('i', $blogPostId);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $blogEditPost = $result->fetch_assoc() ?: null;
+                $stmt->close();
+            }
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -345,7 +507,8 @@
             <div class="tab-content" id="tab-posts" role="tabpanel">
                 <div class="row g-4 align-items-start">
                     <div class="col-12 col-xl-5 col-xxl-4">
-                        <form id="createPostForm" class="card surface-section form-grid surface-form">
+                        <form id="createPostForm" class="card surface-section form-grid surface-form" method="post" action="/rarelight/admin?tab=posts#posts">
+                            <input type="hidden" name="post_action" value="create">
                             <div>
                                 <label for="postTitleInput">文章标题</label>
                                 <input id="postTitleInput" name="title" placeholder="例如：阶段成果总结" required>
@@ -371,7 +534,9 @@
                                 <textarea id="postSummaryInput" name="summary" rows="3" placeholder="简要概述（可选）"></textarea>
                             </div>
                             <button type="submit" class="primary-button">发布文章</button>
-                            <div class="message inline" id="createPostMessage" hidden></div>
+                            <div class="message inline <?php echo $blogFlash['type'] === 'error' ? 'error' : ($blogFlash['type'] === 'success' ? 'success' : ''); ?>" id="createPostMessage" <?php echo $blogFlash['message'] ? '' : 'hidden'; ?>>
+                                <?php echo htmlspecialchars($blogFlash['message'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                            </div>
                         </form>
                     </div>
                     <div class="col-12 col-xl-7 col-xxl-8">
@@ -380,38 +545,77 @@
                                 <h3>文章列表</h3>
                                 <p class="hint">点击文章可编辑内容，删除后不可恢复。</p>
                             </div>
-                            <ul class="table-list" id="postList"></ul>
+                            <ul class="table-list" id="postList">
+                                <?php if (empty($blogPosts)) : ?>
+                                    <li class="text-muted">暂无文章，请先发布。</li>
+                                <?php else : ?>
+                                    <?php foreach ($blogPosts as $post) : ?>
+                                        <li class="selectable<?php echo ($blogEditPost && (int) $blogEditPost['id'] === (int) $post['id']) ? ' active' : ''; ?>">
+                                            <div style="flex: 1;">
+                                                <strong><?php echo htmlspecialchars($post['title'] ?? ('文章 ' . $post['id']), ENT_QUOTES, 'UTF-8'); ?></strong>
+                                                <div class="text-muted" style="font-size: 0.85rem;">
+                                                    <?php
+                                                    $metaPieces = [];
+                                                    if (!empty($post['author'])) {
+                                                        $metaPieces[] = htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8');
+                                                    }
+                                                    if (!empty($post['published_at'])) {
+                                                        $metaPieces[] = htmlspecialchars($post['published_at'], ENT_QUOTES, 'UTF-8');
+                                                    }
+                                                    $summary = trim((string) ($post['summary'] ?? ''));
+                                                    if ($summary !== '') {
+                                                        $metaPieces[] = mb_strimwidth($summary, 0, 60, '…', 'UTF-8');
+                                                    }
+                                                    $metaText = $metaPieces ? implode(' · ', $metaPieces) : '';
+                                                    ?>
+                                                    <?php echo '文章ID：' . (int) $post['id'] . ($metaText ? ' · ' . htmlspecialchars($metaText, ENT_QUOTES, 'UTF-8') : ''); ?>
+                                                </div>
+                                            </div>
+                                            <div class="list-actions" style="display: flex; gap: 0.5rem; align-items: center;">
+                                                <a class="inline-button" href="/rarelight/admin?tab=posts&post_id=<?php echo (int) $post['id']; ?>#posts">编辑</a>
+                                                <form method="post" action="/rarelight/admin?tab=posts#posts" onsubmit="return confirm('确定删除该文章？');">
+                                                    <input type="hidden" name="post_action" value="delete">
+                                                    <input type="hidden" name="post_id" value="<?php echo (int) $post['id']; ?>">
+                                                    <button type="submit" class="inline-button danger">删除</button>
+                                                </form>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </ul>
                             <div class="message inline" id="postListMessage" hidden></div>
                         </div>
-                        <form id="updatePostForm" class="card surface-section form-grid surface-form mt-4" hidden>
+                        <form id="updatePostForm" class="card surface-section form-grid surface-form mt-4" method="post" action="/rarelight/admin?tab=posts#posts" <?php echo $blogEditPost ? '' : 'hidden'; ?>>
+                            <input type="hidden" name="post_action" value="update">
+                            <input type="hidden" name="post_id" value="<?php echo $blogEditPost ? (int) $blogEditPost['id'] : 0; ?>">
                             <h3 class="flush-top">编辑文章</h3>
                             <div>
                                 <label for="editPostTitle">文章标题</label>
-                                <input id="editPostTitle" required>
+                                <input id="editPostTitle" name="title" value="<?php echo htmlspecialchars($blogEditPost['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" required>
                             </div>
                             <div>
                                 <label for="editPostLink">公众号文章链接</label>
-                                <input id="editPostLink" placeholder="https://mp.weixin.qq.com/..." required>
+                                <input id="editPostLink" name="link_url" value="<?php echo htmlspecialchars($blogEditPost['link_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://mp.weixin.qq.com/..." required>
                             </div>
                             <div>
                                 <label for="editPostDate">发布日期</label>
-                                <input id="editPostDate" type="date">
+                                <input id="editPostDate" name="published_at" type="date" value="<?php echo htmlspecialchars($blogEditPost['published_at'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <div>
                                 <label for="editPostAuthor">作者/负责人</label>
-                                <input id="editPostAuthor" placeholder="可选，填写负责人">
+                                <input id="editPostAuthor" name="author" value="<?php echo htmlspecialchars($blogEditPost['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="可选，填写负责人">
                             </div>
                             <div>
                                 <label for="editPostTags">标签</label>
-                                <input id="editPostTags" placeholder="用逗号分隔标签">
+                                <input id="editPostTags" name="tags" value="<?php echo htmlspecialchars($blogEditPost['tags'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="用逗号分隔标签">
                             </div>
                             <div>
                                 <label for="editPostSummary">摘要</label>
-                                <textarea id="editPostSummary" rows="3" placeholder="简要概述（可选）"></textarea>
+                                <textarea id="editPostSummary" name="summary" rows="3" placeholder="简要概述（可选）"><?php echo htmlspecialchars($blogEditPost['summary'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                             </div>
                             <div class="split">
                                 <button type="submit" class="primary-button">保存修改</button>
-                                <button type="button" class="ghost-button" id="cancelPostEdit">取消</button>
+                                <a class="ghost-button" href="/rarelight/admin?tab=posts#posts">取消</a>
                             </div>
                             <div class="message inline" id="updatePostMessage" hidden></div>
                         </form>
@@ -661,23 +865,7 @@
 
     const createPostForm = document.getElementById('createPostForm');
     const createPostMessage = document.getElementById('createPostMessage');
-    const postTitleInput = document.getElementById('postTitleInput');
-    const postLinkInput = document.getElementById('postLinkInput');
-    const postDateInput = document.getElementById('postDateInput');
-    const postAuthorInput = document.getElementById('postAuthorInput');
-    const postTagsInput = document.getElementById('postTagsInput');
-    const postSummaryInput = document.getElementById('postSummaryInput');
     const postListEl = document.getElementById('postList');
-    const postListMessage = document.getElementById('postListMessage');
-    const updatePostForm = document.getElementById('updatePostForm');
-    const updatePostMessage = document.getElementById('updatePostMessage');
-    const editPostTitleInput = document.getElementById('editPostTitle');
-    const editPostLinkInput = document.getElementById('editPostLink');
-    const editPostDateInput = document.getElementById('editPostDate');
-    const editPostAuthorInput = document.getElementById('editPostAuthor');
-    const editPostTagsInput = document.getElementById('editPostTags');
-    const editPostSummaryInput = document.getElementById('editPostSummary');
-    const cancelPostEditButton = document.getElementById('cancelPostEdit');
 
     if (cancelCourseEditButton) {
         cancelCourseEditButton.addEventListener('click', () => {
@@ -712,13 +900,11 @@
         users: [],
         courses: [],
         lessons: {},
-        posts: [],
         currentUser: null,
         selectedUserId: null,
         selectedCourseId: null,
         selectedLessonId: null,
-        editingLessonOriginalCourseId: null,
-        selectedPostId: null
+        editingLessonOriginalCourseId: null
     };
 
     function setMessage(element, text = '', type = '') {
@@ -1688,7 +1874,6 @@
 
             if (session.user.role === 'admin') {
                 populateSelect(assignCourseSelect, state.courses, 'id', 'title');
-                await loadPosts();
             }
 
             const initialCourseId = parseInt(selectedLessonCourse, 10);
@@ -1714,6 +1899,15 @@
             });
         });
     });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetTab = urlParams.get('tab');
+    if (targetTab) {
+        const btn = document.querySelector(`.pill-tabs button[data-target="${targetTab}"]`);
+        if (btn) {
+            btn.click();
+        }
+    }
 
     assignUserSelect.addEventListener('change', () => {
         const userId = parseInt(assignUserSelect.value, 10);
@@ -2006,72 +2200,6 @@
         showLessonEditor(courseId, lessonId);
     });
 
-    if (postListEl) {
-        postListEl.addEventListener('click', async (event) => {
-            const button = event.target.closest('button[data-post-id]');
-            const item = event.target.closest('li[data-post-id]');
-            const targetId = button ? parseInt(button.dataset.postId, 10) : (item ? parseInt(item.dataset.postId, 10) : 0);
-            if (!targetId) {
-                return;
-            }
-            if (button) {
-                const action = button.dataset.postAction || 'edit';
-                if (action === 'edit') {
-                    await showPostEditor(targetId);
-                    return;
-                }
-                if (action === 'delete') {
-                    const post = state.posts.find((p) => p.id === targetId);
-                    const title = post && post.title ? `文章「${post.title}」` : '该文章';
-                    const confirmed = await showConfirm(`确定删除${title}？`);
-                    if (!confirmed) {
-                        return;
-                    }
-                    button.disabled = true;
-                    const originalLabel = button.textContent;
-                    button.textContent = '删除中...';
-                    setMessage(postListMessage, '正在删除文章，请稍候...');
-                    try {
-                        await fetchJSON(`${API_BASE}/blog_posts.php`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ id: targetId, _method: 'DELETE' })
-                        });
-                        state.posts = state.posts.filter((postItem) => postItem.id !== targetId);
-                        if (state.selectedPostId === targetId) {
-                            clearPostEditor();
-                        } else {
-                            renderPosts(state.posts);
-                        }
-                        setMessage(postListMessage, '文章已删除', 'success');
-                    } catch (error) {
-                        button.disabled = false;
-                        button.textContent = originalLabel;
-                        setMessage(postListMessage, error.message || '删除失败', 'error');
-                    }
-                    return;
-                }
-            }
-            await showPostEditor(targetId);
-        });
-
-        postListEl.addEventListener('keydown', async (event) => {
-            if (event.key !== 'Enter' && event.key !== ' ') {
-                return;
-            }
-            const item = event.target.closest('li[data-post-id]');
-            if (!item) {
-                return;
-            }
-            event.preventDefault();
-            const postId = parseInt(item.dataset.postId, 10);
-            if (!postId) {
-                return;
-            }
-            await showPostEditor(postId);
-        });
-    }
-
     if (downloadUserTemplateButton) {
         downloadUserTemplateButton.addEventListener('click', downloadUserTemplate);
     }
@@ -2112,149 +2240,7 @@
         });
     }
 
-    function renderPostPlaceholder(text, tone = 'muted') {
-        if (!postListEl) {
-            return;
-        }
-        postListEl.innerHTML = '';
-        const item = document.createElement('li');
-        item.textContent = text;
-        if (tone === 'error') {
-            item.style.color = '#b91c1c';
-        } else {
-            item.className = 'text-muted';
-        }
-        postListEl.appendChild(item);
-    }
-
-    function renderPosts(posts) {
-        if (!postListEl) {
-            return;
-        }
-        postListEl.innerHTML = '';
-        if (!Array.isArray(posts) || !posts.length) {
-            renderPostPlaceholder('暂无文章，请先发布。');
-            return;
-        }
-        posts.forEach((post) => {
-            const item = document.createElement('li');
-            item.dataset.postId = post.id;
-            item.classList.add('selectable');
-            item.setAttribute('role', 'button');
-            item.tabIndex = 0;
-            if (state.selectedPostId === post.id) {
-                item.classList.add('active');
-            }
-
-            const info = document.createElement('div');
-            info.style.flex = '1';
-            const title = document.createElement('strong');
-            title.textContent = post.title || `文章 ${post.id}`;
-            info.appendChild(title);
-            const meta = document.createElement('div');
-            meta.className = 'text-muted';
-            meta.style.fontSize = '0.85rem';
-            const summary = summarize(post.summary || '', 64);
-            const author = post.author ? ` · ${post.author}` : '';
-            const date = post.published_at || '';
-            const dateText = date ? ` · ${date}` : '';
-            meta.textContent = summary ? `文章ID：${post.id}${author}${dateText} · ${summary}` : `文章ID：${post.id}${author}${dateText}`;
-            info.appendChild(meta);
-            item.appendChild(info);
-
-            const actions = document.createElement('div');
-            actions.className = 'list-actions';
-            actions.style.display = 'flex';
-            actions.style.gap = '0.5rem';
-            actions.style.alignItems = 'center';
-
-            const editButton = document.createElement('button');
-            editButton.type = 'button';
-            editButton.className = 'inline-button';
-            editButton.dataset.postId = post.id;
-            editButton.dataset.postAction = 'edit';
-            editButton.textContent = '编辑';
-            actions.appendChild(editButton);
-
-            const deleteButton = document.createElement('button');
-            deleteButton.type = 'button';
-            deleteButton.className = 'inline-button danger';
-            deleteButton.dataset.postId = post.id;
-            deleteButton.dataset.postAction = 'delete';
-            deleteButton.textContent = '删除';
-            actions.appendChild(deleteButton);
-
-            item.appendChild(actions);
-            postListEl.appendChild(item);
-        });
-    }
-
-    function clearPostEditor() {
-        state.selectedPostId = null;
-        if (updatePostForm) {
-            updatePostForm.hidden = true;
-            updatePostForm.reset();
-        }
-        setMessage(updatePostMessage);
-        renderPosts(state.posts);
-    }
-
-    async function showPostEditor(postId) {
-        const target = state.posts.find((post) => post.id === postId);
-        if (!target) {
-            setMessage(updatePostMessage, '未找到文章信息', 'error');
-            return;
-        }
-        state.selectedPostId = target.id;
-        if (updatePostForm) {
-            updatePostForm.hidden = false;
-        }
-        try {
-            const data = await fetchJSON(`${API_BASE}/blog_posts.php?id=${postId}`);
-            const post = data.post || target;
-            if (editPostTitleInput) {
-                editPostTitleInput.value = post.title || '';
-            }
-            if (editPostLinkInput) {
-                editPostLinkInput.value = post.link_url || '';
-            }
-            if (editPostDateInput) {
-                editPostDateInput.value = post.published_at || '';
-            }
-            if (editPostAuthorInput) {
-                editPostAuthorInput.value = post.author || '';
-            }
-            if (editPostTagsInput) {
-                editPostTagsInput.value = post.tags || '';
-            }
-            if (editPostSummaryInput) {
-                editPostSummaryInput.value = post.summary || '';
-            }
-            setMessage(updatePostMessage);
-        } catch (error) {
-            setMessage(updatePostMessage, error.message || '加载文章失败', 'error');
-        }
-        renderPosts(state.posts);
-    }
-
-    async function loadPosts() {
-        if (!postListEl) {
-            return;
-        }
-        renderPostPlaceholder('正在加载文章...');
-        try {
-            const data = await fetchJSON(`${API_BASE}/blog_posts.php`);
-            state.posts = (data.posts || []).map((post) => ({
-                ...post,
-                id: Number(post.id)
-            }));
-            renderPosts(state.posts);
-            setMessage(postListMessage);
-        } catch (error) {
-            renderPostPlaceholder(error.message || '加载文章失败', 'error');
-            setMessage(postListMessage, error.message || '加载文章失败', 'error');
-        }
-    }
+    // 公众号文章由服务端渲染，不在后台使用 fetch 请求
     if (openAssignImportModalButton) {
         openAssignImportModalButton.addEventListener('click', (event) => {
             event.preventDefault();
@@ -2469,94 +2455,8 @@
         }
     });
 
-    if (cancelPostEditButton) {
-        cancelPostEditButton.addEventListener('click', () => {
-            clearPostEditor();
-        });
-    }
-
-    if (createPostForm) {
-        createPostForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const payload = {
-                title: postTitleInput ? postTitleInput.value.trim() : '',
-                link_url: postLinkInput ? postLinkInput.value.trim() : '',
-                published_at: postDateInput ? postDateInput.value : '',
-                author: postAuthorInput ? postAuthorInput.value.trim() : '',
-                tags: postTagsInput ? postTagsInput.value.trim() : '',
-                summary: postSummaryInput ? postSummaryInput.value.trim() : '',
-                content: ''
-            };
-            if (!payload.title || !payload.link_url) {
-                setMessage(createPostMessage, '标题与链接不能为空', 'error');
-                return;
-            }
-            setMessage(createPostMessage, '正在发布文章，请稍候...');
-            try {
-                const result = await fetchJSON(`${API_BASE}/blog_posts.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const newPost = {
-                    ...result.post,
-                    id: Number(result.post.id)
-                };
-                state.posts.unshift(newPost);
-                renderPosts(state.posts);
-                createPostForm.reset();
-                setMessage(createPostMessage, '发布成功', 'success');
-            } catch (error) {
-                setMessage(createPostMessage, error.message || '发布失败', 'error');
-            }
-        });
-    }
-
-    if (updatePostForm) {
-        updatePostForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            if (!state.selectedPostId) {
-                setMessage(updatePostMessage, '请选择需要编辑的文章', 'error');
-                return;
-            }
-            const payload = {
-                id: state.selectedPostId,
-                title: editPostTitleInput ? editPostTitleInput.value.trim() : '',
-                link_url: editPostLinkInput ? editPostLinkInput.value.trim() : '',
-                published_at: editPostDateInput ? editPostDateInput.value : '',
-                author: editPostAuthorInput ? editPostAuthorInput.value.trim() : '',
-                tags: editPostTagsInput ? editPostTagsInput.value.trim() : '',
-                summary: editPostSummaryInput ? editPostSummaryInput.value.trim() : '',
-                content: ''
-            };
-            if (!payload.title || !payload.link_url) {
-                setMessage(updatePostMessage, '标题与链接不能为空', 'error');
-                return;
-            }
-            setMessage(updatePostMessage, '正在保存文章，请稍候...');
-            try {
-                const result = await fetchJSON(`${API_BASE}/blog_posts.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...payload, _method: 'PATCH' })
-                });
-                const updatedPost = {
-                    ...result.post,
-                    id: Number(result.post.id)
-                };
-                const index = state.posts.findIndex((post) => post.id === updatedPost.id);
-                if (index !== -1) {
-                    state.posts[index] = updatedPost;
-                } else {
-                    state.posts.unshift(updatedPost);
-                }
-                renderPosts(state.posts);
-                setMessage(updatePostMessage, '文章已更新', 'success');
-                setMessage(postListMessage, '文章已更新', 'success');
-            } catch (error) {
-                setMessage(updatePostMessage, error.message || '保存失败', 'error');
-            }
-        });
+    if (createPostForm && createPostMessage && createPostMessage.textContent) {
+        createPostMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
         createLessonForm.addEventListener('submit', async (event) => {

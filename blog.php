@@ -1,4 +1,30 @@
-﻿<!DOCTYPE html>
+﻿<?php
+$blogPosts = [];
+$configFile = __DIR__ . '/config.php';
+if (file_exists($configFile)) {
+    $config = require $configFile;
+    $mysqli = @new mysqli(
+        $config['db']['host'] ?? '127.0.0.1',
+        $config['db']['user'] ?? 'root',
+        $config['db']['password'] ?? '',
+        $config['db']['database'] ?? '',
+        $config['db']['port'] ?? 3306
+    );
+    if (!$mysqli->connect_errno) {
+        if (!empty($config['db']['charset'])) {
+            $mysqli->set_charset($config['db']['charset']);
+        }
+        $result = $mysqli->query('SELECT id, title, summary, link_url, published_at, author, tags, created_at FROM blog_posts ORDER BY COALESCE(published_at, created_at) DESC, id DESC');
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $row['id'] = (int) $row['id'];
+                $blogPosts[] = $row;
+            }
+            $result->free();
+        }
+    }
+}
+?><!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -277,7 +303,33 @@
         <h2 class="section-title">公众号文章精选</h2>
         <p class="section-subtitle">将公众号文章链接填到卡片里，作为对外展示内容。</p>
         <div class="wechat-grid" id="wechatList">
-            <div class="wechat-card text-secondary">正在加载内容...</div>
+            <?php if (empty($blogPosts)) : ?>
+                <div class="wechat-card text-secondary">暂无公众号文章，请先在后台新增。</div>
+            <?php else : ?>
+                <?php foreach ($blogPosts as $post) : ?>
+                    <?php
+                    $date = $post['published_at'] ?? $post['created_at'] ?? '';
+                    $dateText = $date ? date('Y-m-d', strtotime($date)) : '';
+                    $summary = trim((string) ($post['summary'] ?? ''));
+                    if ($summary === '') {
+                        $summary = '点击阅读公众号原文。';
+                    }
+                    $link = trim((string) ($post['link_url'] ?? ''));
+                    ?>
+                    <article class="wechat-card">
+                        <div class="wechat-meta">
+                            <?php if ($dateText) : ?><span><?php echo htmlspecialchars($dateText, ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
+                            <span>公众号推文</span>
+                            <?php if (!empty($post['author'])) : ?><span>负责人：<?php echo htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
+                        </div>
+                        <div class="wechat-title"><?php echo htmlspecialchars($post['title'] ?? '未命名文章', ENT_QUOTES, 'UTF-8'); ?></div>
+                        <p class="wechat-summary"><?php echo htmlspecialchars($summary, ENT_QUOTES, 'UTF-8'); ?></p>
+                        <a class="wechat-link" href="<?php echo htmlspecialchars($link ?: '#', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
+                            阅读原文 →
+                        </a>
+                    </article>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -302,75 +354,6 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const BASE_PATH = '/rarelight';
-    const API_BASE = `${BASE_PATH}/api`;
-    const wechatListEl = document.getElementById('wechatList');
-
-    function escapeHtml(str = '') {
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-
-    function summarize(text = '', maxLength = 140) {
-        const clean = String(text).replace(/\s+/g, ' ').trim();
-        if (clean.length <= maxLength) return clean;
-        return `${clean.slice(0, maxLength)}…`;
-    }
-
-    function formatDate(value) {
-        if (!value) return '';
-        const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return value;
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    }
-
-    function renderWechatPosts(posts) {
-        wechatListEl.innerHTML = '';
-        if (!Array.isArray(posts) || posts.length === 0) {
-            wechatListEl.innerHTML = '<div class="wechat-card text-secondary">暂无公众号文章，请先在后台新增。</div>';
-            return;
-        }
-        posts.forEach((post) => {
-            const summary = post.summary && post.summary.trim() ? post.summary : summarize(post.content || '', 160);
-            const date = post.published_at || post.created_at;
-            const metaParts = [
-                formatDate(date),
-                '公众号推文',
-                post.author ? `负责人：${escapeHtml(post.author)}` : ''
-            ].filter(Boolean);
-            const card = document.createElement('article');
-            card.className = 'wechat-card';
-            card.innerHTML = `
-                <div class="wechat-meta">${metaParts.map((item) => `<span>${item}</span>`).join('')}</div>
-                <div class="wechat-title">${escapeHtml(post.title || '未命名文章')}</div>
-                <p class="wechat-summary">${escapeHtml(summary)}</p>
-                <a class="wechat-link" href="${escapeHtml(post.link_url || '#')}" target="_blank" rel="noopener noreferrer">
-                    阅读原文 →
-                </a>
-            `;
-            wechatListEl.appendChild(card);
-        });
-    }
-
-    async function loadWechatPosts() {
-        try {
-            const response = await fetch(`${API_BASE}/blog_posts.php`);
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data && (data.message || data.error) || '加载失败');
-            }
-            renderWechatPosts(data.posts || []);
-        } catch (error) {
-            wechatListEl.innerHTML = `<div class="wechat-card text-danger">加载失败：${escapeHtml(error.message)}</div>`;
-        }
-    }
-
-    loadWechatPosts();
-</script>
 </body>
 </html>
+
