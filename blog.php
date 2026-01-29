@@ -202,48 +202,6 @@
             gap: 1.5rem;
         }
 
-        .post-card {
-            border-radius: 18px;
-            border: var(--card-border);
-            background: rgba(255, 255, 255, 0.92);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-            padding: 1.4rem 1.5rem;
-        }
-
-        .post-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem 0.75rem;
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-
-        .post-title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            margin: 0.6rem 0 0.6rem;
-        }
-
-        .post-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-        }
-
-        .post-tags span {
-            padding: 0.15rem 0.6rem;
-            border-radius: 999px;
-            background: rgba(37, 99, 235, 0.12);
-            color: #1d4ed8;
-            font-size: 0.78rem;
-            font-weight: 600;
-        }
-
-        .post-body {
-            color: #475569;
-            line-height: 1.7;
-        }
-
         .sticky-side {
             position: sticky;
             top: 110px;
@@ -317,7 +275,7 @@
 <main class="container-xxl pb-5">
     <section class="mb-4">
         <h2 class="section-title">公众号文章精选</h2>
-        <p class="section-subtitle">将公众号文章链接填到卡片里，展示对外传播内容。</p>
+        <p class="section-subtitle">将公众号文章链接填到卡片里，作为对外展示内容。</p>
         <div class="wechat-grid">
             <!-- 复制卡片并替换链接/标题/摘要 -->
             <article class="wechat-card">
@@ -356,105 +314,29 @@
         </div>
     </section>
 
-    <div class="blog-layout">
-        <section class="d-flex flex-column gap-4" id="postList">
-            <div class="post-card text-secondary">正在加载内容...</div>
-        </section>
-
-        <aside class="sticky-side">
-            <div class="side-card">
-                <h3>如何新增内容</h3>
-                <ol class="mb-0 text-secondary">
-                    <li>进入管理后台 → 项目日志</li>
-                    <li>新增文章并保存</li>
-                    <li>刷新本页面即可展示</li>
-                </ol>
-                <div class="mt-3">
-                    <a class="btn btn-outline-primary btn-sm" href="/rarelight/admin">进入后台编辑</a>
-                </div>
-            </div>
-            <div class="side-card">
-                <h3>展示建议</h3>
-                <ul class="mb-0 text-secondary">
-                    <li>每周 1 条进展</li>
-                    <li>阶段性放截图或链接</li>
-                    <li>突出“产出与进度”</li>
-                </ul>
-            </div>
-        </aside>
-    </div>
+    <aside class="sticky-side">
+        <div class="side-card">
+            <h3>如何新增内容</h3>
+            <ol class="mb-0 text-secondary">
+                <li>复制一张“公众号文章”卡片</li>
+                <li>粘贴文章链接与标题/摘要</li>
+                <li>保存并刷新页面</li>
+            </ol>
+        </div>
+        <div class="side-card">
+            <h3>展示建议</h3>
+            <ul class="mb-0 text-secondary">
+                <li>按时间顺序排列</li>
+                <li>标题尽量具体</li>
+                <li>摘要突出成果与影响</li>
+            </ul>
+        </div>
+    </aside>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const BASE_PATH = '/rarelight';
-    const API_BASE = `${BASE_PATH}/api`;
-    const postListEl = document.getElementById('postList');
-
-    function escapeHtml(str = '') {
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-
-    function summarize(text = '', maxLength = 140) {
-        const clean = String(text).replace(/\s+/g, ' ').trim();
-        if (clean.length <= maxLength) return clean;
-        return `${clean.slice(0, maxLength)}…`;
-    }
-
-    function formatDate(value) {
-        if (!value) return '';
-        const date = new Date(value);
-        if (Number.isNaN(date.getTime())) return value;
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    }
-
-    function renderPosts(posts) {
-        postListEl.innerHTML = '';
-        if (!Array.isArray(posts) || posts.length === 0) {
-            postListEl.innerHTML = '<div class="post-card text-secondary">暂无日志内容，请先在后台新增文章。</div>';
-            return;
-        }
-        posts.forEach((post) => {
-            const tags = (post.tags || '').split(',').map((tag) => tag.trim()).filter(Boolean);
-            const summary = post.summary && post.summary.trim() ? post.summary : summarize(post.content || '', 160);
-            const metaParts = [
-                formatDate(post.created_at),
-                post.author ? `负责人：${escapeHtml(post.author)}` : ''
-            ].filter(Boolean);
-            const tagHtml = tags.length
-                ? `<div class="post-tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div>`
-                : '';
-            const card = document.createElement('article');
-            card.className = 'post-card';
-            card.innerHTML = `
-                <div class="post-meta">${metaParts.map((item) => `<span>${item}</span>`).join('')}</div>
-                <h2 class="post-title">${escapeHtml(post.title || '未命名文章')}</h2>
-                ${tagHtml}
-                <p class="post-body mb-0">${escapeHtml(summary)}</p>
-            `;
-            postListEl.appendChild(card);
-        });
-    }
-
-    async function loadPosts() {
-        try {
-            const response = await fetch(`${API_BASE}/blog_posts.php`);
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data && (data.message || data.error) || '加载失败');
-            }
-            renderPosts(data.posts || []);
-        } catch (error) {
-            postListEl.innerHTML = `<div class="post-card text-danger">加载失败：${escapeHtml(error.message)}</div>`;
-        }
-    }
-
-    loadPosts();
+    // 仅展示公众号文章卡片，内容由手动维护
 </script>
 </body>
 </html>
