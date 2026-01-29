@@ -3201,7 +3201,7 @@ if (file_exists($configFile)) {
                 }
             });
         }
-                        }
+
 
         if (updateUserForm) {
             updateUserForm.addEventListener('submit', async (event) => {
