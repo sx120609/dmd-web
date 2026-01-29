@@ -973,6 +973,10 @@
                 const player = new Plyr(video, {
                     controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
                     settings: ['speed'],
+                    speed: {
+                        selected: 1,
+                        options: [0.75, 1, 1.25, 1.5, 2]
+                    },
                     fullscreen: {
                         enabled: true,
                         fallback: true,
