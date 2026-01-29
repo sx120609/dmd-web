@@ -361,14 +361,31 @@ if (file_exists($configFile)) {
             color: var(--rl-text-muted);
         }
 
-        @media (max-width: 768px) {
-            .grid-container {
-                grid-template-columns: 1fr;
-            }
+        /* 移动端底部导航 */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 10px 16px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+        }
 
-            .hero-title {
-                font-size: 2rem;
-            }
+        @media (max-width: 992px) {
+            .site-nav .d-flex.align-items-center { display: none !important; }
+            .mobile-bottom-nav { display: flex; }
+            body { padding-bottom: 80px; }
+            .grid-container { grid-template-columns: 1fr; }
+            .hero-title { font-size: 2rem; }
         }
     </style>
 </head>
@@ -479,6 +496,12 @@ if (file_exists($configFile)) {
         </div>
     </main>
 
+    <div class="mobile-bottom-nav">
+        <button class="nav-btn nav-btn-ghost" id="mobileLangToggle"><i class="bi bi-translate"></i></button>
+        <a class="nav-btn nav-btn-ghost" href="/rarelight/" data-i18n="navHome">返回首页</a>
+        <a class="nav-btn nav-btn-primary flex-grow-1" href="/rarelight/dashboard" data-i18n="navLogin">进入课堂</a>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const FONT_KEY = 'rl_font_scale';
@@ -488,6 +511,7 @@ if (file_exists($configFile)) {
         const fontResetBtn = document.getElementById('fontReset');
         const fontLargerBtn = document.getElementById('fontLarger');
         const langToggle = document.getElementById('langToggle');
+        const mobileLangToggle = document.getElementById('mobileLangToggle');
         let currentFontScale = 1;
         let currentLang = localStorage.getItem(LANG_KEY) || 'zh';
 
@@ -558,12 +582,12 @@ if (file_exists($configFile)) {
 
         function initLangToggle() {
             applyTranslations(currentLang);
-            if (langToggle) {
-                langToggle.addEventListener('click', () => {
-                    const next = currentLang === 'zh' ? 'en' : 'zh';
-                    applyTranslations(next);
-                });
-            }
+            const toggleHandler = () => {
+                const next = currentLang === 'zh' ? 'en' : 'zh';
+                applyTranslations(next);
+            };
+            if (langToggle) langToggle.addEventListener('click', toggleHandler);
+            if (mobileLangToggle) mobileLangToggle.addEventListener('click', toggleHandler);
         }
 
         initFontControls();

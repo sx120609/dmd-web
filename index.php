@@ -379,13 +379,17 @@
                 bottom: 0;
                 left: 0;
                 width: 100%;
-                background: white;
-                padding: 1rem;
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                padding: 10px 16px;
                 box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
-                z-index: 99;
-                justify-content: space-between;
+                z-index: 1000;
+                justify-content: space-around;
+                align-items: center;
+                border-top: 1px solid rgba(0, 0, 0, 0.05);
+                padding-bottom: max(10px, env(safe-area-inset-bottom));
                 display: flex;
-                /* Override bootstrap if needed */
             }
 
             .site-nav .nav-actions {
@@ -396,8 +400,6 @@
             body {
                 padding-bottom: 80px;
             }
-
-            /* Space for bottom nav */
         }
 
         /* 针对大屏保留顶部导航 */
