@@ -28,18 +28,21 @@ if (file_exists($configFile)) {
 ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>项目日志 · Rare Light</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
+
     <style>
         :root {
             /* 核心色盘：更现代、更高级的蓝紫色调 */
@@ -48,13 +51,13 @@ if (file_exists($configFile)) {
             --rl-text-muted: #64748b;
             --rl-primary: #3b82f6;
             --rl-accent: #8b5cf6;
-            
+
             /* 原始Logo所需的渐变和阴影 */
             --deep-gradient: linear-gradient(135deg, #2563eb, #60a5fa, #22d3ee);
-            
+
             /* 页面背景渐变 */
             --gradient-glow: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.05), transparent 70%);
-            
+
             /* 卡片样式 */
             --card-bg: rgba(255, 255, 255, 0.85);
             --card-border: 1px solid rgba(255, 255, 255, 0.6);
@@ -93,8 +96,10 @@ if (file_exists($configFile)) {
             display: inline-flex;
             align-items: center;
             gap: 0.75rem;
-            font-family: 'Inter', sans-serif; /* 确保Logo区域使用原始字体 */
-            text-decoration: none; /* 去除链接下划线 */
+            font-family: 'Inter', sans-serif;
+            /* 确保Logo区域使用原始字体 */
+            text-decoration: none;
+            /* 去除链接下划线 */
         }
 
         .brand-mark {
@@ -108,13 +113,15 @@ if (file_exists($configFile)) {
             justify-content: center;
             font-weight: 700;
             box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
-            font-size: 1.1rem; /* 微调字体大小以匹配原图 */
+            font-size: 1.1rem;
+            /* 微调字体大小以匹配原图 */
         }
 
         .brand-text .small {
             font-size: 0.75rem;
             letter-spacing: 0.05em;
-            color: #64748b; /* text-secondary */
+            color: #64748b;
+            /* text-secondary */
             font-weight: 600;
         }
 
@@ -124,6 +131,7 @@ if (file_exists($configFile)) {
             font-size: 1.05rem;
             letter-spacing: -0.01em;
         }
+
         /* === Logo 样式结束 === */
 
 
@@ -139,9 +147,10 @@ if (file_exists($configFile)) {
         .nav-btn-ghost {
             color: var(--rl-text-muted);
         }
+
         .nav-btn-ghost:hover {
             color: var(--rl-text-main);
-            background: rgba(0,0,0,0.03);
+            background: rgba(0, 0, 0, 0.03);
         }
 
         .nav-btn-primary {
@@ -149,10 +158,43 @@ if (file_exists($configFile)) {
             color: white;
             box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
         }
+
         .nav-btn-primary:hover {
             transform: translateY(-1px);
             background: #1e293b;
             color: white;
+        }
+
+        /* 工具条样式 (字号/语言) */
+        .tool-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 4px;
+            border-radius: 10px;
+            margin-right: 0.5rem;
+        }
+
+        .tool-btn {
+            border: none;
+            background: transparent;
+            color: var(--rl-text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--rl-text-main);
+        }
+
+        .tool-btn:active {
+            transform: scale(0.95);
         }
 
         /* --- Hero 区域 --- */
@@ -239,6 +281,7 @@ if (file_exists($configFile)) {
             opacity: 0;
             transition: opacity 0.3s;
         }
+
         .blog-card:hover::before {
             opacity: 1;
         }
@@ -256,7 +299,7 @@ if (file_exists($configFile)) {
             align-items: center;
             gap: 6px;
         }
-        
+
         .meta-tag {
             background: #f1f5f9;
             color: #475569;
@@ -288,7 +331,7 @@ if (file_exists($configFile)) {
         .card-footer {
             margin-top: auto;
             padding-top: 1rem;
-            border-top: 1px solid rgba(0,0,0,0.04);
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
         }
 
         .read-more-btn {
@@ -306,15 +349,15 @@ if (file_exists($configFile)) {
             gap: 12px;
             color: var(--rl-accent);
         }
-        
+
         /* 空状态样式 */
         .empty-state {
             grid-column: 1 / -1;
             text-align: center;
             padding: 4rem 2rem;
-            background: rgba(255,255,255,0.5);
+            background: rgba(255, 255, 255, 0.5);
             border-radius: 16px;
-            border: 2px dashed rgba(0,0,0,0.05);
+            border: 2px dashed rgba(0, 0, 0, 0.05);
             color: var(--rl-text-muted);
         }
 
@@ -322,100 +365,206 @@ if (file_exists($configFile)) {
             .grid-container {
                 grid-template-columns: 1fr;
             }
+
             .hero-title {
                 font-size: 2rem;
             }
         }
     </style>
 </head>
+
 <body>
 
-<nav class="site-nav">
-    <div class="container-xxl d-flex align-items-center justify-content-between">
-        
-        <a href="/rarelight/" class="nav-brand">
-            <span class="brand-mark">RL</span>
-            <div class="brand-text">
-                <div class="small text-uppercase">RARE LIGHT</div>
-                <div class="fw-bold">Rare Light · 罕见病儿童公益</div>
-            </div>
-        </a>
-        <div class="d-flex gap-2">
-            <a class="nav-btn nav-btn-ghost d-none d-sm-inline-flex" href="/rarelight/">返回首页</a>
-            <a class="nav-btn nav-btn-primary" href="/rarelight/dashboard">
-                <i class="bi bi-grid-fill me-2"></i>进入课堂
-            </a>
-        </div>
-    </div>
-</nav>
+    <nav class="site-nav">
+        <div class="container-xxl d-flex align-items-center justify-content-between">
 
-<header class="blog-hero">
-    <div class="container-xxl">
-        <div class="hero-badge">
-            <i class="bi bi-stars"></i> 公益项目动态
-        </div>
-        <h1 class="hero-title">项目日志与进展</h1>
-        <p class="hero-desc">记录 Rare Light 在罕见病儿童公益领域的行动点滴。这里的每一个脚印，都凝聚着爱与希望。</p>
-    </div>
-</header>
-
-<main class="content-section">
-    <div class="container-xxl">
-        
-        <div class="d-flex align-items-end justify-content-between mb-4">
-            <h2 class="h4 fw-bold mb-0 text-dark">
-                <i class="bi bi-journal-richtext me-2 text-primary"></i>最新文章
-            </h2>
-            <span class="text-secondary small">共 <?php echo count($blogPosts); ?> 篇记录</span>
-        </div>
-
-        <div class="grid-container">
-            <?php if (empty($blogPosts)) : ?>
-                <div class="empty-state">
-                    <i class="bi bi-inbox fs-1 mb-3 d-block text-secondary opacity-50"></i>
-                    <p class="mb-0">暂无项目日志，请在后台添加新的进展。</p>
+            <a href="/rarelight/" class="nav-brand">
+                <span class="brand-mark">RL</span>
+                <div class="brand-text">
+                    <div class="small text-uppercase">RARE LIGHT</div>
+                    <div class="fw-bold">Rare Light · 罕见病儿童公益</div>
                 </div>
-            <?php else : ?>
-                <?php foreach ($blogPosts as $post) : ?>
-                    <?php
-                    $date = $post['published_at'] ?? $post['created_at'] ?? '';
-                    $dateText = $date ? date('M d, Y', strtotime($date)) : 'Date Unknown';
-                    $summary = trim((string) ($post['summary'] ?? ''));
-                    if ($summary === '') {
-                        $summary = '点击阅读详细内容与完整报告。';
-                    }
-                    $link = trim((string) ($post['link_url'] ?? ''));
-                    $author = !empty($post['author']) ? $post['author'] : 'Team';
-                    ?>
-                    <article class="blog-card">
-                        <div class="card-meta">
-                            <div class="meta-date">
-                                <i class="bi bi-calendar-event text-secondary" style="font-size: 0.8rem;"></i>
-                                <span><?php echo htmlspecialchars($dateText, ENT_QUOTES, 'UTF-8'); ?></span>
-                            </div>
-                            <span class="meta-tag"><?php echo htmlspecialchars($author, ENT_QUOTES, 'UTF-8'); ?></span>
-                        </div>
-                        
-                        <h3 class="card-title">
-                            <?php echo htmlspecialchars($post['title'] ?? '无标题日志', ENT_QUOTES, 'UTF-8'); ?>
-                        </h3>
-                        
-                        <p class="card-summary">
-                            <?php echo htmlspecialchars($summary, ENT_QUOTES, 'UTF-8'); ?>
-                        </p>
-                        
-                        <div class="card-footer">
-                            <a href="<?php echo htmlspecialchars($link ?: '#', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="read-more-btn">
-                                阅读完整文章 <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                    </article>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
-    </div>
-</main>
+            </a>
+            <div class="d-flex align-items-center">
+                <div class="d-none d-lg-flex align-items-center">
+                    <div class="tool-bar" aria-label="Font size controls">
+                        <button type="button" class="tool-btn" id="fontSmaller" aria-label="Smaller font"><i
+                                class="bi bi-type"></i>-</button>
+                        <button type="button" class="tool-btn" id="fontReset" aria-label="Default font"><i
+                                class="bi bi-arrow-counterclockwise"></i></button>
+                        <button type="button" class="tool-btn" id="fontLarger" aria-label="Larger font"><i
+                                class="bi bi-type"></i>+</button>
+                    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+                    <button class="nav-btn nav-btn-ghost me-2" type="button" id="langToggle"
+                        aria-label="Language toggle">
+                        <i class="bi bi-translate me-1"></i> EN / 中文
+                    </button>
+                </div>
+
+                <a class="nav-btn nav-btn-ghost d-none d-sm-inline-flex" href="/rarelight/" data-i18n="navHome">返回首页</a>
+                <a class="nav-btn nav-btn-primary ms-2" href="/rarelight/dashboard">
+                    <i class="bi bi-grid-fill me-2"></i><span data-i18n="navLogin">进入课堂</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="blog-hero">
+        <div class="container-xxl">
+            <div class="hero-badge" data-i18n="heroBadge">
+                <i class="bi bi-stars"></i> 公益项目动态
+            </div>
+            <h1 class="hero-title" data-i18n="heroTitle">项目日志与进展</h1>
+            <p class="hero-desc" data-i18n="heroDesc">记录 Rare Light 在罕见病儿童公益领域的行动点滴。这里的每一个脚印，都凝聚着爱与希望。</p>
+        </div>
+    </header>
+
+    <main class="content-section">
+        <div class="container-xxl">
+
+            <div class="d-flex align-items-end justify-content-between mb-4">
+                <h2 class="h4 fw-bold mb-0 text-dark">
+                    <i class="bi bi-journal-richtext me-2 text-primary"></i><span data-i18n="latestArticles">最新文章</span>
+                </h2>
+                <span class="text-secondary small"><span data-i18n="totalRecordsPrefix">共</span>
+                    <?php echo count($blogPosts); ?> <span data-i18n="totalRecordsSuffix">篇记录</span></span>
+            </div>
+
+            <div class="grid-container">
+                <?php if (empty($blogPosts)): ?>
+                    <div class="empty-state">
+                        <i class="bi bi-inbox fs-1 mb-3 d-block text-secondary opacity-50"></i>
+                        <p class="mb-0" data-i18n="emptyState">暂无项目日志，请在后台添加新的进展。</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($blogPosts as $post): ?>
+                        <?php
+                        $date = $post['published_at'] ?? $post['created_at'] ?? '';
+                        $dateText = $date ? date('M d, Y', strtotime($date)) : 'Date Unknown';
+                        $summary = trim((string) ($post['summary'] ?? ''));
+                        if ($summary === '') {
+                            $summary = '点击阅读详细内容与完整报告。';
+                        }
+                        $link = trim((string) ($post['link_url'] ?? ''));
+                        $author = !empty($post['author']) ? $post['author'] : 'Team';
+                        ?>
+                        <article class="blog-card">
+                            <div class="card-meta">
+                                <div class="meta-date">
+                                    <i class="bi bi-calendar-event text-secondary" style="font-size: 0.8rem;"></i>
+                                    <span><?php echo htmlspecialchars($dateText, ENT_QUOTES, 'UTF-8'); ?></span>
+                                </div>
+                                <span class="meta-tag"><?php echo htmlspecialchars($author, ENT_QUOTES, 'UTF-8'); ?></span>
+                            </div>
+
+                            <h3 class="card-title">
+                                <?php echo htmlspecialchars($post['title'] ?? '无标题日志', ENT_QUOTES, 'UTF-8'); ?>
+                            </h3>
+
+                            <p class="card-summary">
+                                <?php echo htmlspecialchars($summary, ENT_QUOTES, 'UTF-8'); ?>
+                            </p>
+
+                            <div class="card-footer">
+                                <a href="<?php echo htmlspecialchars($link ?: '#', ENT_QUOTES, 'UTF-8'); ?>" target="_blank"
+                                    rel="noopener noreferrer" class="read-more-btn">
+                                    <span data-i18n="readMore">阅读完整文章</span> <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const FONT_KEY = 'rl_font_scale';
+        const LANG_KEY = 'rl_lang';
+        const htmlEl = document.documentElement;
+        const fontSmallerBtn = document.getElementById('fontSmaller');
+        const fontResetBtn = document.getElementById('fontReset');
+        const fontLargerBtn = document.getElementById('fontLarger');
+        const langToggle = document.getElementById('langToggle');
+        let currentFontScale = 1;
+        let currentLang = localStorage.getItem(LANG_KEY) || 'zh';
+
+        const i18n = {
+            zh: {
+                pageTitle: '项目日志 · Rare Light',
+                navHome: '返回首页',
+                navLogin: '进入课堂',
+                heroBadge: '公益项目动态',
+                heroTitle: '项目日志与进展',
+                heroDesc: '记录 Rare Light 在罕见病儿童公益领域的行动点滴。这里的每一个脚印，都凝聚着爱与希望。',
+                latestArticles: '最新文章',
+                totalRecordsPrefix: '共',
+                totalRecordsSuffix: '篇记录',
+                emptyState: '暂无项目日志，请在后台添加新的进展。',
+                readMore: '阅读完整文章'
+            },
+            en: {
+                pageTitle: 'Project Log · Rare Light',
+                navHome: 'Home',
+                navLogin: 'Enter Classroom',
+                heroBadge: 'Project Updates',
+                heroTitle: 'Project Log & Progress',
+                heroDesc: 'Recording Rare Light\'s actions in rare disease child care. Every footprint here embodies love and hope.',
+                latestArticles: 'Latest Articles',
+                totalRecordsPrefix: 'Total',
+                totalRecordsSuffix: 'records',
+                emptyState: 'No project logs available. Please add new progress in the backend.',
+                readMore: 'Read Full Article'
+            }
+        };
+
+        function applyFontScale(scale) {
+            currentFontScale = Math.min(1.3, Math.max(0.85, scale));
+            htmlEl.style.setProperty('--font-base', '16px');
+            htmlEl.style.fontSize = `calc(var(--font-base) * ${currentFontScale})`;
+            localStorage.setItem(FONT_KEY, String(currentFontScale));
+        }
+
+        function initFontControls() {
+            const saved = parseFloat(localStorage.getItem(FONT_KEY) || '1');
+            if (!Number.isNaN(saved)) {
+                applyFontScale(saved);
+            }
+            if (fontSmallerBtn) fontSmallerBtn.addEventListener('click', () => applyFontScale(currentFontScale - 0.05));
+            if (fontResetBtn) fontResetBtn.addEventListener('click', () => applyFontScale(1));
+            if (fontLargerBtn) fontLargerBtn.addEventListener('click', () => applyFontScale(currentFontScale + 0.05));
+        }
+
+        function applyTranslations(lang) {
+            const dict = i18n[lang] || i18n.zh;
+            document.querySelectorAll('[data-i18n]').forEach((el) => {
+                const key = el.dataset.i18n;
+                if (!key || !(key in dict)) return;
+                el.textContent = dict[key];
+            });
+            document.title = dict.pageTitle || 'Project Log · Rare Light';
+            currentLang = lang;
+            localStorage.setItem(LANG_KEY, currentLang);
+
+            const langText = lang === 'zh' ? '<i class="bi bi-translate me-1"></i> 中文 / EN' : '<i class="bi bi-translate me-1"></i> EN / 中文';
+            if (langToggle) langToggle.innerHTML = langText;
+        }
+
+        function initLangToggle() {
+            applyTranslations(currentLang);
+            if (langToggle) {
+                langToggle.addEventListener('click', () => {
+                    const next = currentLang === 'zh' ? 'en' : 'zh';
+                    applyTranslations(next);
+                });
+            }
+        }
+
+        initFontControls();
+        initLangToggle();
+    </script>
 </body>
+
 </html>
