@@ -625,6 +625,7 @@
                                 <option value="all">全部</option>
                                 <option value="unwatched">未看</option>
                                 <option value="in_progress">学习中</option>
+                                <option value="completed">已看</option>
                             </select>
                         </div>
                         <select id="courseTagFilter" hidden>
@@ -660,7 +661,7 @@
         </aside>
 
         <section class="stage">
-                <!-- Mobile buttons removed, replaced by bottom nav -->
+            <!-- Mobile buttons removed, replaced by bottom nav -->
 
             <div class="panel-glass p-4" style="flex-shrink: 0;">
                 <div class="stage-header">
@@ -757,7 +758,7 @@
         // New Bottom Nav Buttons
         const mobileCourseToggle = document.getElementById('mobileCourseToggle');
         const mobileLessonToggle = document.getElementById('mobileLessonToggle');
-        
+
         const mainSidebar = document.getElementById('mainSidebar');
 
         // Filters
@@ -822,8 +823,8 @@
             updateMobileNavActive('lesson');
         });
         if (drawerBackdrop) drawerBackdrop.addEventListener('click', () => {
-             closeAllDrawers();
-             updateMobileNavActive(null);
+            closeAllDrawers();
+            updateMobileNavActive(null);
         });
 
         function updateMobileNavActive(type) {
@@ -1103,12 +1104,43 @@
         }
 
         function applyCourseFilters(courses) {
-            // ... (保留原逻辑) ...
-            // 简写示例：
-            return (courses || []).filter(c => {
-                if (courseFilters.search && !c.title.toLowerCase().includes(courseFilters.search)) return false;
-                // ... 其他筛选 ...
+            const list = courses || [];
+            return list.filter(c => {
+                // Search Filter
+                if (courseFilters.search && !c.title.toLowerCase().includes(courseFilters.search)) {
+                    return false;
+                }
+
+                // Progress Filter
+                const progress = getCourseProgress(c.id, c.lesson_count);
+                if (courseFilters.progress !== 'all') {
+                    if (courseFilters.progress === 'unwatched' && progress.percentage > 0) return false;
+                    if (courseFilters.progress === 'in_progress' && (progress.percentage === 0 || progress.percentage === 100)) return false;
+                    if (courseFilters.progress === 'completed' && progress.percentage < 100) return false;
+                }
+
+                // Tag Filter (placeholder if needed in future)
+                if (courseFilters.tag && c.tags && !normalizeTags(c.tags).includes(courseFilters.tag)) {
+                    return false;
+                }
+
+                // Instructor Filter (placeholder)
+                if (courseFilters.instructor && c.instructor !== courseFilters.instructor) {
+                    return false;
+                }
+
                 return true;
+            }).sort((a, b) => {
+                // Sort Logic
+                if (courseFilters.sort === 'latest') {
+                    return (b.id - a.id); // Assuming higher ID is newer
+                }
+                if (courseFilters.sort === 'progress') {
+                    const pA = getCourseProgress(a.id, a.lesson_count).percentage;
+                    const pB = getCourseProgress(b.id, b.lesson_count).percentage;
+                    return pB - pA;
+                }
+                return 0; // Default
             });
         }
 
@@ -1146,6 +1178,13 @@
                 await loadProgressStore();
 
                 welcomeTextEl.textContent = `你好，${currentUser.display_name || currentUser.username}`;
+
+                // Update User Role Chip
+                let roleText = '学员';
+                if (currentUser.role === 'teacher') roleText = '老师';
+                if (currentUser.role === 'admin') roleText = '管理员';
+                if (userChipEl) userChipEl.textContent = roleText;
+
                 if (currentUser.role === 'admin' || currentUser.role === 'teacher') {
                     adminButton.style.display = 'inline-flex';
                     cloudButton.style.display = 'inline-flex';
@@ -1186,8 +1225,8 @@
 
                 // Mobile: switch to lesson drawer
                 if (window.innerWidth <= 992) {
-                     openDrawer('lesson');
-                     updateMobileNavActive('lesson');
+                    openDrawer('lesson');
+                    updateMobileNavActive('lesson');
                 }
 
             } catch (e) { console.error(e); }
