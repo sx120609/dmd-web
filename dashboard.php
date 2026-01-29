@@ -36,7 +36,7 @@
 
             /* 布局变量 */
             --header-height: 70px;
-            --sidebar-width: 420px;
+            --sidebar-width: 320px;
         }
 
         body {
@@ -308,15 +308,7 @@
         }
 
         /* --- 主舞台 (Stage) --- */
-        .stage {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            height: 100%;
-            overflow-y: auto;
-            padding-right: 2px;
-            /* 滚动条空间 */
-        }
+        /* 样式已在上方定义 */
 
         .player-wrapper {
             background: #000;
