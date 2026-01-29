@@ -182,7 +182,8 @@ if (file_exists($configFile)) {
     <style>
         :root {
             /* === 核心色盘 === */
-            --rl-bg: #f8fafc;
+            --rl-bg: #f0f4f8;
+            /* Slightly darker for better contrast */
             --rl-text-main: #0f172a;
             --rl-text-muted: #64748b;
             --rl-primary: #3b82f6;
@@ -191,9 +192,11 @@ if (file_exists($configFile)) {
             --gradient-glow: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.05), transparent 70%);
 
             /* 面板/卡片样式 */
-            --glass-bg: rgba(255, 255, 255, 0.82);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
-            --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            /* More opaque */
+            --glass-border: 1px solid rgba(255, 255, 255, 0.8);
+            --glass-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.05), 0 8px 10px -6px rgba(59, 130, 246, 0.01);
+            /* Colored shadow */
             --header-height: 70px;
         }
 
@@ -208,7 +211,7 @@ if (file_exists($configFile)) {
             overflow-x: hidden;
             overflow-y: auto;
             padding-top: 0;
-            /* Nav is sticky */
+            padding-bottom: 4rem;
         }
 
         /* --- 导航栏 --- */
@@ -218,10 +221,11 @@ if (file_exists($configFile)) {
             z-index: 1000;
             height: var(--header-height);
             backdrop-filter: blur(20px);
-            background: rgba(255, 255, 255, 0.85);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
             display: flex;
             align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
         }
 
         .nav-brand {
@@ -285,17 +289,30 @@ if (file_exists($configFile)) {
             background: rgba(0, 0, 0, 0.04);
         }
 
+        .nav-btn-outline {
+            color: var(--rl-text-muted);
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-btn-outline:hover {
+            color: var(--rl-primary);
+            background: white;
+            border-color: var(--rl-primary);
+        }
+
         .nav-btn-primary {
-            background: var(--rl-primary);
+            background: var(--deep-gradient);
             color: white;
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
             border: 1px solid transparent;
         }
 
         .nav-btn-primary:hover {
-            background: #2563eb;
+            filter: brightness(1.05);
             color: white;
             transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
         }
 
         /* --- 页面容器与面板 --- */
@@ -306,18 +323,19 @@ if (file_exists($configFile)) {
         .panel-glass {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
-            border: var(--glass-border);
+            border: 1px solid rgba(255, 255, 255, 0.6);
             border-radius: 16px;
             box-shadow: var(--glass-shadow);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .panel-header {
             padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-            background: rgba(255, 255, 255, 0.4);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+            background: rgba(255, 255, 255, 0.5);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -338,20 +356,35 @@ if (file_exists($configFile)) {
         }
 
         /* --- Tabs --- */
-        .admin-tabs {
+        .admin-toolbar {
             display: flex;
-            gap: 0.5rem;
-            padding: 0.4rem;
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            border-radius: 12px;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 2rem;
             flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .admin-section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--rl-text-main);
+            margin-bottom: 0.2rem;
+        }
+
+        .admin-tabs {
+            display: inline-flex;
+            gap: 0.25rem;
+            padding: 0.35rem;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
             backdrop-filter: blur(8px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
         }
 
         .tab-btn {
-            padding: 0.5rem 1.2rem;
+            padding: 0.5rem 1rem;
             border-radius: 8px;
             border: none;
             background: transparent;
@@ -359,6 +392,10 @@ if (file_exists($configFile)) {
             font-weight: 600;
             font-size: 0.9rem;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         .tab-btn:hover {
@@ -369,39 +406,67 @@ if (file_exists($configFile)) {
         .tab-btn.active {
             background: white;
             color: var(--rl-primary);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
         }
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.3s ease-out;
         }
 
         .tab-content.active {
             display: block;
         }
 
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* 表单与列表微调 */
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
         .form-label {
             font-size: 0.85rem;
             font-weight: 600;
             color: var(--rl-text-muted);
             margin-bottom: 0.4rem;
+            display: block;
         }
 
         .form-control,
         .form-select {
             border-radius: 8px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e2e8f0;
+            background: #fff;
             padding: 0.6rem 0.8rem;
             font-size: 0.95rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            color: var(--rl-text-main);
         }
 
         .form-control:focus,
         .form-select:focus {
-            background: white;
             border-color: var(--rl-primary);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            outline: none;
+        }
+
+        background: white;
+        border-color: var(--rl-primary);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
         .table-list {
@@ -430,6 +495,42 @@ if (file_exists($configFile)) {
         .table-list li.active {
             background: rgba(59, 130, 246, 0.05);
             border-left: 3px solid var(--rl-primary);
+        }
+
+        .user-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .user-meta strong {
+            font-size: 0.95rem;
+            color: var(--rl-text-main);
+        }
+
+        .user-meta span {
+            font-size: 0.8rem;
+            color: var(--rl-text-muted);
+        }
+
+        .user-role-tag {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--rl-text-muted);
+            font-weight: 600;
+        }
+
+        .user-role-tag.is-admin {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--rl-primary);
+        }
+
+        .list-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
         }
 
         .hint {
