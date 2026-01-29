@@ -361,6 +361,49 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        /* Typewriter Animation */
+        .typewriter {
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 3px solid var(--rl-primary);
+            animation: typing 3s steps(30, end), blink-caret 0.75s step-end infinite;
+        }
+
+        .typewriter-wrapper h1 {
+            display: inline-block;
+        }
+
+        @keyframes typing {
+            from {
+                max-width: 0;
+            }
+
+            to {
+                max-width: 100%;
+            }
+        }
+
+        @keyframes blink-caret {
+
+            from,
+            to {
+                border-color: transparent;
+            }
+
+            50% {
+                border-color: var(--rl-primary);
+            }
+        }
+
+        /* Mobile: disable typewriter animation to avoid text overflow */
+        @media (max-width: 768px) {
+            .typewriter {
+                white-space: normal;
+                border-right: none;
+                animation: none;
+            }
+        }
+
         /* Reveal Animation */
         .reveal {
             opacity: 0;
@@ -477,7 +520,9 @@
                             <div class="brand-eyebrow mb-3" data-i18n="heroEyebrow">
                                 <i class="bi bi-stars me-1"></i> Rare Light · 点亮希望
                             </div>
-                            <h1 data-i18n="heroTitle">“线上趣味课 + 线下科普行” 双轨陪伴罕见病儿童</h1>
+                            <div class="typewriter-wrapper">
+                                <h1 class="typewriter" data-i18n="heroTitle">"线上趣味课 + 线下科普行" 双轨陪伴罕见病儿童</h1>
+                            </div>
                             <p class="lead" data-i18n="heroLead">RARE LIGHT
                                 罕见病关爱项目，面向患儿与家庭同步提供线上趣味课堂与线下科普关怀，兼顾成长需求与社会认知，打造专业且温暖的公益服务体系。</p>
 

@@ -11,6 +11,7 @@
 - **后台运营**：后台切换用户/课程/课节/课程分配四个视图；课节与课程更新实时保存，删除级联清理课节与分配记录；教师被分配或拥有的课程才能编辑。
 - **批量导入与分配**：CSV 模板字段 `username,display_name,password,role`，支持 student/admin/teacher，逐行错误提示；管理员可为任意用户分配/移除课程。
 - **云盘与外链**：管理员/老师可批量上传，支持分片断点续传（150MB 分片、按文件 hash 断点续传）；文件分页列表、删除、外链开关；随机令牌外链、强制附件下载、上传类型白名单。
+- **项目日志（公众号文章）**：后台维护公众号文章链接（标题/链接/日期/摘要/作者/标签），对外展示页以卡片形式呈现。
 - **安全与体验**：Session Cookie HttpOnly + SameSite=Lax（HTTPS 自动 Secure），课堂/后台/云盘均适配移动端；支持自定义存储目录、反代前缀、Nginx 内部转发以保护真实路径。
 
 ## 安装与启动
@@ -39,6 +40,7 @@ index.php             # 首页 + 登录（含多语言）
 dashboard.php         # 学员课堂
 admin.php             # 管理后台
 cloud.php             # 云盘（含分片上传）
+blog.php              # 项目日志（公众号文章展示）
 assets/css/main.css   # 样式
 api/
 ├─ bootstrap.php           # 会话、DB、权限工具
@@ -49,6 +51,7 @@ api/
 ├─ courses.php             # 课程 CRUD（含 owner、标签、讲师）
 ├─ lessons.php             # 课节 CRUD（含附件）
 ├─ course_assignments.php  # 课程分配
+├─ blog_posts.php          # 公众号文章管理
 ├─ files.php               # 云盘上传/列表/删除/外链
 └─ files_multipart.php     # 分片断点续传
 database.sql          # 建表 SQL
