@@ -404,7 +404,7 @@
         const nextPageButton = document.getElementById('nextPage');
         const pageSummary = document.getElementById('pageSummary');
 
-        const PAGE_SIZE = 10;
+        const PAGE_SIZE = 6;
         let paginationState = {
             page: 1,
             per_page: PAGE_SIZE,
