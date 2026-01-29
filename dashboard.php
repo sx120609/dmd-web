@@ -179,6 +179,8 @@
             border: var(--glass-border);
             border-radius: 16px;
             box-shadow: var(--glass-shadow);
+            display: flex;
+            flex-direction: column;
         }
 
         .panel-header {
@@ -728,7 +730,7 @@
             if (window.innerWidth > 992) {
                 closeAllDrawers();
                 const sections = mainSidebar.querySelectorAll('.sidebar-section');
-                sections.forEach(sec => sec.style.display = 'flex');
+                sections.forEach(sec => sec.style.display = '');
             }
         });
 
@@ -774,7 +776,7 @@
             // Reset Mobile Sidebar View
             if (window.innerWidth > 992) {
                 const sections = mainSidebar.querySelectorAll('.sidebar-section');
-                sections.forEach(sec => sec.style.display = 'flex');
+                sections.forEach(sec => sec.style.display = '');
             }
 
             currentCourse = course || null;
