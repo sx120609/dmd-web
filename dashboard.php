@@ -668,7 +668,7 @@
                     <div class="breadcrumbs" id="breadcrumbs"><span>网课</span></div>
                     <h2 class="stage-title" id="lessonTitle">欢迎回来</h2>
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                        <p class="stage-desc mb-0" id="lessonDescription">从左侧选择课程开始学习。</p>
+                        <p class="stage-desc mb-0" id="lessonDescription">选择课程开始学习。</p>
                         <div id="lessonMeta" hidden>
                             <button class="nav-btn nav-btn-outline" id="markCompleteButton">
                                 <i class="bi bi-check2-circle"></i> <span>标记已完成</span>
@@ -695,7 +695,7 @@
                             <div class="progress-bar" id="courseProgressBar" style="width: 0%"></div>
                         </div>
                     </div>
-                    <p class="text-muted small" id="courseSummaryDescription">选择左侧课程查看详情。</p>
+                    <p class="text-muted small" id="courseSummaryDescription">选择课程查看详情。</p>
                 </div>
             </div>
 
