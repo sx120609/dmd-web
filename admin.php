@@ -2537,60 +2537,68 @@ if (file_exists($configFile)) {
             }
         }
 
-        assignUserSelect.addEventListener('change', () => {
-            const userId = parseInt(assignUserSelect.value, 10);
-            if (Number.isNaN(userId) || userId <= 0) {
+        if (assignUserSelect) {
+            assignUserSelect.addEventListener('change', () => {
+                const userId = parseInt(assignUserSelect.value, 10);
+                if (Number.isNaN(userId) || userId <= 0) {
+                    setMessage(assignCourseMessage);
+                    selectUser(null);
+                    return;
+                }
                 setMessage(assignCourseMessage);
-                selectUser(null);
-                return;
-            }
-            setMessage(assignCourseMessage);
-            selectUser(userId);
-        });
+                selectUser(userId);
+            });
+        }
 
-        lessonCourseSelect.addEventListener('change', () => {
-            const courseId = parseInt(lessonCourseSelect.value, 10);
-            setMessage(createLessonMessage);
-            setMessage(lessonListMessage);
-            if (state.editingLessonOriginalCourseId && state.editingLessonOriginalCourseId !== courseId) {
-                clearLessonEditor();
-            }
-            if (courseId) {
-                loadLessonsForCourse(courseId);
-            } else if (!state.courses.length) {
-                renderLessonPlaceholder('暂无课程，请先创建。');
-            } else {
-                renderLessonPlaceholder('请选择课程查看课节');
-            }
-        });
+        if (lessonCourseSelect) {
+            lessonCourseSelect.addEventListener('change', () => {
+                const courseId = parseInt(lessonCourseSelect.value, 10);
+                setMessage(createLessonMessage);
+                setMessage(lessonListMessage);
+                if (state.editingLessonOriginalCourseId && state.editingLessonOriginalCourseId !== courseId) {
+                    clearLessonEditor();
+                }
+                if (courseId) {
+                    loadLessonsForCourse(courseId);
+                } else if (!state.courses.length) {
+                    renderLessonPlaceholder('暂无课程，请先创建。');
+                } else {
+                    renderLessonPlaceholder('请选择课程查看课节');
+                }
+            });
+        }
 
-        userListEl.addEventListener('click', (event) => {
-            const item = event.target.closest('li[data-user-id]');
-            if (!item) {
-                return;
-            }
-            const userId = parseInt(item.dataset.userId, 10);
-            if (Number.isNaN(userId) || userId <= 0) {
-                return;
-            }
-            selectUser(userId);
-        });
+        if (userListEl) {
+            userListEl.addEventListener('click', (event) => {
+                const item = event.target.closest('li[data-user-id]');
+                if (!item) {
+                    return;
+                }
+                const userId = parseInt(item.dataset.userId, 10);
+                if (Number.isNaN(userId) || userId <= 0) {
+                    return;
+                }
+                selectUser(userId);
+            });
+        }
 
-        userListEl.addEventListener('keydown', (event) => {
-            if (event.key !== 'Enter' && event.key !== ' ') {
-                return;
-            }
-            const item = event.target.closest('li[data-user-id]');
-            if (!item) {
-                return;
-            }
-            event.preventDefault();
-            const userId = parseInt(item.dataset.userId, 10);
-            if (Number.isNaN(userId) || userId <= 0) {
-                return;
-            }
-            selectUser(userId);
-        });
+        if (userListEl) {
+            userListEl.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
+                const item = event.target.closest('li[data-user-id]');
+                if (!item) {
+                    return;
+                }
+                event.preventDefault();
+                const userId = parseInt(item.dataset.userId, 10);
+                if (Number.isNaN(userId) || userId <= 0) {
+                    return;
+                }
+                selectUser(userId);
+            });
+        }
 
         courseListEl.addEventListener('click', async (event) => {
             const button = event.target.closest('button[data-course-id]');
@@ -2719,38 +2727,40 @@ if (file_exists($configFile)) {
             showCourseEditor(courseId);
         });
 
-        assignmentListEl.addEventListener('click', async (event) => {
-            const button = event.target.closest('button[data-course-id]');
-            if (!button) {
-                return;
-            }
-            const userId = parseInt(assignUserSelect.value, 10);
-            const courseId = parseInt(button.dataset.courseId, 10);
-            if (!userId || !courseId) {
-                return;
-            }
-            const originalLabel = button.textContent;
-            button.disabled = true;
-            button.textContent = '移除中...';
-            try {
-                const formBody = new URLSearchParams({
-                    action: 'delete',
-                    user_id: String(userId),
-                    course_id: String(courseId)
-                });
-                await fetchJSON(`${API_BASE}/course_assignments.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formBody.toString()
-                });
-                setMessage(assignCourseMessage, '已移除课程', 'success');
-                await loadAssignmentsForUser(userId);
-            } catch (error) {
-                setMessage(assignCourseMessage, error.message || '移除课程失败', 'error');
-                button.disabled = false;
-                button.textContent = originalLabel;
-            }
-        });
+        if (assignmentListEl) {
+            assignmentListEl.addEventListener('click', async (event) => {
+                const button = event.target.closest('button[data-course-id]');
+                if (!button) {
+                    return;
+                }
+                const userId = parseInt(assignUserSelect.value, 10);
+                const courseId = parseInt(button.dataset.courseId, 10);
+                if (!userId || !courseId) {
+                    return;
+                }
+                const originalLabel = button.textContent;
+                button.disabled = true;
+                button.textContent = '移除中...';
+                try {
+                    const formBody = new URLSearchParams({
+                        action: 'delete',
+                        user_id: String(userId),
+                        course_id: String(courseId)
+                    });
+                    await fetchJSON(`${API_BASE}/course_assignments.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formBody.toString()
+                    });
+                    setMessage(assignCourseMessage, '已移除课程', 'success');
+                    await loadAssignmentsForUser(userId);
+                } catch (error) {
+                    setMessage(assignCourseMessage, error.message || '移除课程失败', 'error');
+                    button.disabled = false;
+                    button.textContent = originalLabel;
+                }
+            });
+        }
 
         lessonListEl.addEventListener('click', async (event) => {
             const button = event.target.closest('button[data-lesson-id]');
@@ -2883,90 +2893,95 @@ if (file_exists($configFile)) {
             });
         }
 
-        createUserForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const payload = {
-                username: document.getElementById('newUsername').value.trim(),
-                display_name: document.getElementById('newDisplayName').value.trim(),
-                password: document.getElementById('newPassword').value,
-                role: document.getElementById('newRole').value
-            };
-            if (!payload.username || !payload.password) {
-                setMessage(createUserMessage, '用户名和密码不能为空', 'error');
-                return;
-            }
-            setMessage(createUserMessage, '正在创建用户，请稍候...');
-            try {
-                const result = await fetchJSON(`${API_BASE}/users.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const newUser = {
-                    ...result.user,
-                    id: Number(result.user.id)
+        if (createUserForm) {
+            createUserForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const payload = {
+                    username: document.getElementById('newUsername').value.trim(),
+                    display_name: document.getElementById('newDisplayName').value.trim(),
+                    password: document.getElementById('newPassword').value,
+                    role: document.getElementById('newRole').value
                 };
-                state.users.push(newUser);
-                state.users.sort((a, b) => a.id - b.id);
-                state.selectedUserId = newUser.id;
-                refreshUserList();
-                populateSelect(
-                    assignUserSelect,
-                    state.users,
-                    'id',
-                    (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
-                    newUser.id
-                );
-                createUserForm.reset();
-                setMessage(createUserMessage, '创建成功', 'success');
-                setMessage(assignCourseMessage);
-                selectUser(newUser.id);
-            } catch (error) {
-                setMessage(createUserMessage, error.message || '创建失败', 'error');
-            }
-        });
-
-        createCourseForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const payload = {
-                title: document.getElementById('courseTitleInput').value.trim(),
-                instructor: courseInstructorInput ? courseInstructorInput.value.trim() : '',
-                tags: courseTagsInput ? courseTagsInput.value.trim() : '',
-                description: document.getElementById('courseDescriptionInput').value.trim()
-            };
-            if (!payload.title) {
-                setMessage(createCourseMessage, '课程名称不能为空', 'error');
-                return;
-            }
-            setMessage(createCourseMessage, '正在创建课程，请稍候...');
-            try {
-                const result = await fetchJSON(`${API_BASE}/courses.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const newCourse = {
-                    ...result.course,
-                    id: Number(result.course.id)
-                };
-                state.courses.push(newCourse);
-                state.courses.sort((a, b) => a.id - b.id);
-                refreshCourseList();
-                const newCourseId = newCourse.id;
-                populateSelect(assignCourseSelect, state.courses, 'id', 'title', newCourseId);
-                const lessonSelectValue = populateSelect(lessonCourseSelect, state.courses, 'id', 'title', newCourseId);
-                populateSelect(editLessonCourseSelect, state.courses, 'id', 'title', state.editingLessonOriginalCourseId || newCourseId);
-                createCourseForm.reset();
-                setMessage(createCourseMessage, '课程创建成功', 'success');
-                setMessage(lessonListMessage);
-                const createdCourseId = parseInt(lessonSelectValue, 10);
-                if (createdCourseId) {
-                    loadLessonsForCourse(createdCourseId);
+                if (!payload.username || !payload.password) {
+                    setMessage(createUserMessage, '用户名和密码不能为空', 'error');
+                    return;
                 }
-            } catch (error) {
-                setMessage(createCourseMessage, error.message || '创建失败', 'error');
-            }
-        });
+                setMessage(createUserMessage, '正在创建用户，请稍候...');
+                try {
+                    const result = await fetchJSON(`${API_BASE}/users.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const newUser = {
+                        ...result.user,
+                        id: Number(result.user.id)
+                    };
+                    state.users.push(newUser);
+                    state.users.sort((a, b) => a.id - b.id);
+                    state.selectedUserId = newUser.id;
+                    refreshUserList();
+                    populateSelect(
+                        assignUserSelect,
+                        state.users,
+                        'id',
+                        (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
+                        newUser.id
+                    );
+                    createUserForm.reset();
+                    setMessage(createUserMessage, '创建成功', 'success');
+                    setMessage(assignCourseMessage);
+                    selectUser(newUser.id);
+                } catch (error) {
+                    setMessage(createUserMessage, error.message || '创建失败', 'error');
+                }
+            });
+
+        }
+
+        if (createCourseForm) {
+            createCourseForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const payload = {
+                    title: document.getElementById('courseTitleInput').value.trim(),
+                    instructor: courseInstructorInput ? courseInstructorInput.value.trim() : '',
+                    tags: courseTagsInput ? courseTagsInput.value.trim() : '',
+                    description: document.getElementById('courseDescriptionInput').value.trim()
+                };
+                if (!payload.title) {
+                    setMessage(createCourseMessage, '课程名称不能为空', 'error');
+                    return;
+                }
+                setMessage(createCourseMessage, '正在创建课程，请稍候...');
+                try {
+                    const result = await fetchJSON(`${API_BASE}/courses.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const newCourse = {
+                        ...result.course,
+                        id: Number(result.course.id)
+                    };
+                    state.courses.push(newCourse);
+                    state.courses.sort((a, b) => a.id - b.id);
+                    refreshCourseList();
+                    const newCourseId = newCourse.id;
+                    populateSelect(assignCourseSelect, state.courses, 'id', 'title', newCourseId);
+                    const lessonSelectValue = populateSelect(lessonCourseSelect, state.courses, 'id', 'title', newCourseId);
+                    populateSelect(editLessonCourseSelect, state.courses, 'id', 'title', state.editingLessonOriginalCourseId || newCourseId);
+                    createCourseForm.reset();
+                    setMessage(createCourseMessage, '课程创建成功', 'success');
+                    setMessage(lessonListMessage);
+                    const createdCourseId = parseInt(lessonSelectValue, 10);
+                    if (createdCourseId) {
+                        loadLessonsForCourse(createdCourseId);
+                    }
+                } catch (error) {
+                    setMessage(createCourseMessage, error.message || '创建失败', 'error');
+                }
+            });
+        }
 
         if (updateCourseForm) {
             updateCourseForm.addEventListener('submit', async (event) => {
@@ -3058,76 +3073,81 @@ if (file_exists($configFile)) {
                 }
             });
         }
+                }
 
-        assignCourseForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const payload = {
-                user_id: parseInt(assignUserSelect.value, 10),
-                course_id: parseInt(assignCourseSelect.value, 10)
-            };
-            if (!payload.user_id || !payload.course_id) {
-                setMessage(assignCourseMessage, '请选择用户和课程', 'error');
-                return;
-            }
-            setMessage(assignCourseMessage, '正在分配，请稍候...');
-            try {
-                await fetchJSON(`${API_BASE}/course_assignments.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                await loadAssignmentsForUser(payload.user_id);
-                setMessage(assignCourseMessage, '分配成功', 'success');
-            } catch (error) {
-                setMessage(assignCourseMessage, error.message || '分配失败', 'error');
-            }
-        });
+        if (assignCourseForm) {
+            assignCourseForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const payload = {
+                    user_id: parseInt(assignUserSelect.value, 10),
+                    course_id: parseInt(assignCourseSelect.value, 10)
+                };
+                if (!payload.user_id || !payload.course_id) {
+                    setMessage(assignCourseMessage, '请选择用户和课程', 'error');
+                    return;
+                }
+                setMessage(assignCourseMessage, '正在分配，请稍候...');
+                try {
+                    await fetchJSON(`${API_BASE}/course_assignments.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    await loadAssignmentsForUser(payload.user_id);
+                    setMessage(assignCourseMessage, '分配成功', 'success');
+                } catch (error) {
+                    setMessage(assignCourseMessage, error.message || '分配失败', 'error');
+                }
+            });
+        }
 
         if (createPostForm && createPostMessage && createPostMessage.textContent) {
             createPostMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
-        createLessonForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const payload = {
-                course_id: parseInt(lessonCourseSelect.value, 10),
-                title: lessonTitleInput ? lessonTitleInput.value.trim() : '',
-                video_url: lessonVideoInput ? lessonVideoInput.value.trim() : '',
-                attachments: lessonAttachmentsInput ? lessonAttachmentsInput.value : '',
-                description: lessonDescriptionInput ? lessonDescriptionInput.value.trim() : ''
-            };
-            if (!payload.course_id || !payload.title) {
-                setMessage(createLessonMessage, '请选择课程并填写课节标题', 'error');
-                return;
-            }
-            setMessage(createLessonMessage, '正在添加课节...');
-            try {
-                await fetchJSON(`${API_BASE}/lessons.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                createLessonForm.reset();
-                const selectedCourseAfterCreate = populateSelect(
-                    lessonCourseSelect,
-                    state.courses,
-                    'id',
-                    'title',
-                    payload.course_id
-                );
-                if (lessonDescriptionInput) {
-                    lessonDescriptionInput.value = '';
+        if (createLessonForm) {
+            createLessonForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const payload = {
+                    course_id: parseInt(lessonCourseSelect.value, 10),
+                    title: lessonTitleInput ? lessonTitleInput.value.trim() : '',
+                    video_url: lessonVideoInput ? lessonVideoInput.value.trim() : '',
+                    attachments: lessonAttachmentsInput ? lessonAttachmentsInput.value : '',
+                    description: lessonDescriptionInput ? lessonDescriptionInput.value.trim() : ''
+                };
+                if (!payload.course_id || !payload.title) {
+                    setMessage(createLessonMessage, '请选择课程并填写课节标题', 'error');
+                    return;
                 }
-                setMessage(createLessonMessage, '课节添加成功', 'success');
-                setMessage(lessonListMessage);
-                const refreshedCourseId = parseInt(selectedCourseAfterCreate, 10);
-                if (refreshedCourseId) {
-                    loadLessonsForCourse(refreshedCourseId);
+                setMessage(createLessonMessage, '正在添加课节...');
+                try {
+                    await fetchJSON(`${API_BASE}/lessons.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    createLessonForm.reset();
+                    const selectedCourseAfterCreate = populateSelect(
+                        lessonCourseSelect,
+                        state.courses,
+                        'id',
+                        'title',
+                        payload.course_id
+                    );
+                    if (lessonDescriptionInput) {
+                        lessonDescriptionInput.value = '';
+                    }
+                    setMessage(createLessonMessage, '课节添加成功', 'success');
+                    setMessage(lessonListMessage);
+                    const refreshedCourseId = parseInt(selectedCourseAfterCreate, 10);
+                    if (refreshedCourseId) {
+                        loadLessonsForCourse(refreshedCourseId);
+                    }
+                } catch (error) {
+                    setMessage(createLessonMessage, error.message || '添加失败', 'error');
                 }
-            } catch (error) {
-                setMessage(createLessonMessage, error.message || '添加失败', 'error');
-            }
-        });
+            });
+        }
 
         if (updateLessonForm) {
             updateLessonForm.addEventListener('submit', async (event) => {
@@ -3181,155 +3201,164 @@ if (file_exists($configFile)) {
                 }
             });
         }
+                        }
 
-        updateUserForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            if (!state.selectedUserId) {
-                setMessage(updateUserMessage, '请选择需要修改的用户', 'error');
-                return;
-            }
-            const payload = {
-                id: state.selectedUserId,
-                username: editUsernameInput.value.trim(),
-                display_name: editDisplayNameInput.value.trim(),
-                role: editRoleSelect.value
-            };
-            if (!payload.username) {
-                setMessage(updateUserMessage, '用户名不能为空', 'error');
-                return;
-            }
-            const password = editPasswordInput.value.trim();
-            if (password) {
-                payload.password = password;
-            }
-            setMessage(updateUserMessage, '正在保存修改，请稍候...');
-            try {
-                const result = await fetchJSON(`${API_BASE}/users.php`, {
-                    method: 'POST', // 兼容防火墙拦截 PATCH
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...payload, _method: 'PATCH' })
-                });
-                const updatedUser = {
-                    ...result.user,
-                    id: Number(result.user.id)
+        if (updateUserForm) {
+            updateUserForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                if (!state.selectedUserId) {
+                    setMessage(updateUserMessage, '请选择需要修改的用户', 'error');
+                    return;
+                }
+                const payload = {
+                    id: state.selectedUserId,
+                    username: editUsernameInput.value.trim(),
+                    display_name: editDisplayNameInput.value.trim(),
+                    role: editRoleSelect.value
                 };
-                const index = state.users.findIndex((user) => user.id === updatedUser.id);
-                if (index !== -1) {
-                    state.users[index] = updatedUser;
+                if (!payload.username) {
+                    setMessage(updateUserMessage, '用户名不能为空', 'error');
+                    return;
                 }
-                state.users.sort((a, b) => a.id - b.id);
-                state.selectedUserId = updatedUser.id;
-                refreshUserList();
-                populateSelect(
-                    assignUserSelect,
-                    state.users,
-                    'id',
-                    (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
-                    updatedUser.id
-                );
-                selectUser(updatedUser.id);
-                if (state.currentUser && Number(state.currentUser.id) === updatedUser.id) {
-                    state.currentUser = { ...state.currentUser, ...updatedUser };
-                    if (adminChip) {
-                        adminChip.textContent = `${state.currentUser.display_name || state.currentUser.username} · 管理员`;
-                        adminChip.style.display = 'inline-flex';
+                const password = editPasswordInput.value.trim();
+                if (password) {
+                    payload.password = password;
+                }
+                setMessage(updateUserMessage, '正在保存修改，请稍候...');
+                try {
+                    const result = await fetchJSON(`${API_BASE}/users.php`, {
+                        method: 'POST', // 兼容防火墙拦截 PATCH
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ...payload, _method: 'PATCH' })
+                    });
+                    const updatedUser = {
+                        ...result.user,
+                        id: Number(result.user.id)
+                    };
+                    const index = state.users.findIndex((user) => user.id === updatedUser.id);
+                    if (index !== -1) {
+                        state.users[index] = updatedUser;
                     }
-                }
-                editPasswordInput.value = '';
-                setMessage(updateUserMessage, '保存成功', 'success');
-            } catch (error) {
-                setMessage(updateUserMessage, error.message || '保存失败', 'error');
-            }
-        });
-
-        resetPasswordButton.addEventListener('click', async () => {
-            if (!state.selectedUserId) {
-                setMessage(updateUserMessage, '请选择需要重置密码的用户', 'error');
-                return;
-            }
-            const target = state.users.find((user) => user.id === state.selectedUserId);
-            if (!target) {
-                setMessage(updateUserMessage, '用户不存在', 'error');
-                return;
-            }
-            const tempPassword = generateTemporaryPassword(10);
-            setMessage(updateUserMessage, '正在重置密码，请稍候...');
-            try {
-                await fetchJSON(`${API_BASE}/users.php`, {
-                    method: 'POST', // 兼容防火墙拦截 PATCH
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: target.id, password: tempPassword, _method: 'PATCH' })
-                });
-                editPasswordInput.value = '';
-                let copied = false;
-                if (navigator.clipboard && window.isSecureContext) {
-                    try {
-                        await navigator.clipboard.writeText(tempPassword);
-                        copied = true;
-                    } catch (clipboardError) {
-                        copied = false;
+                    state.users.sort((a, b) => a.id - b.id);
+                    state.selectedUserId = updatedUser.id;
+                    refreshUserList();
+                    populateSelect(
+                        assignUserSelect,
+                        state.users,
+                        'id',
+                        (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
+                        updatedUser.id
+                    );
+                    selectUser(updatedUser.id);
+                    if (state.currentUser && Number(state.currentUser.id) === updatedUser.id) {
+                        state.currentUser = { ...state.currentUser, ...updatedUser };
+                        if (adminChip) {
+                            adminChip.textContent = `${state.currentUser.display_name || state.currentUser.username} · 管理员`;
+                            adminChip.style.display = 'inline-flex';
+                        }
                     }
+                    editPasswordInput.value = '';
+                    setMessage(updateUserMessage, '保存成功', 'success');
+                } catch (error) {
+                    setMessage(updateUserMessage, error.message || '保存失败', 'error');
                 }
-                const suffix = copied ? '（已复制）' : '';
-                setMessage(updateUserMessage, `新密码：${tempPassword}${suffix}`, 'success');
-            } catch (error) {
-                setMessage(updateUserMessage, error.message || '重置密码失败', 'error');
-            }
-        });
+            });
+        }
 
-        deleteUserButton.addEventListener('click', async () => {
-            if (!state.selectedUserId) {
-                setMessage(deleteUserMessage, '请选择需要删除的用户', 'error');
-                return;
-            }
-            const targetIndex = state.users.findIndex((user) => Number(user.id) === Number(state.selectedUserId));
-            if (targetIndex === -1) {
-                setMessage(deleteUserMessage, '用户不存在', 'error');
-                return;
-            }
-            const targetUser = state.users[targetIndex];
-            const label = targetUser.display_name || targetUser.username;
-            const confirm = await showConfirm(`确定删除用户「${label}」吗？该操作无法恢复。`);
-            if (!confirm) {
-                return;
-            }
-            setMessage(deleteUserMessage, '正在删除用户...');
-            try {
-                const body = new URLSearchParams({ action: 'delete', id: String(targetUser.id) });
-                await fetchJSON(`${API_BASE}/users.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: body.toString()
-                });
-                state.users.splice(targetIndex, 1);
-                const fallback = state.users[targetIndex] || state.users[targetIndex - 1] || null;
-                state.users.sort((a, b) => a.id - b.id);
-                state.selectedUserId = fallback ? fallback.id : null;
-                refreshUserList();
-                populateSelect(
-                    assignUserSelect,
-                    state.users,
-                    'id',
-                    (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
-                    state.selectedUserId
-                );
-                setMessage(deleteUserMessage, '用户已删除', 'success');
-                setMessage(updateUserMessage);
-                setMessage(assignCourseMessage);
-                selectUser(state.selectedUserId);
-            } catch (error) {
-                setMessage(deleteUserMessage, error.message || '删除失败', 'error');
-            }
-        });
+        if (resetPasswordButton) {
+            resetPasswordButton.addEventListener('click', async () => {
+                if (!state.selectedUserId) {
+                    setMessage(updateUserMessage, '请选择需要重置密码的用户', 'error');
+                    return;
+                }
+                const target = state.users.find((user) => user.id === state.selectedUserId);
+                if (!target) {
+                    setMessage(updateUserMessage, '用户不存在', 'error');
+                    return;
+                }
+                const tempPassword = generateTemporaryPassword(10);
+                setMessage(updateUserMessage, '正在重置密码，请稍候...');
+                try {
+                    await fetchJSON(`${API_BASE}/users.php`, {
+                        method: 'POST', // 兼容防火墙拦截 PATCH
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: target.id, password: tempPassword, _method: 'PATCH' })
+                    });
+                    editPasswordInput.value = '';
+                    let copied = false;
+                    if (navigator.clipboard && window.isSecureContext) {
+                        try {
+                            await navigator.clipboard.writeText(tempPassword);
+                            copied = true;
+                        } catch (clipboardError) {
+                            copied = false;
+                        }
+                    }
+                    const suffix = copied ? '（已复制）' : '';
+                    setMessage(updateUserMessage, `新密码：${tempPassword}${suffix}`, 'success');
+                } catch (error) {
+                    setMessage(updateUserMessage, error.message || '重置密码失败', 'error');
+                }
+            });
+        }
 
-        logoutButton.addEventListener('click', async () => {
-            try {
-                await fetchJSON(`${API_BASE}/logout.php`, { method: 'POST' });
-            } catch (error) {
-                console.error(error);
-            }
-            window.location.href = ROUTE_LOGIN;
-        });
+        if (deleteUserButton) {
+            deleteUserButton.addEventListener('click', async () => {
+                if (!state.selectedUserId) {
+                    setMessage(deleteUserMessage, '请选择需要删除的用户', 'error');
+                    return;
+                }
+                const targetIndex = state.users.findIndex((user) => Number(user.id) === Number(state.selectedUserId));
+                if (targetIndex === -1) {
+                    setMessage(deleteUserMessage, '用户不存在', 'error');
+                    return;
+                }
+                const targetUser = state.users[targetIndex];
+                const label = targetUser.display_name || targetUser.username;
+                const confirm = await showConfirm(`确定删除用户「${label}」吗？该操作无法恢复。`);
+                if (!confirm) {
+                    return;
+                }
+                setMessage(deleteUserMessage, '正在删除用户...');
+                try {
+                    const body = new URLSearchParams({ action: 'delete', id: String(targetUser.id) });
+                    await fetchJSON(`${API_BASE}/users.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: body.toString()
+                    });
+                    state.users.splice(targetIndex, 1);
+                    const fallback = state.users[targetIndex] || state.users[targetIndex - 1] || null;
+                    state.users.sort((a, b) => a.id - b.id);
+                    state.selectedUserId = fallback ? fallback.id : null;
+                    refreshUserList();
+                    populateSelect(
+                        assignUserSelect,
+                        state.users,
+                        'id',
+                        (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
+                        state.selectedUserId
+                    );
+                    setMessage(deleteUserMessage, '用户已删除', 'success');
+                    setMessage(updateUserMessage);
+                    setMessage(assignCourseMessage);
+                    selectUser(state.selectedUserId);
+                } catch (error) {
+                    setMessage(deleteUserMessage, error.message || '删除失败', 'error');
+                }
+            });
+        }
+
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    await fetchJSON(`${API_BASE}/logout.php`, { method: 'POST' });
+                } catch (error) {
+                    console.error(error);
+                }
+                window.location.href = ROUTE_LOGIN;
+            });
+        }
 
         document.querySelectorAll('.cloud-picker-button').forEach((btn) => {
             btn.addEventListener('click', async () => {
@@ -3348,9 +3377,11 @@ if (file_exists($configFile)) {
             });
         }
 
-        backButton.addEventListener('click', () => {
-            window.location.href = ROUTE_DASHBOARD;
-        });
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                window.location.href = ROUTE_DASHBOARD;
+            });
+        }
 
         loadInitialData();
     </script>
