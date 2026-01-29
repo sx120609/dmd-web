@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title data-i18n="pageTitle">Rare Light · 点亮罕见病儿童的希望</title>
+    <link rel="icon" type="image/svg+xml" href="/rarelight/favicon.svg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
