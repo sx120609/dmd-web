@@ -174,854 +174,504 @@ if (file_exists($configFile)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>网课系统 · 管理后台</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        :root {
-            /* === 核心色盘 (与主页一致) === */
-            --rl-bg: #f8fafc;
-            --rl-text-main: #0f172a;
-            --rl-text-muted: #64748b;
-            --rl-primary: #3b82f6;
-            --rl-accent: #8b5cf6;
-            --deep-gradient: linear-gradient(135deg, #2563eb, #60a5fa, #22d3ee);
-            --gradient-glow: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.05), transparent 70%);
-
-            /* 面板/卡片样式 */
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
-            --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-            --active-item-bg: rgba(59, 130, 246, 0.08);
-            --active-item-border: 1px solid rgba(59, 130, 246, 0.2);
-
-            /* 布局变量 */
-            --header-height: 70px;
-            --sidebar-width: 280px;
-        }
-
-        body {
-            font-family: 'Plus Jakarta Sans', 'Noto Sans SC', system-ui, sans-serif;
-            background-color: var(--rl-bg);
-            background-image: var(--gradient-glow);
-            background-attachment: fixed;
-            background-size: 100% 100vh;
-            color: var(--rl-text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        /* --- 导航栏 --- */
-        .site-nav {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            height: var(--header-height);
-            backdrop-filter: blur(20px);
-            background: rgba(255, 255, 255, 0.85);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-            display: flex;
-            align-items: center;
-            padding: 0 1.5rem;
-        }
-
-        .nav-brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            font-family: 'Inter', sans-serif;
-            margin-right: auto;
-        }
-
-        .brand-mark {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: var(--deep-gradient);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-        }
-
-        .brand-text {
-            line-height: 1.2;
-        }
-
-        .brand-text .small {
-            font-size: 0.7rem;
-            color: var(--rl-text-muted);
-            font-weight: 600;
-            letter-spacing: 0.05em;
-        }
-
-        .brand-text .fw-bold {
-            font-size: 1rem;
-            color: var(--rl-text-main);
-        }
-
-        .nav-btn {
-            padding: 0.4rem 0.9rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .nav-btn-outline {
-            border-color: rgba(0, 0, 0, 0.1);
-            color: var(--rl-text-main);
-            background: white;
-        }
-
-        .nav-btn-outline:hover {
-            border-color: var(--rl-primary);
-            color: var(--rl-primary);
-            transform: translateY(-1px);
-        }
-
-        /* --- 仪表盘主体布局 --- */
-        .dashboard-container {
-            display: grid;
-            grid-template-columns: var(--sidebar-width) 1fr;
-            gap: 1.5rem;
-            padding: 1.5rem;
-            max-width: 1600px;
-            margin: 0 auto;
-            align-items: start;
-        }
-
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            position: sticky;
-            top: 90px;
-        }
-
-        .stage {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            min-width: 0;
-        }
-
-        /* 面板样式 */
-        .panel-glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: var(--glass-border);
-            border-radius: 16px;
-            box-shadow: var(--glass-shadow);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .panel-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-            background: rgba(255, 255, 255, 0.4);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .panel-header h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .panel-header .hint {
-            font-size: 0.8rem;
-            color: var(--rl-text-muted);
-            margin: 0;
-        }
-
-        .panel-title {
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        .panel-body {
-            padding: 1.5rem;
-        }
-
-        /* 侧边栏导航项 */
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid transparent;
-            color: var(--rl-text-muted);
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .nav-item:hover {
-            background: white;
-            color: var(--rl-primary);
-            transform: translateX(2px);
-        }
-
-        .nav-item.active {
-            background: white;
-            color: var(--rl-primary);
-            border: var(--active-item-border);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
-            font-weight: 600;
-        }
-
-        /* 表单与列表复用样式调整 */
-        .surface-section {
-            background: transparent !important;
-            box-shadow: none !important;
-            border: none !important;
-        }
-
-        .table-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .table-list li {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-list li:last-child {
-            border-bottom: none;
-        }
-
-        .message {
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            margin-top: 10px;
-        }
-
-        .message.success {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .message.error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .message.inline {
-            display: inline-block;
-            margin-top: 0;
-            margin-left: 10px;
-        }
-
-        /* Helpers */
-        .form-grid>div {
-            margin-bottom: 1rem;
-        }
-
-        .form-grid label {
-            display: block;
-            margin-bottom: 0.4rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .form-control,
-        .form-select,
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 0.6rem;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.8);
-        }
-
-        .primary-button {
-            background: var(--rl-primary);
-            color: white;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .ghost-button {
-            background: transparent;
-            color: var(--rl-text-muted);
-            border: 1px solid transparent;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-        }
-
-        .ghost-button:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--rl-text-main);
-        }
-
-        .inline-button {
-            padding: 4px 10px;
-            font-size: 0.8rem;
-            border-radius: 6px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            background: white;
-            text-decoration: none;
-            color: var(--rl-text-main);
-        }
-
-        .inline-button.danger {
-            color: #dc2626;
-            border-color: rgba(220, 38, 38, 0.2);
-        }
-
-        .inline-button.danger:hover {
-            background: #dc2626;
-            color: white;
-        }
-
-        /* Tab Logic */
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/main.css">
 </head>
 
-<body>
-    <nav class="site-nav">
-        <a href="/rarelight/" class="nav-brand">
-            <div class="brand-mark">RL</div>
-            <div class="brand-text">
-                <div class="small text-uppercase">RARE LIGHT</div>
-                <div class="fw-bold">管理后台</div>
+<body class="app-shell">
+    <nav class="navbar navbar-expand-lg app-navbar">
+        <div class="container-xxl py-3 px-3 px-lg-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="brand-glow">RL</div>
+                <div class="d-flex flex-column">
+                    <span class="brand-eyebrow text-uppercase">RARE LIGHT</span>
+                    <span class="navbar-brand p-0 m-0 fw-semibold">Rare Light 管理后台</span>
+                </div>
             </div>
-        </a>
-        <div class="d-flex gap-2">
-            <a href="/rarelight/dashboard" class="nav-btn nav-btn-outline"><i class="bi bi-play-circle"></i> 返回课堂</a>
-            <a href="/rarelight/cloud" class="nav-btn nav-btn-outline"><i class="bi bi-cloud"></i> 云盘</a>
-            <button class="nav-btn nav-btn-outline text-danger" id="logoutButton"><i class="bi bi-box-arrow-right"></i>
-                退出</button>
+            <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
+                <div class="user-chip" id="adminChip" style="display:none;"></div>
+                <a class="btn btn-outline-secondary btn-sm" href="/rarelight/">返回首页</a>
+                <a class="btn btn-outline-primary btn-sm" href="/rarelight/cloud">云盘</a>
+                <button class="btn btn-outline-secondary btn-sm" id="backButton">返回课堂</button>
+                <button class="btn btn-outline-danger btn-sm" id="logoutButton">退出登录</button>
+            </div>
         </div>
     </nav>
 
-    <div class="dashboard-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="panel-glass p-2">
-                <div class="nav-item active" data-target="users">
-                    <i class="bi bi-people"></i> 用户管理
-                </div>
-                <div class="nav-item" data-target="courses">
-                    <i class="bi bi-journal-album"></i> 课程管理
-                </div>
-                <div class="nav-item" data-target="lessons">
-                    <i class="bi bi-collection-play"></i> 课节管理
-                </div>
-                <div class="nav-item" data-target="assignments">
-                    <i class="bi bi-person-check"></i> 课程分配
-                </div>
-                <div class="nav-item" data-target="posts">
-                    <i class="bi bi-card-text"></i> 项目日志
-                </div>
-            </div>
-
-            <div class="panel-glass p-3 mt-auto">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-shield-lock text-primary"></i>
-                    <div>
-                        <div class="small fw-bold">管理员模式</div>
-                        <div class="small text-muted" style="font-size: 0.75rem">拥有完全控制权限</div>
+    <section class="page-hero py-4 py-lg-5">
+        <div class="container-xxl px-3 px-lg-4">
+            <div class="hero-panel admin-hero">
+                <div class="hero-eyebrow">内容运营中心</div>
+                <div class="hero-main">
+                    <div class="hero-copy">
+                        <h1 class="hero-title">快速配置教学内容</h1>
+                        <p class="hero-subtitle">管理用户、课程与课节，分配资源给不同的学员。所有操作实时生效。</p>
+                    </div>
+                    <div class="hero-meta">
+                        <span class="hero-pill">实时保存</span>
+                        <span class="hero-pill soft">一体化管理</span>
                     </div>
                 </div>
             </div>
-        </aside>
+        </div>
+    </section>
 
-        <!-- Main Content Stage -->
-        <section class="stage">
-            <div class="tab-content active" id="tab-users">
-                <div class="row g-4 align-items-start">
-                    <div class="col-12 col-xl-5 col-xxl-4">
-                        <div class="d-flex flex-column gap-4">
-                            <div class="panel-glass">
-                                <div class="panel-header">
-                                    <h3>用户</h3>
-                                    <p class="hint">点击用户即可查看详情、修改信息或重置密码。</p>
-                                </div>
-                                <ul class="table-list user-table" id="userList"></ul>
-                            </div>
-                            <form id="createUserForm" class="panel-glass p-4 form-grid">
-                                <div class="d-flex align-items-start justify-content-between mb-3 gap-3">
-                                    <div class="min-width-0">
-                                        <h3 class="mb-1 panel-title">创建用户</h3>
-                                        <p class="hint mb-0 text-break">单个创建或使用右侧按钮批量导入。</p>
+    <main class="admin-main container-xxl px-3 px-lg-4 pb-5">
+        <div class="card surface-section border-0 shadow-sm p-0 glass-card">
+            <div class="card-body p-4 p-lg-5">
+                <div class="admin-toolbar mb-4">
+                    <div>
+                        <h2 class="admin-section-title">选择管理模块</h2>
+                        <p class="mb-0 text-secondary">点击下方标签切换用户、课程、课节以及分配的管理视图。</p>
+                    </div>
+                    <div class="pill-tabs" role="tablist">
+                        <button type="button" class="active" data-target="users">用户管理</button>
+                        <button type="button" data-target="courses">课程管理</button>
+                        <button type="button" data-target="lessons">课节管理</button>
+                        <button type="button" data-target="assignments">课程分配</button>
+                        <button type="button" data-target="posts">项目日志</button>
+                    </div>
+                </div>
+                <div class="tab-content active" id="tab-users" role="tabpanel">
+                    <div class="row g-4 align-items-start">
+                        <div class="col-12 col-xl-5 col-xxl-4">
+                            <div class="d-flex flex-column gap-4">
+                                <div class="card surface-section list-card user-list-card">
+                                    <div class="panel-header">
+                                        <h3>用户</h3>
+                                        <p class="hint">点击用户即可查看详情、修改信息或重置密码。</p>
                                     </div>
-                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 flex-shrink-0"
-                                        id="openUserImportModal">批量导入</button>
+                                    <ul class="table-list user-table" id="userList"></ul>
+                                </div>
+                                <form id="createUserForm" class="card surface-section form-grid surface-form">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h3 class="mb-1">创建用户</h3>
+                                            <p class="hint mb-0">单个创建或使用右侧按钮批量导入。</p>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                                            id="openUserImportModal">批量导入</button>
+                                    </div>
+                                    <div>
+                                        <label for="newUsername">用户名</label>
+                                        <input id="newUsername" name="username" placeholder="例如：student01" required>
+                                    </div>
+                                    <div>
+                                        <label for="newDisplayName">显示名称</label>
+                                        <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
+                                    </div>
+                                    <div>
+                                        <label for="newPassword">初始密码</label>
+                                        <input id="newPassword" name="password" type="password" placeholder="设置登录密码"
+                                            required>
+                                    </div>
+                                    <div>
+                                        <label for="newRole">角色</label>
+                                        <select id="newRole" name="role">
+                                            <option value="student">学员</option>
+                                            <option value="teacher">老师</option>
+                                            <option value="admin">管理员</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="primary-button">创建用户</button>
+                                    <div class="message inline" id="createUserMessage" hidden></div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-12 col-xl-7 col-xxl-8">
+                            <section class="card surface-section user-detail-card" id="userDetailCard">
+                                <div class="user-detail-header">
+                                    <div>
+                                        <h3 id="userDetailTitle">用户详情</h3>
+                                        <p id="userDetailSubtitle">请选择左侧的用户进行管理。</p>
+                                    </div>
+                                    <span class="chip subtle user-detail-chip" id="userDetailRoleChip" hidden></span>
+                                </div>
+                                <div class="user-detail-empty" id="userDetailEmpty">没有选中的用户，点击左侧列表中的用户即可开始编辑。</div>
+                                <form id="updateUserForm" class="form-grid" hidden>
+                                    <div>
+                                        <label for="editUsername">用户名</label>
+                                        <input id="editUsername" required>
+                                    </div>
+                                    <div>
+                                        <label for="editDisplayName">显示名称</label>
+                                        <input id="editDisplayName" placeholder="学生姓名或昵称">
+                                    </div>
+                                    <div>
+                                        <label for="editRole">角色</label>
+                                        <select id="editRole">
+                                            <option value="student">学员</option>
+                                            <option value="teacher">老师</option>
+                                            <option value="admin">管理员</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="editPassword">重置密码</label>
+                                        <div class="password-inline">
+                                            <input id="editPassword" type="password" placeholder="填写新密码，留空则不修改">
+                                            <button type="button" class="ghost-button"
+                                                id="resetPasswordButton">生成临时密码</button>
+                                        </div>
+                                        <p class="hint mt-sm">生成临时密码会立即生效，并在下方显示结果。</p>
+                                    </div>
+                                    <button type="submit" class="primary-button">保存修改</button>
+                                    <div class="message inline" id="updateUserMessage" hidden></div>
+                                </form>
+                                <div class="danger-zone" id="userDangerZone" hidden>
+                                    <div>
+                                        <strong>危险操作</strong>
+                                        <p>删除用户将一并移除其课程分配，且无法撤销。</p>
+                                    </div>
+                                    <button type="button" class="inline-button danger"
+                                        id="deleteUserButton">删除用户</button>
+                                    <div class="message inline" id="deleteUserMessage" hidden></div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-courses" role="tabpanel">
+                    <div class="row g-4 align-items-start">
+                        <div class="col-12 col-xl-5 col-xxl-4">
+                            <form id="createCourseForm" class="card surface-section form-grid surface-form">
+                                <div>
+                                    <label for="courseTitleInput">课程名称</label>
+                                    <input id="courseTitleInput" name="title" placeholder="例如：高等数学" required>
                                 </div>
                                 <div>
-                                    <label for="newUsername">用户名</label>
-                                    <input id="newUsername" name="username" placeholder="例如：student01" required>
+                                    <label for="courseInstructorInput">讲师/老师</label>
+                                    <input id="courseInstructorInput" name="instructor" placeholder="可选，填写讲师或负责人">
                                 </div>
                                 <div>
-                                    <label for="newDisplayName">显示名称</label>
-                                    <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
+                                    <label for="courseTagsInput">标签</label>
+                                    <input id="courseTagsInput" name="tags" placeholder="用逗号分隔，例如：数学,基础,直播">
                                 </div>
                                 <div>
-                                    <label for="newPassword">初始密码</label>
-                                    <input id="newPassword" name="password" type="password" placeholder="设置登录密码"
+                                    <label for="courseDescriptionInput">课程简介</label>
+                                    <textarea id="courseDescriptionInput" name="description" rows="4"
+                                        placeholder="补充课程概述与亮点"></textarea>
+                                </div>
+                                <button type="submit" class="primary-button">创建课程</button>
+                                <div class="message inline" id="createCourseMessage" hidden></div>
+                            </form>
+                        </div>
+                        <div class="col-12 col-xl-7 col-xxl-8">
+                            <div class="card surface-section list-card">
+                                <h3>课程列表</h3>
+                                <p class="hint">点击课程可编辑信息，删除将同时移除课节与分配记录。</p>
+                                <ul class="table-list" id="courseList"></ul>
+                                <div class="message inline" id="courseListMessage" hidden></div>
+                            </div>
+                            <form id="updateCourseForm" class="card surface-section form-grid surface-form mt-4" hidden>
+                                <h3 class="flush-top">编辑课程</h3>
+                                <div>
+                                    <label for="editCourseTitle">课程名称</label>
+                                    <input id="editCourseTitle" required>
+                                </div>
+                                <div>
+                                    <label for="editCourseInstructor">讲师/老师</label>
+                                    <input id="editCourseInstructor" placeholder="可选，填写讲师或负责人">
+                                </div>
+                                <div>
+                                    <label for="editCourseTags">标签</label>
+                                    <input id="editCourseTags" placeholder="用逗号分隔标签">
+                                </div>
+                                <div>
+                                    <label for="editCourseDescription">课程简介</label>
+                                    <textarea id="editCourseDescription" rows="4" placeholder="补充课程概述"></textarea>
+                                </div>
+                                <div class="split">
+                                    <button type="submit" class="primary-button">保存修改</button>
+                                    <button type="button" class="ghost-button" id="cancelCourseEdit">取消</button>
+                                </div>
+                                <div class="message inline" id="updateCourseMessage" hidden></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-lessons" role="tabpanel">
+                    <div class="row g-4 align-items-start">
+                        <div class="col-12 col-xl-5 col-xxl-4">
+                            <form id="createLessonForm" class="card surface-section form-grid surface-form">
+                                <div>
+                                    <label for="lessonCourseSelect">所属课程</label>
+                                    <select id="lessonCourseSelect" name="course_id" required></select>
+                                </div>
+                                <div>
+                                    <label for="lessonTitleInput">课节标题</label>
+                                    <input id="lessonTitleInput" name="title" placeholder="例如：第一章 函数极限" required>
+                                </div>
+                                <div>
+                                    <label for="lessonVideoInput">视频地址</label>
+                                    <div class="input-group">
+                                        <input id="lessonVideoInput" name="video_url" class="form-control"
+                                            placeholder="支持哔哩哔哩链接或本地视频文件路径">
+                                        <button type="button" class="btn btn-outline-secondary cloud-picker-button"
+                                            data-target-input="lessonVideoInput">云盘选择</button>
+                                    </div>
+                                    <p class="hint">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
+                                </div>
+                                <div>
+                                    <label for="lessonAttachmentsInput">附件（每行“名称|链接”或直接粘贴链接）</label>
+                                    <div class="d-flex flex-column gap-2">
+                                        <textarea id="lessonAttachmentsInput" name="attachments" rows="3" placeholder="示例：
+讲义|https://example.com/file.pdf
+练习|https://example.com/ex.pdf"></textarea>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button type="button"
+                                                class="btn btn-outline-secondary btn-sm cloud-picker-button"
+                                                data-target-input="lessonAttachmentsInput"
+                                                data-cloud-mode="attachment">云盘选择</button>
+                                            <p class="hint mb-0">支持外部链接或云盘外链，留空则无附件。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="lessonDescriptionInput">课节简介</label>
+                                    <textarea id="lessonDescriptionInput" name="description" rows="4"
+                                        placeholder="填写课节要点"></textarea>
+                                </div>
+                                <button type="submit" class="primary-button">创建课节</button>
+                                <div class="message inline" id="createLessonMessage" hidden></div>
+                            </form>
+                        </div>
+                        <div class="col-12 col-xl-7 col-xxl-8">
+                            <div class="card surface-section list-card">
+                                <div class="panel-header">
+                                    <h3>课节列表</h3>
+                                    <p class="hint">从下拉框选择课程查看课节，点击课节可编辑内容。</p>
+                                </div>
+                                <ul class="table-list" id="lessonList"></ul>
+                                <div class="message inline" id="lessonListMessage" hidden></div>
+                            </div>
+                            <form id="updateLessonForm" class="card surface-section form-grid surface-form mt-4" hidden>
+                                <h3 class="flush-top">编辑课节</h3>
+                                <div>
+                                    <label for="editLessonCourseSelect">所属课程</label>
+                                    <select id="editLessonCourseSelect" required></select>
+                                </div>
+                                <div>
+                                    <label for="editLessonTitle">课节标题</label>
+                                    <input id="editLessonTitle" required>
+                                </div>
+                                <div>
+                                    <label for="editLessonVideo">视频地址</label>
+                                    <div class="input-group">
+                                        <input id="editLessonVideo" class="form-control"
+                                            placeholder="支持哔哩哔哩链接或本地视频文件路径">
+                                        <button type="button" class="btn btn-outline-secondary cloud-picker-button"
+                                            data-target-input="editLessonVideo">云盘选择</button>
+                                    </div>
+                                    <p class="hint">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
+                                </div>
+                                <div>
+                                    <label for="editLessonAttachments">附件（每行“名称|链接”或直接粘贴链接）</label>
+                                    <div class="d-flex flex-column gap-2">
+                                        <textarea id="editLessonAttachments" rows="3" placeholder="示例：
+讲义 PDF|https://example.com/file.pdf
+练习题|https://example.com/ex.pdf"></textarea>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button type="button"
+                                                class="btn btn-outline-secondary btn-sm cloud-picker-button"
+                                                data-target-input="editLessonAttachments"
+                                                data-cloud-mode="attachment">云盘选择</button>
+                                            <p class="hint mb-0">支持外部链接或云盘外链。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="editLessonDescription">课节简介</label>
+                                    <textarea id="editLessonDescription" rows="4" placeholder="填写课节要点"></textarea>
+                                </div>
+                                <div class="split">
+                                    <button type="submit" class="primary-button">保存修改</button>
+                                    <button type="button" class="ghost-button" id="cancelLessonEdit">取消</button>
+                                </div>
+                                <div class="message inline" id="updateLessonMessage" hidden></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-assignments" role="tabpanel">
+                    <div class="row g-4 align-items-start">
+                        <div class="col-12 col-xl-5 col-xxl-4">
+                            <form id="assignCourseForm" class="card surface-section form-grid surface-form">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <h3 class="mb-1">分配课程</h3>
+                                        <p class="hint mb-0">单个分配或使用右侧按钮批量导入。</p>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                                        id="openAssignImportModal">批量分配</button>
+                                </div>
+                                <div>
+                                    <label for="assignUserSelect">选择用户</label>
+                                    <select id="assignUserSelect" name="user_id" required></select>
+                                </div>
+                                <div>
+                                    <label for="assignCourseSelect">分配课程</label>
+                                    <select id="assignCourseSelect" name="course_id" required></select>
+                                </div>
+                                <button type="submit" class="primary-button">分配课程</button>
+                                <div class="message inline" id="assignCourseMessage" hidden></div>
+                            </form>
+                        </div>
+                        <div class="col-12 col-xl-7 col-xxl-8">
+                            <div class="card surface-section list-card">
+                                <div class="panel-header">
+                                    <h3>用户已分配课程</h3>
+                                    <p class="hint">选择用户后会显示其已分配的课程，可点击移除。</p>
+                                </div>
+                                <ul class="table-list" id="assignmentList"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-posts" role="tabpanel">
+                    <div class="row g-4 align-items-start">
+                        <div class="col-12 col-xl-5 col-xxl-4">
+                            <form id="createPostForm" class="card surface-section form-grid surface-form" method="post"
+                                action="/rarelight/admin?tab=posts#posts">
+                                <input type="hidden" name="post_action" value="create">
+                                <div>
+                                    <label for="postTitleInput">文章标题</label>
+                                    <input id="postTitleInput" name="title" placeholder="例如：阶段成果总结" required>
+                                </div>
+                                <div>
+                                    <label for="postLinkInput">公众号文章链接</label>
+                                    <input id="postLinkInput" name="link_url" placeholder="https://mp.weixin.qq.com/..."
                                         required>
                                 </div>
                                 <div>
-                                    <label for="newRole">角色</label>
-                                    <select id="newRole" name="role">
-                                        <option value="student">学员</option>
-                                        <option value="teacher">老师</option>
-                                        <option value="admin">管理员</option>
-                                    </select>
+                                    <label for="postDateInput">发布日期</label>
+                                    <input id="postDateInput" name="published_at" type="date">
                                 </div>
-                                <button type="submit" class="primary-button">创建用户</button>
-                                <div class="message inline" id="createUserMessage" hidden></div>
+                                <div>
+                                    <label for="postAuthorInput">作者/负责人</label>
+                                    <input id="postAuthorInput" name="author" placeholder="可选，填写负责人">
+                                </div>
+                                <div>
+                                    <label for="postTagsInput">标签</label>
+                                    <input id="postTagsInput" name="tags" placeholder="用逗号分隔，例如：调研,里程碑">
+                                </div>
+                                <div>
+                                    <label for="postSummaryInput">摘要</label>
+                                    <textarea id="postSummaryInput" name="summary" rows="3"
+                                        placeholder="简要概述（可选）"></textarea>
+                                </div>
+                                <button type="submit" class="primary-button">发布文章</button>
+                                <div class="message inline <?php echo $blogFlash['type'] === 'error' ? 'error' : ($blogFlash['type'] === 'success' ? 'success' : ''); ?>"
+                                    id="createPostMessage" <?php echo $blogFlash['message'] ? '' : 'hidden'; ?>>
+                                    <?php echo htmlspecialchars($blogFlash['message'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                </div>
                             </form>
                         </div>
-                    </div>
-                    <div class="col-12 col-xl-7 col-xxl-8">
-                        <section class="card surface-section user-detail-card" id="userDetailCard">
-                            <div class="user-detail-header">
-                                <div>
-                                    <h3 id="userDetailTitle">用户详情</h3>
-                                    <p id="userDetailSubtitle">请选择左侧的用户进行管理。</p>
+                        <div class="col-12 col-xl-7 col-xxl-8">
+                            <div class="card surface-section list-card">
+                                <div class="panel-header">
+                                    <h3>文章列表</h3>
+                                    <p class="hint">点击文章可编辑内容，删除后不可恢复。</p>
                                 </div>
-                                <span class="chip subtle user-detail-chip" id="userDetailRoleChip" hidden></span>
-                            </div>
-                            <div class="user-detail-empty" id="userDetailEmpty">没有选中的用户，点击左侧列表中的用户即可开始编辑。</div>
-                            <form id="updateUserForm" class="form-grid" hidden>
-                                <div>
-                                    <label for="editUsername">用户名</label>
-                                    <input id="editUsername" required>
-                                </div>
-                                <div>
-                                    <label for="editDisplayName">显示名称</label>
-                                    <input id="editDisplayName" placeholder="学生姓名或昵称">
-                                </div>
-                                <div>
-                                    <label for="editRole">角色</label>
-                                    <select id="editRole">
-                                        <option value="student">学员</option>
-                                        <option value="teacher">老师</option>
-                                        <option value="admin">管理员</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="editPassword">重置密码</label>
-                                    <div class="password-inline">
-                                        <input id="editPassword" type="password" placeholder="填写新密码，留空则不修改">
-                                        <button type="button" class="ghost-button"
-                                            id="resetPasswordButton">生成临时密码</button>
-                                    </div>
-                                    <p class="hint mt-sm">生成临时密码会立即生效，并在下方显示结果。</p>
-                                </div>
-                                <button type="submit" class="primary-button">保存修改</button>
-                                <div class="message inline" id="updateUserMessage" hidden></div>
-                            </form>
-                            <div class="danger-zone" id="userDangerZone" hidden>
-                                <div>
-                                    <strong>危险操作</strong>
-                                    <p>删除用户将一并移除其课程分配，且无法撤销。</p>
-                                </div>
-                                <button type="button" class="inline-button danger" id="deleteUserButton">删除用户</button>
-                                <div class="message inline" id="deleteUserMessage" hidden></div>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-content" id="tab-courses" role="tabpanel">
-                <div class="row g-4 align-items-start">
-                    <div class="col-12 col-xl-5 col-xxl-4">
-                        <form id="createCourseForm" class="panel-glass form-grid surface-form">
-                            <div>
-                                <label for="courseTitleInput">课程名称</label>
-                                <input id="courseTitleInput" name="title" placeholder="例如：高等数学" required>
-                            </div>
-                            <div>
-                                <label for="courseInstructorInput">讲师/老师</label>
-                                <input id="courseInstructorInput" name="instructor" placeholder="可选，填写讲师或负责人">
-                            </div>
-                            <div>
-                                <label for="courseTagsInput">标签</label>
-                                <input id="courseTagsInput" name="tags" placeholder="用逗号分隔，例如：数学,基础,直播">
-                            </div>
-                            <div>
-                                <label for="courseDescriptionInput">课程简介</label>
-                                <textarea id="courseDescriptionInput" name="description" rows="4"
-                                    placeholder="补充课程概述与亮点"></textarea>
-                            </div>
-                            <button type="submit" class="primary-button">创建课程</button>
-                            <div class="message inline" id="createCourseMessage" hidden></div>
-                        </form>
-                    </div>
-                    <div class="col-12 col-xl-7 col-xxl-8">
-                        <div class="panel-glass">
-                            <h3>课程列表</h3>
-                            <p class="hint">点击课程可编辑信息，删除将同时移除课节与分配记录。</p>
-                            <ul class="table-list" id="courseList"></ul>
-                            <div class="message inline" id="courseListMessage" hidden></div>
-                        </div>
-                        <form id="updateCourseForm" class="panel-glass p-4 form-grid mt-4" hidden>
-                            <h3 class="flush-top">编辑课程</h3>
-                            <div>
-                                <label for="editCourseTitle">课程名称</label>
-                                <input id="editCourseTitle" required>
-                            </div>
-                            <div>
-                                <label for="editCourseInstructor">讲师/老师</label>
-                                <input id="editCourseInstructor" placeholder="可选，填写讲师或负责人">
-                            </div>
-                            <div>
-                                <label for="editCourseTags">标签</label>
-                                <input id="editCourseTags" placeholder="用逗号分隔标签">
-                            </div>
-                            <div>
-                                <label for="editCourseDescription">课程简介</label>
-                                <textarea id="editCourseDescription" rows="4" placeholder="补充课程概述"></textarea>
-                            </div>
-                            <div class="split">
-                                <button type="submit" class="primary-button">保存修改</button>
-                                <button type="button" class="ghost-button" id="cancelCourseEdit">取消</button>
-                            </div>
-                            <div class="message inline" id="updateCourseMessage" hidden></div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-content" id="tab-lessons" role="tabpanel">
-                <div class="row g-4 align-items-start">
-                    <div class="col-12 col-xl-5 col-xxl-4">
-                        <form id="createLessonForm" class="panel-glass form-grid surface-form">
-                            <div>
-                                <label for="lessonCourseSelect">所属课程</label>
-                                <select id="lessonCourseSelect" name="course_id" required></select>
-                            </div>
-                            <div>
-                                <label for="lessonTitleInput">课节标题</label>
-                                <input id="lessonTitleInput" name="title" placeholder="例如：第一章 函数极限" required>
-                            </div>
-                            <div>
-                                <label for="lessonVideoInput">视频地址</label>
-                                <div class="input-group">
-                                    <input id="lessonVideoInput" name="video_url" class="form-control"
-                                        placeholder="支持哔哩哔哩链接或本地视频文件路径">
-                                    <button type="button" class="btn btn-outline-secondary cloud-picker-button"
-                                        data-target-input="lessonVideoInput">云盘选择</button>
-                                </div>
-                                <p class="hint">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
-                            </div>
-                            <div>
-                                <label for="lessonAttachmentsInput">附件（每行“名称|链接”或直接粘贴链接）</label>
-                                <div class="d-flex flex-column gap-2">
-                                    <textarea id="lessonAttachmentsInput" name="attachments" rows="3" placeholder="示例：
-讲义|https://example.com/file.pdf
-练习|https://example.com/ex.pdf"></textarea>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <button type="button"
-                                            class="btn btn-outline-secondary btn-sm cloud-picker-button"
-                                            data-target-input="lessonAttachmentsInput"
-                                            data-cloud-mode="attachment">云盘选择</button>
-                                        <p class="hint mb-0">支持外部链接或云盘外链，留空则无附件。</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <label for="lessonDescriptionInput">课节简介</label>
-                                <textarea id="lessonDescriptionInput" name="description" rows="4"
-                                    placeholder="填写课节要点"></textarea>
-                            </div>
-                            <button type="submit" class="primary-button">创建课节</button>
-                            <div class="message inline" id="createLessonMessage" hidden></div>
-                        </form>
-                    </div>
-                    <div class="col-12 col-xl-7 col-xxl-8">
-                        <div class="panel-glass">
-                            <div class="panel-header">
-                                <h3>课节列表</h3>
-                                <p class="hint">从下拉框选择课程查看课节，点击课节可编辑内容。</p>
-                            </div>
-                            <ul class="table-list" id="lessonList"></ul>
-                            <div class="message inline" id="lessonListMessage" hidden></div>
-                        </div>
-                        <form id="updateLessonForm" class="panel-glass p-4 form-grid mt-4" hidden>
-                            <h3 class="flush-top">编辑课节</h3>
-                            <div>
-                                <label for="editLessonCourseSelect">所属课程</label>
-                                <select id="editLessonCourseSelect" required></select>
-                            </div>
-                            <div>
-                                <label for="editLessonTitle">课节标题</label>
-                                <input id="editLessonTitle" required>
-                            </div>
-                            <div>
-                                <label for="editLessonVideo">视频地址</label>
-                                <div class="input-group">
-                                    <input id="editLessonVideo" class="form-control" placeholder="支持哔哩哔哩链接或本地视频文件路径">
-                                    <button type="button" class="btn btn-outline-secondary cloud-picker-button"
-                                        data-target-input="editLessonVideo">云盘选择</button>
-                                </div>
-                                <p class="hint">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
-                            </div>
-                            <div>
-                                <label for="editLessonAttachments">附件（每行“名称|链接”或直接粘贴链接）</label>
-                                <div class="d-flex flex-column gap-2">
-                                    <textarea id="editLessonAttachments" rows="3" placeholder="示例：
-讲义 PDF|https://example.com/file.pdf
-练习题|https://example.com/ex.pdf"></textarea>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <button type="button"
-                                            class="btn btn-outline-secondary btn-sm cloud-picker-button"
-                                            data-target-input="editLessonAttachments"
-                                            data-cloud-mode="attachment">云盘选择</button>
-                                        <p class="hint mb-0">支持外部链接或云盘外链。</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <select id="assignCourseSelect" name="course_id" required></select>
-                            </div>
-                            <button type="submit" class="primary-button">分配课程</button>
-                            <div class="message inline" id="assignCourseMessage" hidden></div>
-                        </form>
-                    </div>
-                    <div class="col-12 col-xl-7 col-xxl-8">
-                        <div class="panel-glass">
-                            <div class="panel-header">
-                                <h3>用户已分配课程</h3>
-                                <p class="hint">选择用户后会显示其已分配的课程，可点击移除。</p>
-                            </div>
-                            <ul class="table-list" id="assignmentList"></ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-content" id="tab-posts" role="tabpanel">
-                <div class="row g-4 align-items-start">
-                    <div class="col-12 col-xl-5 col-xxl-4">
-                        <form id="createPostForm" class="panel-glass form-grid surface-form" method="post"
-                            action="/rarelight/admin?tab=posts#posts">
-                            <input type="hidden" name="post_action" value="create">
-                            <div>
-                                <label for="postTitleInput">文章标题</label>
-                                <input id="postTitleInput" name="title" placeholder="例如：阶段成果总结" required>
-                            </div>
-                            <div>
-                                <label for="postLinkInput">公众号文章链接</label>
-                                <input id="postLinkInput" name="link_url" placeholder="https://mp.weixin.qq.com/..."
-                                    required>
-                            </div>
-                            <div>
-                                <label for="postDateInput">发布日期</label>
-                                <input id="postDateInput" name="published_at" type="date">
-                            </div>
-                            <div>
-                                <label for="postAuthorInput">作者/负责人</label>
-                                <input id="postAuthorInput" name="author" placeholder="可选，填写负责人">
-                            </div>
-                            <div>
-                                <label for="postTagsInput">标签</label>
-                                <input id="postTagsInput" name="tags" placeholder="用逗号分隔，例如：调研,里程碑">
-                            </div>
-                            <div>
-                                <label for="postSummaryInput">摘要</label>
-                                <textarea id="postSummaryInput" name="summary" rows="3"
-                                    placeholder="简要概述（可选）"></textarea>
-                            </div>
-                            <button type="submit" class="primary-button">发布文章</button>
-                            <div class="message inline <?php echo $blogFlash['type'] === 'error' ? 'error' : ($blogFlash['type'] === 'success' ? 'success' : ''); ?>"
-                                id="createPostMessage" <?php echo $blogFlash['message'] ? '' : 'hidden'; ?>>
-                                <?php echo htmlspecialchars($blogFlash['message'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="col-12 col-xl-7 col-xxl-8">
-                        <div class="panel-glass">
-                            <div class="panel-header">
-                                <h3>文章列表</h3>
-                                <p class="hint">点击文章可编辑内容，删除后不可恢复。</p>
-                            </div>
-                            <ul class="table-list" id="postList">
-                                <?php if (empty($blogPosts)): ?>
+                                <ul class="table-list" id="postList">
+                                    <?php if (empty($blogPosts)): ?>
                                         <li class="text-muted">暂无文章，请先发布。</li>
-                                <?php else: ?>
+                                    <?php else: ?>
                                         <?php foreach ($blogPosts as $post): ?>
-                                                <li
-                                                    class="selectable<?php echo ($blogEditPost && (int) $blogEditPost['id'] === (int) $post['id']) ? ' active' : ''; ?>">
-                                                    <div style="flex: 1;">
-                                                        <strong><?php echo htmlspecialchars($post['title'] ?? ('文章 ' . $post['id']), ENT_QUOTES, 'UTF-8'); ?></strong>
-                                                        <div class="text-muted" style="font-size: 0.85rem;">
-                                                            <?php
-                                                            $metaPieces = [];
-                                                            if (!empty($post['author'])) {
-                                                                $metaPieces[] = htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8');
-                                                            }
-                                                            if (!empty($post['published_at'])) {
-                                                                $metaPieces[] = htmlspecialchars($post['published_at'], ENT_QUOTES, 'UTF-8');
-                                                            }
-                                                            $summary = trim((string) ($post['summary'] ?? ''));
-                                                            if ($summary !== '') {
-                                                                $metaPieces[] = mb_strimwidth($summary, 0, 60, '…', 'UTF-8');
-                                                            }
-                                                            $metaText = $metaPieces ? implode(' · ', $metaPieces) : '';
-                                                            ?>
-                                                            <?php echo '文章ID：' . (int) $post['id'] . ($metaText ? ' · ' . htmlspecialchars($metaText, ENT_QUOTES, 'UTF-8') : ''); ?>
-                                                        </div>
+                                            <li
+                                                class="selectable<?php echo ($blogEditPost && (int) $blogEditPost['id'] === (int) $post['id']) ? ' active' : ''; ?>">
+                                                <div style="flex: 1;">
+                                                    <strong><?php echo htmlspecialchars($post['title'] ?? ('文章 ' . $post['id']), ENT_QUOTES, 'UTF-8'); ?></strong>
+                                                    <div class="text-muted" style="font-size: 0.85rem;">
+                                                        <?php
+                                                        $metaPieces = [];
+                                                        if (!empty($post['author'])) {
+                                                            $metaPieces[] = htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8');
+                                                        }
+                                                        if (!empty($post['published_at'])) {
+                                                            $metaPieces[] = htmlspecialchars($post['published_at'], ENT_QUOTES, 'UTF-8');
+                                                        }
+                                                        $summary = trim((string) ($post['summary'] ?? ''));
+                                                        if ($summary !== '') {
+                                                            $metaPieces[] = mb_strimwidth($summary, 0, 60, '…', 'UTF-8');
+                                                        }
+                                                        $metaText = $metaPieces ? implode(' · ', $metaPieces) : '';
+                                                        ?>
+                                                        <?php echo '文章ID：' . (int) $post['id'] . ($metaText ? ' · ' . htmlspecialchars($metaText, ENT_QUOTES, 'UTF-8') : ''); ?>
                                                     </div>
-                                                    <div class="list-actions" style="display: flex; gap: 0.5rem; align-items: center;">
-                                                        <a class="inline-button"
-                                                            href="/rarelight/admin?tab=posts&post_id=<?php echo (int) $post['id']; ?>#posts">编辑</a>
-                                                        <form method="post" action="/rarelight/admin?tab=posts#posts"
-                                                            onsubmit="return confirm('确定删除该文章？');">
-                                                            <input type="hidden" name="post_action" value="delete">
-                                                            <input type="hidden" name="post_id"
-                                                                value="<?php echo (int) $post['id']; ?>">
-                                                            <button type="submit" class="inline-button danger">删除</button>
-                                                        </form>
-                                                    </div>
-                                                </li>
+                                                </div>
+                                                <div class="list-actions"
+                                                    style="display: flex; gap: 0.5rem; align-items: center;">
+                                                    <a class="inline-button"
+                                                        href="/rarelight/admin?tab=posts&post_id=<?php echo (int) $post['id']; ?>#posts">编辑</a>
+                                                    <form method="post" action="/rarelight/admin?tab=posts#posts"
+                                                        onsubmit="return confirm('确定删除该文章？');">
+                                                        <input type="hidden" name="post_action" value="delete">
+                                                        <input type="hidden" name="post_id"
+                                                            value="<?php echo (int) $post['id']; ?>">
+                                                        <button type="submit" class="inline-button danger">删除</button>
+                                                    </form>
+                                                </div>
+                                            </li>
                                         <?php endforeach; ?>
-                                <?php endif; ?>
-                            </ul>
-                            <div class="message inline" id="postListMessage" hidden></div>
-                        </div>
-                        <form id="updatePostForm" class="panel-glass p-4 form-grid mt-4" method="post"
-                            action="/rarelight/admin?tab=posts#posts" <?php echo $blogEditPost ? '' : 'hidden'; ?>>
-                            <input type="hidden" name="post_action" value="update">
-                            <input type="hidden" name="post_id"
-                                value="<?php echo $blogEditPost ? (int) $blogEditPost['id'] : 0; ?>">
-                            <h3 class="flush-top">编辑文章</h3>
-                            <div>
-                                <label for="editPostTitle">文章标题</label>
-                                <input id="editPostTitle" name="title"
-                                    value="<?php echo htmlspecialchars($blogEditPost['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                    required>
+                                    <?php endif; ?>
+                                </ul>
+                                <div class="message inline" id="postListMessage" hidden></div>
                             </div>
-                            <div>
-                                <label for="editPostLink">公众号文章链接</label>
-                                <input id="editPostLink" name="link_url"
-                                    value="<?php echo htmlspecialchars($blogEditPost['link_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                    placeholder="https://mp.weixin.qq.com/..." required>
-                            </div>
-                            <div>
-                                <label for="editPostDate">发布日期</label>
-                                <input id="editPostDate" name="published_at" type="date"
-                                    value="<?php echo htmlspecialchars($blogEditPost['published_at'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                            </div>
-                            <div>
-                                <label for="editPostAuthor">作者/负责人</label>
-                                <input id="editPostAuthor" name="author"
-                                    value="<?php echo htmlspecialchars($blogEditPost['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                    placeholder="可选，填写负责人">
-                            </div>
-                            <div>
-                                <label for="editPostTags">标签</label>
-                                <input id="editPostTags" name="tags"
-                                    value="<?php echo htmlspecialchars($blogEditPost['tags'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                    placeholder="用逗号分隔标签">
-                            </div>
-                            <div>
-                                <label for="editPostSummary">摘要</label>
-                                <textarea id="editPostSummary" name="summary" rows="3"
-                                    placeholder="简要概述（可选）"><?php echo htmlspecialchars($blogEditPost['summary'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
-                            </div>
-                            <div class="split">
-                                <button type="submit" class="primary-button">保存修改</button>
-                                <a class="ghost-button center-button" href="/rarelight/admin?tab=posts#posts">取消</a>
-                            </div>
-                            <div class="message inline" id="updatePostMessage" hidden></div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-content" id="tab-assignments" role="tabpanel">
-                <div class="row g-4 align-items-start">
-                    <div class="col-12 col-xl-5 col-xxl-4">
-                        <form id="assignCourseForm" class="panel-glass p-4 form-grid">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
+                            <form id="updatePostForm" class="card surface-section form-grid surface-form mt-4"
+                                method="post" action="/rarelight/admin?tab=posts#posts" <?php echo $blogEditPost ? '' : 'hidden'; ?>>
+                                <input type="hidden" name="post_action" value="update">
+                                <input type="hidden" name="post_id"
+                                    value="<?php echo $blogEditPost ? (int) $blogEditPost['id'] : 0; ?>">
+                                <h3 class="flush-top">编辑文章</h3>
                                 <div>
-                                    <h3 class="mb-1">分配课程</h3>
-                                    <p class="hint mb-0">选择用户和课程进行分配，或使用右侧按钮批量导入。</p>
+                                    <label for="editPostTitle">文章标题</label>
+                                    <input id="editPostTitle" name="title"
+                                        value="<?php echo htmlspecialchars($blogEditPost['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        required>
                                 </div>
-                                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
-                                    id="openAssignImportModal">批量导入</button>
-                            </div>
-                            <div>
-                                <label for="assignUserSelect">选择用户</label>
-                                <select id="assignUserSelect" name="user_id" required></select>
-                            </div>
-                            <div>
-                                <label for="assignCourseSelect">选择课程</label>
-                                <select id="assignCourseSelect" name="course_id" required></select>
-                            </div>
-                            <button type="submit" class="primary-button">分配课程</button>
-                            <div class="message inline" id="assignCourseMessage" hidden></div>
-                        </form>
-                    </div>
-                    <div class="col-12 col-xl-7 col-xxl-8">
-                        <div class="panel-glass">
-                            <div class="panel-header">
-                                <h3>用户已分配课程</h3>
-                                <p class="hint">选择用户后会显示其已分配的课程，可点击移除。</p>
-                            </div>
-                            <ul class="table-list" id="assignmentList"></ul>
+                                <div>
+                                    <label for="editPostLink">公众号文章链接</label>
+                                    <input id="editPostLink" name="link_url"
+                                        value="<?php echo htmlspecialchars($blogEditPost['link_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        placeholder="https://mp.weixin.qq.com/..." required>
+                                </div>
+                                <div>
+                                    <label for="editPostDate">发布日期</label>
+                                    <input id="editPostDate" name="published_at" type="date"
+                                        value="<?php echo htmlspecialchars($blogEditPost['published_at'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                </div>
+                                <div>
+                                    <label for="editPostAuthor">作者/负责人</label>
+                                    <input id="editPostAuthor" name="author"
+                                        value="<?php echo htmlspecialchars($blogEditPost['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        placeholder="可选，填写负责人">
+                                </div>
+                                <div>
+                                    <label for="editPostTags">标签</label>
+                                    <input id="editPostTags" name="tags"
+                                        value="<?php echo htmlspecialchars($blogEditPost['tags'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        placeholder="用逗号分隔标签">
+                                </div>
+                                <div>
+                                    <label for="editPostSummary">摘要</label>
+                                    <textarea id="editPostSummary" name="summary" rows="3"
+                                        placeholder="简要概述（可选）"><?php echo htmlspecialchars($blogEditPost['summary'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                </div>
+                                <div class="split">
+                                    <button type="submit" class="primary-button">保存修改</button>
+                                    <a class="ghost-button center-button" href="/rarelight/admin?tab=posts#posts">取消</a>
+                                </div>
+                                <div class="message inline" id="updatePostMessage" hidden></div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </section> <!-- End Stage -->
-    </div> <!-- End Dashboard Container -->
-
+        </div>
+    </main>
     <!-- 批量导入用户弹窗（独立挂载到 body 防止被父容器遮挡） -->
     <div class="modal fade" id="userImportModal" tabindex="-1" aria-labelledby="userImportModalLabel"
         aria-hidden="true">
@@ -1195,7 +845,7 @@ if (file_exists($configFile)) {
         const cloudUploadProgressBar = document.getElementById('cloudUploadProgressBar');
         const cloudUploadProgressText = document.getElementById('cloudUploadProgressText');
 
-        const tabButtons = document.querySelectorAll('.sidebar .nav-item');
+        const tabButtons = document.querySelectorAll('.pill-tabs button');
         const tabContents = document.querySelectorAll('.tab-content');
 
         const createUserForm = document.getElementById('createUserForm');
@@ -3129,7 +2779,7 @@ if (file_exists($configFile)) {
             window.location.href = ROUTE_DASHBOARD;
         });
 
-     loadInitialData();
+        loadInitialData();
     </script>
 </body>
 
