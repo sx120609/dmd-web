@@ -3073,7 +3073,7 @@ if (file_exists($configFile)) {
                 }
             });
         }
-                }
+
 
         if (assignCourseForm) {
             assignCourseForm.addEventListener('submit', async (event) => {
