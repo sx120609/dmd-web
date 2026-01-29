@@ -155,6 +155,7 @@ if (file_exists($configFile)) {
 
         .nav-btn-ghost {
             color: var(--rl-text-muted);
+            background: transparent;
         }
 
         .nav-btn-ghost:hover {
