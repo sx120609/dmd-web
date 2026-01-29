@@ -383,7 +383,8 @@ if (file_exists($configFile)) {
         }
 
         @media (max-width: 992px) {
-            .site-nav .d-flex.align-items-center {
+            /* 只隐藏导航栏右侧的工具区，保留 Logo */
+            .site-nav .d-flex.align-items-center:not(.container-xxl) {
                 display: none !important;
             }
 
@@ -393,6 +394,14 @@ if (file_exists($configFile)) {
 
             body {
                 padding-bottom: 80px;
+            }
+            
+            /* 确保底部按钮文字居中 */
+            .mobile-bottom-nav .nav-btn {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
             }
 
             .grid-container {

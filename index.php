@@ -58,7 +58,8 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            overflow-x: hidden; /* 防止水平滚动 */
+            overflow-x: hidden;
+            /* 防止水平滚动 */
             width: 100%;
         }
 
@@ -198,10 +199,10 @@
 
         /* 桌面端默认 Grid */
         .hero-grid {
-             display: grid;
-             grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-             gap: 3rem;
-             align-items: center;
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+            gap: 3rem;
+            align-items: center;
         }
 
         .hero h1 {
@@ -416,7 +417,8 @@
             .hero-grid {
                 display: grid;
                 grid-template-columns: 1fr !important;
-                gap: 2rem !important; /* 缩小间距 */
+                gap: 2rem !important;
+                /* 缩小间距 */
             }
         }
         }
@@ -713,6 +715,9 @@
             zh: {
                 brandTagline: 'Rare Light',
                 brandTitle: 'Rare Light · 罕见病儿童公益',
+                loginSuccess: '您已登录，可直接进入课堂。',
+                loginWelcomeSuffix: '。',
+                welcomeBack: '欢迎回来，',
                 pageTitle: 'Rare Light · 点亮罕见病儿童的希望',
                 navAbout: '关于我们',
                 navNews: '新闻',
@@ -785,6 +790,9 @@
             en: {
                 brandTagline: 'Rare Light',
                 brandTitle: 'Rare Light · Rare Disease Care',
+                loginSuccess: 'You are logged in. Enter the classroom directly.',
+                loginWelcomeSuffix: '.',
+                welcomeBack: 'Welcome back, ',
                 pageTitle: 'Rare Light · Rare Disease Care',
                 navAbout: 'About Us',
                 navNews: 'News',
@@ -982,9 +990,23 @@
             });
         }
 
-        function showMessage(text = '', type = '') {
-            const hasText = Boolean(text);
-            loginMessage.textContent = hasText ? text : '';
+        function showMessage(text = '', type = '', i18nKey = '') {
+            const hasText = Boolean(text) || Boolean(i18nKey);
+            // 先移除旧key，如果有传新key则设置
+            if (i18nKey) {
+                loginMessage.setAttribute('data-i18n', i18nKey);
+                // 立即翻译一波
+                if (i18n[currentLang][i18nKey]) {
+                    loginMessage.textContent = i18n[currentLang][i18nKey];
+                }
+            } else if (text) {
+                // 如果只是普通文本，移除data-i18n防止被覆盖
+                loginMessage.removeAttribute('data-i18n');
+                loginMessage.textContent = text;
+            } else {
+                loginMessage.textContent = '';
+            }
+
             loginMessage.classList.remove('text-danger', 'text-success');
             loginMessage.hidden = !hasText;
             if (hasText && type) {
@@ -1015,11 +1037,17 @@
                 if (data && data.user) {
                     const name = data.user.display_name || data.user.username;
                     updateClassroomLinks(ROUTE_DASHBOARD, 'navLoginLoggedIn');
-                    sessionNote.textContent = `${i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。'} ${currentLang === 'zh' ? `欢迎回来，${name}。` : `Welcome back, ${name}.`}`;
+
+                    // 动态拼接欢迎语 (简单处理，不做复杂i18n替换)
+                    const welcome = `${i18n[currentLang].welcomeBack}${name}${i18n[currentLang].loginWelcomeSuffix}`;
+
+                    sessionNote.textContent = `${i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。'} ${welcome}`;
+
                     loginForm.querySelectorAll('input, button').forEach((element) => {
                         element.disabled = true;
                     });
-                    showMessage(currentLang === 'zh' ? '您已登录，可直接进入课堂。' : 'You are logged in. Enter the classroom directly.', 'success');
+                    // 使用 key 方式显示
+                    showMessage('', 'success', 'loginSuccess');
                 } else {
                     updateClassroomLinks('#classroom', 'navLogin');
                     sessionNote.textContent = i18n[currentLang].sessionNote || '课堂由专业志愿者维护，登录后即可继续学习。';
