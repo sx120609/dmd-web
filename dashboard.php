@@ -1180,6 +1180,7 @@
                 }
             }
         }
+        }
         async function loadProgressStore() {
             try {
                 const d = await fetchJSON(`${API_BASE}/progress.php`);
@@ -1198,6 +1199,10 @@
 
         // Init
         loadSession();
+
+        // Button Listeners
+        if (cloudButton) cloudButton.addEventListener('click', () => window.location.href = ROUTE_CLOUD);
+        if (adminButton) adminButton.addEventListener('click', () => window.location.href = ROUTE_ADMIN);
 
         // Logout
         logoutButton.addEventListener('click', async () => {
