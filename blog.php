@@ -1,6 +1,7 @@
 ﻿<?php
 $blogPosts = [];
 $configFile = __DIR__ . '/config.php';
+// 保持原有 PHP 逻辑不变
 if (file_exists($configFile)) {
     $config = require $configFile;
     $mysqli = @new mysqli(
@@ -24,319 +25,390 @@ if (file_exists($configFile)) {
         }
     }
 }
-?><!DOCTYPE html>
+?>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>项目日志 · Rare Light</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <style>
         :root {
-            --home-bg: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.12), transparent 25%),
-                radial-gradient(circle at 80% 10%, rgba(45, 212, 191, 0.14), transparent 26%),
-                radial-gradient(circle at 80% 70%, rgba(76, 29, 149, 0.08), transparent 40%),
-                #f8fafc;
-            --card-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
-            --card-border: 1px solid rgba(148, 163, 184, 0.14);
-            --deep-gradient: linear-gradient(135deg, #2563eb, #60a5fa, #22d3ee);
-            --pill-bg: rgba(255, 255, 255, 0.65);
+            /* 核心色盘：更现代、更高级的蓝紫色调 */
+            --rl-bg: #f8fafc;
+            --rl-text-main: #0f172a;
+            --rl-text-muted: #64748b;
+            --rl-primary: #3b82f6;
+            --rl-accent: #8b5cf6;
+            
+            /* 渐变色 */
+            --gradient-brand: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --gradient-glow: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.05), transparent 70%);
+            
+            /* 卡片样式 */
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: 1px solid rgba(255, 255, 255, 0.6);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
         }
 
-        body.blog {
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--home-bg);
-            color: #0f172a;
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans SC', system-ui, sans-serif;
+            background-color: var(--rl-bg);
+            background-image: var(--gradient-glow);
+            background-attachment: fixed;
+            background-size: 100% 100vh;
+            background-repeat: no-repeat;
+            color: var(--rl-text-main);
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* --- 导航栏优化 --- */
         .site-nav {
             position: sticky;
             top: 0;
-            z-index: 10;
-            backdrop-filter: blur(16px);
-            background: rgba(248, 250, 252, 0.9);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 0.75rem 0;
+            transition: all 0.3s ease;
         }
 
         .nav-brand {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 0.75rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--rl-text-main);
         }
 
-        .brand-mark {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            background: var(--deep-gradient);
-            color: #fff;
-            display: inline-flex;
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-brand);
+            border-radius: 10px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+            color: white;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
-        .brand-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.45rem 0.9rem;
-            border-radius: 999px;
-            background: var(--pill-bg);
-            color: #1e293b;
-            font-weight: 600;
-            font-size: 0.78rem;
-            letter-spacing: 0.06em;
+        .brand-text h1 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            color: var(--rl-text-muted);
+            font-weight: 500;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
         }
 
-        .nav-actions {
-            display: flex;
-            gap: 0.6rem;
-            align-items: center;
-            flex-wrap: wrap;
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
         }
 
-        .primary-button,
-        .ghost-button {
+        .nav-btn-ghost {
+            color: var(--rl-text-muted);
+        }
+        .nav-btn-ghost:hover {
+            color: var(--rl-text-main);
+            background: rgba(0,0,0,0.03);
+        }
+
+        .nav-btn-primary {
+            background: var(--rl-text-main);
+            color: white;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        }
+        .nav-btn-primary:hover {
+            transform: translateY(-1px);
+            background: #1e293b;
+            color: white;
+        }
+
+        /* --- Hero 区域 --- */
+        .blog-hero {
+            padding: 5rem 0 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-badge {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.55rem 1.1rem;
-            border-radius: 12px;
-            border: 1px solid rgba(15, 23, 42, 0.12);
+            gap: 6px;
+            padding: 6px 16px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--rl-primary);
+            border-radius: 99px;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: #0f172a;
-            background: rgba(255, 255, 255, 0.85);
-            text-decoration: none;
-            transition: transform 160ms ease, box-shadow 160ms ease;
-            min-height: 42px;
-        }
-
-        .primary-button {
-            background: var(--deep-gradient);
-            color: #fff;
-            border: none;
-        }
-
-        .primary-button:hover,
-        .ghost-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-        }
-
-        .blog-hero {
-            padding: clamp(2.5rem, 6vw, 4rem) 0 2rem;
-        }
-
-        .blog-hero .hero-panel {
-            border-radius: 22px;
-            background: rgba(255, 255, 255, 0.92);
-            border: var(--card-border);
-            color: #0f172a;
-            box-shadow: var(--card-shadow);
-        }
-
-        .blog-hero .hero-pill {
-            background: rgba(37, 99, 235, 0.1);
-            color: #1d4ed8;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
         }
 
         .hero-title {
-            font-size: clamp(2.2rem, 4vw, 3.2rem);
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
             font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.6rem;
-            color: #0f172a;
-            text-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .hero-subtitle {
-            color: #475569;
-            line-height: 1.7;
-        }
-
-        .section-title {
-            font-size: clamp(1.4rem, 2.6vw, 2rem);
-            font-weight: 800;
-            letter-spacing: -0.01em;
-            margin: 0 0 0.5rem;
-        }
-
-        .section-subtitle {
-            color: #64748b;
-            margin-bottom: 1.2rem;
-        }
-
-        .wechat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .wechat-card {
-            border-radius: 18px;
-            border: var(--card-border);
-            background: rgba(255, 255, 255, 0.92);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-            padding: 1.2rem 1.3rem;
-            display: grid;
-            gap: 0.6rem;
-        }
-
-        .wechat-meta {
-            font-size: 0.85rem;
-            color: #64748b;
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .wechat-title {
-            font-weight: 700;
-            font-size: 1.05rem;
-            color: #0f172a;
-        }
-
-        .wechat-summary {
-            color: #475569;
+        .hero-desc {
+            font-size: 1.15rem;
+            color: var(--rl-text-muted);
+            max-width: 600px;
+            margin: 0 auto;
             line-height: 1.6;
         }
 
-        .wechat-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-weight: 600;
-            color: #1d4ed8;
-            text-decoration: none;
+        /* --- 卡片网格 --- */
+        .content-section {
+            padding-bottom: 5rem;
         }
 
-        .blog-layout {
+        .grid-container {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: 1.5rem;
         }
 
-        .sticky-side {
-            position: sticky;
-            top: 110px;
+        .blog-card {
+            background: var(--card-bg);
+            border: var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            height: 100%;
         }
 
-        .side-card {
-            border-radius: 18px;
-            border: var(--card-border);
-            background: rgba(255, 255, 255, 0.92);
-            padding: 1.25rem 1.3rem;
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        .blog-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: rgba(59, 130, 246, 0.3);
+            background: #fff;
         }
 
-        .side-card h3 {
-            font-size: 1.05rem;
-            margin-bottom: 0.75rem;
+        /* 卡片顶部的装饰条（可选） */
+        .blog-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-brand);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .blog-card:hover::before {
+            opacity: 1;
         }
 
-        @media (max-width: 992px) {
-            .blog-layout {
-                grid-template-columns: minmax(0, 1fr);
+        .card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--rl-text-muted);
+        }
+
+        .meta-date {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .meta-tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--rl-text-main);
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .card-summary {
+            color: var(--rl-text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            flex-grow: 1; /* 让摘要占据剩余空间，保证底部按钮对齐 */
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .read-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--rl-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: gap 0.2s;
+        }
+
+        .read-more-btn:hover {
+            gap: 12px;
+            color: var(--rl-accent);
+        }
+        
+        /* 空状态样式 */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255,255,255,0.5);
+            border-radius: 16px;
+            border: 2px dashed rgba(0,0,0,0.05);
+            color: var(--rl-text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
             }
-            .sticky-side {
-                position: static;
-            }
-            .nav-actions {
-                width: 100%;
-                justify-content: flex-start;
+            .hero-title {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
-<body class="blog">
+<body>
+
 <nav class="site-nav">
-    <div class="container-xxl py-3 d-flex align-items-center justify-content-between gap-3">
-        <div class="nav-brand">
-            <span class="brand-mark">RL</span>
-            <div>
-                <div class="small text-uppercase text-secondary">Rare Light</div>
-                <div class="fw-bold">Rare Light · 项目日志</div>
+    <div class="container-xxl d-flex align-items-center justify-content-between">
+        <a href="/rarelight/" class="nav-brand">
+            <div class="brand-logo">RL</div>
+            <div class="brand-text">
+                <span>PROJECT LOGS</span>
+                <h1>Rare Light</h1>
             </div>
-        </div>
-        <div class="nav-actions">
-            <a class="ghost-button" href="/rarelight/">返回首页</a>
-            <a class="primary-button" href="/rarelight/dashboard">进入课堂</a>
+        </a>
+        <div class="d-flex gap-2">
+            <a class="nav-btn nav-btn-ghost d-none d-sm-inline-flex" href="/rarelight/">返回首页</a>
+            <a class="nav-btn nav-btn-primary" href="/rarelight/dashboard">
+                <i class="bi bi-grid-fill me-2"></i>进入课堂
+            </a>
         </div>
     </div>
 </nav>
 
-<section class="blog-hero">
-    <div class="container-xxl hero-container">
-        <div class="hero-panel p-4 p-lg-5">
-            <div class="brand-eyebrow">Rare Light · 项目展示</div>
-            <div class="hero-main">
-                <div class="hero-copy">
-                    <h1 class="hero-title mb-3">项目日志 / Blog</h1>
-                    <p class="hero-subtitle mb-0">这里记录项目进展、需求调研与阶段成果。后续内容可持续补充。</p>
-                </div>
-                <div class="hero-meta">
-                    <span class="hero-pill">可持续更新</span>
-                    <span class="hero-pill soft">面向展示与汇报</span>
-                </div>
-            </div>
+<header class="blog-hero">
+    <div class="container-xxl">
+        <div class="hero-badge">
+            <i class="bi bi-stars"></i> 项目动态更新
         </div>
+        <h1 class="hero-title">项目日志与进展</h1>
+        <p class="hero-desc">记录 Rare Light 项目的需求调研、开发进度与阶段性成果展示。这里的每一个脚印，都是通往最终产品的基石。</p>
     </div>
-</section>
+</header>
 
-<main class="container-xxl pb-5">
-    <section class="mb-4">
-        <h2 class="section-title">公众号文章精选</h2>
-        <p class="section-subtitle"></p>
-        <div class="wechat-grid" id="wechatList">
+<main class="content-section">
+    <div class="container-xxl">
+        
+        <div class="d-flex align-items-end justify-content-between mb-4">
+            <h2 class="h4 fw-bold mb-0 text-dark">
+                <i class="bi bi-journal-richtext me-2 text-primary"></i>最新文章
+            </h2>
+            <span class="text-secondary small">共 <?php echo count($blogPosts); ?> 篇记录</span>
+        </div>
+
+        <div class="grid-container">
             <?php if (empty($blogPosts)) : ?>
-                <div class="wechat-card text-secondary">暂无公众号文章，请先在后台新增。</div>
+                <div class="empty-state">
+                    <i class="bi bi-inbox fs-1 mb-3 d-block text-secondary opacity-50"></i>
+                    <p class="mb-0">暂无项目日志，请在后台添加新的进展。</p>
+                </div>
             <?php else : ?>
                 <?php foreach ($blogPosts as $post) : ?>
                     <?php
                     $date = $post['published_at'] ?? $post['created_at'] ?? '';
-                    $dateText = $date ? date('Y-m-d', strtotime($date)) : '';
+                    $dateText = $date ? date('M d, Y', strtotime($date)) : 'Date Unknown';
                     $summary = trim((string) ($post['summary'] ?? ''));
                     if ($summary === '') {
-                        $summary = '点击阅读公众号原文。';
+                        $summary = '点击阅读详细内容与完整报告。';
                     }
                     $link = trim((string) ($post['link_url'] ?? ''));
+                    $author = !empty($post['author']) ? $post['author'] : 'Team';
                     ?>
-                    <article class="wechat-card">
-                        <div class="wechat-meta">
-                            <?php if ($dateText) : ?><span><?php echo htmlspecialchars($dateText, ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
-                            <span>公众号推文</span>
-                            <?php if (!empty($post['author'])) : ?><span>负责人：<?php echo htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
+                    <article class="blog-card">
+                        <div class="card-meta">
+                            <div class="meta-date">
+                                <i class="bi bi-calendar-event text-secondary" style="font-size: 0.8rem;"></i>
+                                <span><?php echo htmlspecialchars($dateText, ENT_QUOTES, 'UTF-8'); ?></span>
+                            </div>
+                            <span class="meta-tag"><?php echo htmlspecialchars($author, ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
-                        <div class="wechat-title"><?php echo htmlspecialchars($post['title'] ?? '未命名文章', ENT_QUOTES, 'UTF-8'); ?></div>
-                        <p class="wechat-summary"><?php echo htmlspecialchars($summary, ENT_QUOTES, 'UTF-8'); ?></p>
-                        <a class="wechat-link" href="<?php echo htmlspecialchars($link ?: '#', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
-                            阅读原文 →
-                        </a>
+                        
+                        <h3 class="card-title">
+                            <?php echo htmlspecialchars($post['title'] ?? '无标题日志', ENT_QUOTES, 'UTF-8'); ?>
+                        </h3>
+                        
+                        <p class="card-summary">
+                            <?php echo htmlspecialchars($summary, ENT_QUOTES, 'UTF-8'); ?>
+                        </p>
+                        
+                        <div class="card-footer">
+                            <a href="<?php echo htmlspecialchars($link ?: '#', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="read-more-btn">
+                                阅读完整文章 <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
                     </article>
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
-    </section>
-
-    <aside class="sticky-side"></aside>
+    </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
