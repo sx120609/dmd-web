@@ -36,7 +36,7 @@
 
             /* 布局变量 */
             --header-height: 70px;
-            --sidebar-width: 320px;
+            --sidebar-width: 360px;
         }
 
         body {
@@ -188,12 +188,13 @@
         }
 
         .panel-title {
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 700;
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         .panel-subtitle {
@@ -251,16 +252,17 @@
         .item-title {
             font-weight: 600;
             color: var(--rl-text-main);
-            font-size: 0.95rem;
-            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            line-height: 1.3;
         }
 
         .item-desc {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--rl-text-muted);
-            line-height: 1.5;
+            line-height: 1.4;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
+            -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
