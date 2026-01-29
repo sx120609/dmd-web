@@ -692,7 +692,7 @@
                     <span class="small" data-i18n="footerText">为罕见病儿童提供陪伴、教育与资源链接。</span>
                 </div>
                 <div class="small text-secondary" data-i18n="footerEmail">
-                    <i class="bi bi-envelope me-1"></i> hello@rarelight.org
+                    <i class="bi bi-envelope me-1"></i> sl@lizmt.cn
                 </div>
             </div>
         </footer>
@@ -787,7 +787,7 @@
                 contactFamily: '家庭申请',
                 contactFamilyDesc: '罕见病患儿家庭可申请课堂访问与陪伴支持。',
                 footerText: 'Rare Light — 为罕见病儿童提供陪伴、教育与资源链接。',
-                footerEmail: '联系邮箱：hello@rarelight.org'
+                footerEmail: '联系邮箱：sl@lizmt.cn'
             },
             en: {
                 brandTagline: 'Rare Light',
@@ -862,7 +862,7 @@
                 contactFamily: 'Family Application',
                 contactFamilyDesc: 'Rare disease families can apply for classroom access and companion support.',
                 footerText: 'Rare Light — Providing companionship, education, and resources for children with rare diseases.',
-                footerEmail: 'Email: hello@rarelight.org'
+                footerEmail: 'Email: sl@lizmt.cn'
             }
         };
 
