@@ -1797,6 +1797,7 @@ if (file_exists($configFile)) {
         }
 
         function renderCloudPicker() {
+            if (!cloudPickerBody) return;
             cloudPickerBody.innerHTML = '';
             if (!cloudFiles.length) {
                 cloudPickerBody.innerHTML = '<tr><td colspan="4" class="text-secondary text-center py-4">云盘暂无文件，请先上传。</td></tr>';
@@ -1961,6 +1962,7 @@ if (file_exists($configFile)) {
         }
 
         function refreshUserList() {
+            if (!userListEl) return;
             userListEl.innerHTML = '';
             if (!state.users.length) {
                 const empty = document.createElement('li');
@@ -2072,6 +2074,7 @@ if (file_exists($configFile)) {
         }
 
         function refreshCourseList() {
+            if (!courseListEl) return;
             courseListEl.innerHTML = '';
             setMessage(courseListMessage);
             if (!state.courses.length) {
@@ -2137,6 +2140,7 @@ if (file_exists($configFile)) {
         }
 
         function populateSelect(selectEl, items, valueKey, labelResolver, preferredValue = null) {
+            if (!selectEl) return '';
             const fallbackValue = preferredValue ?? selectEl.value ?? '';
             selectEl.innerHTML = '';
             if (!items.length) {
@@ -2274,6 +2278,7 @@ if (file_exists($configFile)) {
         }
 
         function renderLessonPlaceholder(text, tone = 'muted') {
+            if (!lessonListEl) return;
             lessonListEl.innerHTML = '';
             const item = document.createElement('li');
             item.textContent = text;
@@ -2286,6 +2291,7 @@ if (file_exists($configFile)) {
         }
 
         function renderLessons(courseId, lessons) {
+            if (!lessonListEl) return;
             lessonListEl.innerHTML = '';
             if (!Array.isArray(lessons) || !lessons.length) {
                 renderLessonPlaceholder('该课程还没有课节');
@@ -2376,6 +2382,7 @@ if (file_exists($configFile)) {
         }
 
         function renderAssignmentPlaceholder(text, tone = 'muted') {
+            if (!assignmentListEl) return;
             assignmentListEl.innerHTML = '';
             const item = document.createElement('li');
             item.textContent = text;
@@ -2388,6 +2395,7 @@ if (file_exists($configFile)) {
         }
 
         function renderAssignments(assignments) {
+            if (!assignmentListEl) return;
             assignmentListEl.innerHTML = '';
             if (!assignments.length) {
                 renderAssignmentPlaceholder('尚未分配课程');
