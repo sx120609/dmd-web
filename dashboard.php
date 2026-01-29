@@ -718,8 +718,8 @@
                 const sections = mainSidebar.querySelectorAll('.sidebar-section');
                 sections.forEach(sec => sec.style.display = 'none');
 
-                if (type === 'course') mainSidebar.firstElementChild.style.display = 'flex';
-                if (type === 'lesson') mainSidebar.lastElementChild.style.display = 'flex';
+                if (type === 'course') mainSidebar.firstElementChild.style.display = 'block';
+                if (type === 'lesson') mainSidebar.lastElementChild.style.display = 'block';
             }
         }
 
