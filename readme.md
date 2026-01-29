@@ -63,6 +63,12 @@ uploads/files         # 云盘目录（需可写）
 
 ```nginx
 # 将应用挂载在 /rarelight
+location ^~ /rarelight/uploads/files/ {
+    alias /www/wwwroot/rarelight.cpu.edu.cn/dmd-web/uploads/files/;
+    add_header Accept-Ranges bytes;
+    add_header Cache-Control "private, max-age=3600";
+}
+
 location ^~ /rarelight/ {
     try_files $uri $uri/ @rarelight_rewrite;
 }
