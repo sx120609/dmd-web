@@ -1180,7 +1180,6 @@
                 }
             }
         }
-        }
         async function loadProgressStore() {
             try {
                 const d = await fetchJSON(`${API_BASE}/progress.php`);
