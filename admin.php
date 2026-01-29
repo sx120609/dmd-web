@@ -2539,7 +2539,7 @@ if (file_exists($configFile)) {
         const urlParams = new URLSearchParams(window.location.search);
         const targetTab = urlParams.get('tab');
         if (targetTab) {
-            const btn = document.querySelector(`.pill-tabs button[data-target="${targetTab}"]`);
+            const btn = document.querySelector(`.admin-tabs button[data-target="${targetTab}"]`);
             if (btn) {
                 btn.click();
             }
@@ -3381,7 +3381,7 @@ if (file_exists($configFile)) {
 
         if (cloudUploadButton) {
             cloudUploadButton.addEventListener('click', async () => {
-                await uploadToCloud(cloudUploadInput.files);
+     await uploadToCloud(cloudUploadInput.files);
             });
         }
 
