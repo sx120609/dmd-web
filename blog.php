@@ -301,7 +301,7 @@ if (file_exists($configFile)) {
 <main class="container-xxl pb-5">
     <section class="mb-4">
         <h2 class="section-title">公众号文章精选</h2>
-        <p class="section-subtitle">将公众号文章链接填到卡片里，作为对外展示内容。</p>
+        <p class="section-subtitle"></p>
         <div class="wechat-grid" id="wechatList">
             <?php if (empty($blogPosts)) : ?>
                 <div class="wechat-card text-secondary">暂无公众号文章，请先在后台新增。</div>
@@ -333,24 +333,7 @@ if (file_exists($configFile)) {
         </div>
     </section>
 
-    <aside class="sticky-side">
-        <div class="side-card">
-            <h3>如何新增内容</h3>
-            <ol class="mb-0 text-secondary">
-                <li>复制一张“公众号文章”卡片</li>
-                <li>粘贴文章链接与标题/摘要</li>
-                <li>保存并刷新页面</li>
-            </ol>
-        </div>
-        <div class="side-card">
-            <h3>展示建议</h3>
-            <ul class="mb-0 text-secondary">
-                <li>按时间顺序排列</li>
-                <li>标题尽量具体</li>
-                <li>摘要突出成果与影响</li>
-            </ul>
-        </div>
-    </aside>
+    <aside class="sticky-side"></aside>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
