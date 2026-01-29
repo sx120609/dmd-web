@@ -71,6 +71,7 @@ if (file_exists($configFile)) {
             }
         }
         $isAdmin = $currentUser && ($currentUser['role'] ?? '') === 'admin';
+        $isTeacher = $currentUser && ($currentUser['role'] ?? '') === 'teacher';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['post_action'])) {
             if (!$isAdmin) {
@@ -662,146 +663,159 @@ if (file_exists($configFile)) {
                         </div>
 
                         <!-- Tabs -->
+                        <!-- Tabs -->
                         <div class="admin-tabs" role="tablist">
-                            <button type="button" class="tab-btn active" data-target="users">
-                                <i class="bi bi-people me-1"></i> 用户管理
-                            </button>
-                            <button type="button" class="tab-btn" data-target="courses">
+                            <?php if ($isAdmin): ?>
+                                <button type="button" class="tab-btn active" data-target="users">
+                                    <i class="bi bi-people me-1"></i> 用户管理
+                                </button>
+                            <?php endif; ?>
+
+                            <button type="button" class="tab-btn <?php echo !$isAdmin ? 'active' : ''; ?>"
+                                data-target="courses">
                                 <i class="bi bi-collection-play me-1"></i> 课程管理
                             </button>
                             <button type="button" class="tab-btn" data-target="lessons">
                                 <i class="bi bi-journal-text me-1"></i> 课节管理
                             </button>
-                            <button type="button" class="tab-btn" data-target="assignments">
-                                <i class="bi bi-person-check me-1"></i> 课程分配
-                            </button>
-                            <button type="button" class="tab-btn" data-target="posts">
-                                <i class="bi bi-pencil-square me-1"></i> 项目日志
-                            </button>
+
+                            <?php if ($isAdmin): ?>
+                                <button type="button" class="tab-btn" data-target="assignments">
+                                    <i class="bi bi-person-check me-1"></i> 课程分配
+                                </button>
+                                <button type="button" class="tab-btn" data-target="posts">
+                                    <i class="bi bi-pencil-square me-1"></i> 项目日志
+                                </button>
+                            <?php endif; ?>
                         </div>
-                        <div class="tab-content active" id="tab-users" role="tabpanel">
-                            <div class="row g-4 align-items-start">
-                                <div class="col-12 col-xl-5 col-xxl-4">
-                                    <div class="d-flex flex-column gap-4">
-                                        <div class="panel-glass user-list-card h-100">
+                        <?php if ($isAdmin): ?>
+
+                            <div class="tab-content active" id="tab-users" role="tabpanel">
+                                <div class="row g-4 align-items-start">
+                                    <div class="col-12 col-xl-5 col-xxl-4">
+                                        <div class="d-flex flex-column gap-4">
+                                            <div class="panel-glass user-list-card h-100">
+                                                <div class="panel-header">
+                                                    <div>
+                                                        <h3 class="panel-title mb-1">用户列表</h3>
+                                                        <p class="hint mb-0">点击用户查看详情。</p>
+                                                    </div>
+                                                </div>
+                                                <ul class="table-list user-table flex-grow-1 overflow-auto" id="userList"
+                                                    style="max-height: 400px;"></ul>
+                                            </div>
+                                            <form id="createUserForm" class="panel-glass p-3 form-grid">
+                                                <div
+                                                    class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                                                    <div>
+                                                        <h3 class="panel-title mb-1">创建用户</h3>
+                                                        <p class="hint mb-0">批量导入或单个创建。</p>
+                                                    </div>
+                                                    <button type="button" class="nav-btn nav-btn-outline py-1 px-2 small"
+                                                        id="openUserImportModal"><i
+                                                            class="bi bi-file-earmark-spreadsheet"></i> 批量导入</button>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="newUsername" class="form-label">用户名</label>
+                                                    <input id="newUsername" name="username" class="form-control"
+                                                        placeholder="例如：student01" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="newDisplayName" class="form-label">显示名称</label>
+                                                    <input id="newDisplayName" name="display_name" class="form-control"
+                                                        placeholder="学生姓名或昵称">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="newPassword" class="form-label">初始密码</label>
+                                                    <input id="newPassword" name="password" type="password"
+                                                        class="form-control" placeholder="设置登录密码" required>
+                                                </div>
+                                                <div class="mb-4">
+                                                    <label for="newRole" class="form-label">角色</label>
+                                                    <select id="newRole" name="role" class="form-select">
+                                                        <option value="student">学员</option>
+                                                        <option value="teacher">老师</option>
+                                                        <option value="admin">管理员</option>
+                                                    </select>
+                                                </div>
+                                                <button type="submit"
+                                                    class="nav-btn nav-btn-primary w-100 justify-content-center py-2">创建用户</button>
+                                                <div class="message inline" id="createUserMessage" hidden></div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-xl-7 col-xxl-8">
+                                        <section class="panel-glass h-100" id="userDetailCard">
                                             <div class="panel-header">
                                                 <div>
-                                                    <h3 class="panel-title mb-1">用户列表</h3>
-                                                    <p class="hint mb-0">点击用户查看详情。</p>
+                                                    <h3 class="panel-title" id="userDetailTitle">用户详情</h3>
+                                                    <p class="hint mb-0" id="userDetailSubtitle">请选择左侧用户</p>
+                                                </div>
+                                                <span class="rl-badge success" id="userDetailRoleChip" hidden></span>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="user-detail-empty" id="userDetailEmpty">
+                                                    没有选中的用户，点击左侧列表中的用户即可开始编辑。
+                                                </div>
+                                                <form id="updateUserForm" class="p-3" hidden>
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="editUsername" class="form-label">用户名</label>
+                                                            <input id="editUsername" class="form-control" required>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="editDisplayName" class="form-label">显示名称</label>
+                                                            <input id="editDisplayName" class="form-control"
+                                                                placeholder="学生姓名或昵称">
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="editRole" class="form-label">角色</label>
+                                                            <select id="editRole" class="form-select">
+                                                                <option value="student">学员</option>
+                                                                <option value="teacher">老师</option>
+                                                                <option value="admin">管理员</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="editPassword" class="form-label">重置密码</label>
+                                                            <div class="input-group">
+                                                                <input id="editPassword" type="password"
+                                                                    class="form-control" placeholder="新密码">
+                                                                <button type="button" class="nav-btn nav-btn-outline"
+                                                                    id="resetPasswordButton">生成</button>
+                                                            </div>
+                                                            <p class="hint mt-1 mb-0 small">留空则不修改。</p>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="d-flex align-items-center gap-3 mt-4 pt-3 border-top border-light">
+                                                        <button type="submit"
+                                                            class="nav-btn nav-btn-primary px-4">保存修改</button>
+                                                        <div class="message inline" id="updateUserMessage" hidden></div>
+                                                    </div>
+                                                </form>
+                                                <div class="danger-zone mt-4 pt-3 border-top border-danger-subtle"
+                                                    id="userDangerZone" hidden>
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div>
+                                                            <strong class="text-danger">危险操作</strong>
+                                                            <p class="small text-muted mb-0">删除用户将移除其所有关联数据。</p>
+                                                        </div>
+                                                        <button type="button"
+                                                            class="nav-btn nav-btn-outline text-danger border-danger-subtle"
+                                                            id="deleteUserButton"><i class="bi bi-trash"></i> 删除用户</button>
+                                                    </div>
+                                                    <div class="message inline" id="deleteUserMessage" hidden></div>
                                                 </div>
                                             </div>
-                                            <ul class="table-list user-table flex-grow-1 overflow-auto" id="userList"
-                                                style="max-height: 400px;"></ul>
-                                        </div>
-                                        <form id="createUserForm" class="panel-glass p-3 form-grid">
-                                            <div
-                                                class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-                                                <div>
-                                                    <h3 class="panel-title mb-1">创建用户</h3>
-                                                    <p class="hint mb-0">批量导入或单个创建。</p>
-                                                </div>
-                                                <button type="button" class="nav-btn nav-btn-outline py-1 px-2 small"
-                                                    id="openUserImportModal"><i
-                                                        class="bi bi-file-earmark-spreadsheet"></i> 批量导入</button>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="newUsername" class="form-label">用户名</label>
-                                                <input id="newUsername" name="username" class="form-control"
-                                                    placeholder="例如：student01" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="newDisplayName" class="form-label">显示名称</label>
-                                                <input id="newDisplayName" name="display_name" class="form-control"
-                                                    placeholder="学生姓名或昵称">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="newPassword" class="form-label">初始密码</label>
-                                                <input id="newPassword" name="password" type="password"
-                                                    class="form-control" placeholder="设置登录密码" required>
-                                            </div>
-                                            <div class="mb-4">
-                                                <label for="newRole" class="form-label">角色</label>
-                                                <select id="newRole" name="role" class="form-select">
-                                                    <option value="student">学员</option>
-                                                    <option value="teacher">老师</option>
-                                                    <option value="admin">管理员</option>
-                                                </select>
-                                            </div>
-                                            <button type="submit"
-                                                class="nav-btn nav-btn-primary w-100 justify-content-center py-2">创建用户</button>
-                                            <div class="message inline" id="createUserMessage" hidden></div>
-                                        </form>
+                                        </section>
                                     </div>
                                 </div>
-                                <div class="col-12 col-xl-7 col-xxl-8">
-                                    <section class="panel-glass h-100" id="userDetailCard">
-                                        <div class="panel-header">
-                                            <div>
-                                                <h3 class="panel-title" id="userDetailTitle">用户详情</h3>
-                                                <p class="hint mb-0" id="userDetailSubtitle">请选择左侧用户</p>
-                                            </div>
-                                            <span class="rl-badge success" id="userDetailRoleChip" hidden></span>
-                                        </div>
-                                        <div class="panel-body">
-                                            <div class="user-detail-empty" id="userDetailEmpty">
-                                                没有选中的用户，点击左侧列表中的用户即可开始编辑。
-                                            </div>
-                                            <form id="updateUserForm" class="p-3" hidden>
-                                                <div class="row g-3">
-                                                    <div class="col-md-6 mb-3">
-                                                        <label for="editUsername" class="form-label">用户名</label>
-                                                        <input id="editUsername" class="form-control" required>
-                                                    </div>
-                                                    <div class="col-md-6 mb-3">
-                                                        <label for="editDisplayName" class="form-label">显示名称</label>
-                                                        <input id="editDisplayName" class="form-control"
-                                                            placeholder="学生姓名或昵称">
-                                                    </div>
-                                                    <div class="col-md-6 mb-3">
-                                                        <label for="editRole" class="form-label">角色</label>
-                                                        <select id="editRole" class="form-select">
-                                                            <option value="student">学员</option>
-                                                            <option value="teacher">老师</option>
-                                                            <option value="admin">管理员</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-6 mb-3">
-                                                        <label for="editPassword" class="form-label">重置密码</label>
-                                                        <div class="input-group">
-                                                            <input id="editPassword" type="password"
-                                                                class="form-control" placeholder="新密码">
-                                                            <button type="button" class="nav-btn nav-btn-outline"
-                                                                id="resetPasswordButton">生成</button>
-                                                        </div>
-                                                        <p class="hint mt-1 mb-0 small">留空则不修改。</p>
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="d-flex align-items-center gap-3 mt-4 pt-3 border-top border-light">
-                                                    <button type="submit"
-                                                        class="nav-btn nav-btn-primary px-4">保存修改</button>
-                                                    <div class="message inline" id="updateUserMessage" hidden></div>
-                                                </div>
-                                            </form>
-                                            <div class="danger-zone mt-4 pt-3 border-top border-danger-subtle"
-                                                id="userDangerZone" hidden>
-                                                <div class="d-flex align-items-center justify-content-between">
-                                                    <div>
-                                                        <strong class="text-danger">危险操作</strong>
-                                                        <p class="small text-muted mb-0">删除用户将移除其所有关联数据。</p>
-                                                    </div>
-                                                    <button type="button"
-                                                        class="nav-btn nav-btn-outline text-danger border-danger-subtle"
-                                                        id="deleteUserButton"><i class="bi bi-trash"></i> 删除用户</button>
-                                                </div>
-                                                <div class="message inline" id="deleteUserMessage" hidden></div>
-                                            </div>
-                                        </div>
-                                    </section>
-                                </div>
                             </div>
-                        </div>
-                        <div class="tab-content" id="tab-courses" role="tabpanel">
+                        <?php endif; ?>
+
+                        <div class="tab-content <?php echo !$isAdmin ? 'active' : ''; ?>" id="tab-courses"
+                            role="tabpanel">
                             <div class="row g-4 align-items-start">
                                 <div class="col-12 col-xl-5 col-xxl-4">
                                     <form id="createCourseForm" class="panel-glass p-3">
@@ -1004,210 +1018,216 @@ if (file_exists($configFile)) {
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-content" id="tab-assignments" role="tabpanel">
-                            <div class="row g-4 align-items-start">
-                                <div class="col-12 col-xl-5 col-xxl-4">
-                                    <form id="assignCourseForm" class="panel-glass p-3">
-                                        <div
-                                            class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-                                            <div>
-                                                <h3 class="panel-title mb-1">分配课程</h3>
-                                                <p class="hint mb-0">批量或单个分配。</p>
+
+                        <?php if ($isAdmin): ?>
+                            <div class="tab-content" id="tab-assignments" role="tabpanel">
+                                <div class="row g-4 align-items-start">
+                                    <div class="col-12 col-xl-5 col-xxl-4">
+                                        <form id="assignCourseForm" class="panel-glass p-3">
+                                            <div
+                                                class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                                                <div>
+                                                    <h3 class="panel-title mb-1">分配课程</h3>
+                                                    <p class="hint mb-0">批量或单个分配。</p>
+                                                </div>
+                                                <button type="button" class="nav-btn nav-btn-outline py-1 px-2 small"
+                                                    id="openAssignImportModal"><i
+                                                        class="bi bi-file-earmark-spreadsheet"></i> 批量分配</button>
                                             </div>
-                                            <button type="button" class="nav-btn nav-btn-outline py-1 px-2 small"
-                                                id="openAssignImportModal"><i
-                                                    class="bi bi-file-earmark-spreadsheet"></i> 批量分配</button>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="assignUserSelect" class="form-label">选择用户</label>
-                                            <select id="assignUserSelect" name="user_id" class="form-select"
-                                                required></select>
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="assignCourseSelect" class="form-label">分配课程</label>
-                                            <select id="assignCourseSelect" name="course_id" class="form-select"
-                                                required></select>
-                                        </div>
-                                        <button type="submit"
-                                            class="nav-btn nav-btn-primary w-100 justify-content-center py-2">分配课程</button>
-                                        <div class="message inline" id="assignCourseMessage" hidden></div>
-                                    </form>
-                                </div>
-                                <div class="col-12 col-xl-7 col-xxl-8">
-                                    <div class="panel-glass h-100">
-                                        <div class="panel-header">
-                                            <div>
-                                                <h3 class="panel-title mb-1">用户已分配课程</h3>
-                                                <p class="hint mb-0">选择用户显示已分配课程。</p>
+                                            <div class="mb-3">
+                                                <label for="assignUserSelect" class="form-label">选择用户</label>
+                                                <select id="assignUserSelect" name="user_id" class="form-select"
+                                                    required></select>
                                             </div>
+                                            <div class="mb-4">
+                                                <label for="assignCourseSelect" class="form-label">分配课程</label>
+                                                <select id="assignCourseSelect" name="course_id" class="form-select"
+                                                    required></select>
+                                            </div>
+                                            <button type="submit"
+                                                class="nav-btn nav-btn-primary w-100 justify-content-center py-2">分配课程</button>
+                                            <div class="message inline" id="assignCourseMessage" hidden></div>
+                                        </form>
+                                    </div>
+                                    <div class="col-12 col-xl-7 col-xxl-8">
+                                        <div class="panel-glass h-100">
+                                            <div class="panel-header">
+                                                <div>
+                                                    <h3 class="panel-title mb-1">用户已分配课程</h3>
+                                                    <p class="hint mb-0">选择用户显示已分配课程。</p>
+                                                </div>
+                                            </div>
+                                            <ul class="table-list flex-grow-1 overflow-auto" id="assignmentList"
+                                                style="max-height: 500px;"></ul>
                                         </div>
-                                        <ul class="table-list flex-grow-1 overflow-auto" id="assignmentList"
-                                            style="max-height: 500px;"></ul>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="tab-content" id="tab-posts" role="tabpanel">
-                            <div class="row g-4 align-items-start">
-                                <div class="col-12 col-xl-5 col-xxl-4">
-                                    <form id="createPostForm" class="panel-glass p-3" method="post"
-                                        action="/rarelight/admin?tab=posts#posts">
-                                        <input type="hidden" name="post_action" value="create">
+                        <?php endif; ?>
 
-                                        <div class="panel-header ps-0 pe-0 pt-0 bg-transparent border-bottom mb-3">
-                                            <h3 class="panel-title mb-1">发布文章</h3>
-                                            <p class="hint mb-0">发布项目日志或新闻。</p>
-                                        </div>
+                        <?php if ($isAdmin): ?>
+                            <div class="tab-content" id="tab-posts" role="tabpanel">
+                                <div class="row g-4 align-items-start">
+                                    <div class="col-12 col-xl-5 col-xxl-4">
+                                        <form id="createPostForm" class="panel-glass p-3" method="post"
+                                            action="/rarelight/admin?tab=posts#posts">
+                                            <input type="hidden" name="post_action" value="create">
 
-                                        <div class="mb-3">
-                                            <label for="postTitleInput" class="form-label">文章标题</label>
-                                            <input id="postTitleInput" name="title" class="form-control"
-                                                placeholder="例如：阶段成果总结" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="postLinkInput" class="form-label">公众号文章链接</label>
-                                            <input id="postLinkInput" name="link_url" class="form-control"
-                                                placeholder="https://mp.weixin.qq.com/..." required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="postDateInput" class="form-label">发布日期</label>
-                                            <input id="postDateInput" name="published_at" type="date"
-                                                class="form-control">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="postAuthorInput" class="form-label">作者/负责人</label>
-                                            <input id="postAuthorInput" name="author" class="form-control"
-                                                placeholder="可选，填写负责人">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="postTagsInput" class="form-label">标签</label>
-                                            <input id="postTagsInput" name="tags" class="form-control"
-                                                placeholder="用逗号分隔，例如：调研,里程碑">
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="postSummaryInput" class="form-label">摘要</label>
-                                            <textarea id="postSummaryInput" name="summary" class="form-control" rows="3"
-                                                placeholder="简要概述（可选）"></textarea>
-                                        </div>
-                                        <button type="submit"
-                                            class="nav-btn nav-btn-primary w-100 justify-content-center py-2">发布文章</button>
-                                        <div class="message inline <?php echo $blogFlash['type'] === 'error' ? 'text-danger' : ($blogFlash['type'] === 'success' ? 'text-success' : ''); ?>"
-                                            id="createPostMessage" <?php echo $blogFlash['message'] ? '' : 'hidden'; ?>>
-                                            <?php echo htmlspecialchars($blogFlash['message'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="col-12 col-xl-7 col-xxl-8">
-                                    <div class="panel-glass h-100">
-                                        <div class="panel-header">
-                                            <div>
-                                                <h3 class="panel-title mb-1">文章列表</h3>
-                                                <p class="hint mb-0">点击文章可编辑，删除不可恢复。</p>
+                                            <div class="panel-header ps-0 pe-0 pt-0 bg-transparent border-bottom mb-3">
+                                                <h3 class="panel-title mb-1">发布文章</h3>
+                                                <p class="hint mb-0">发布项目日志或新闻。</p>
                                             </div>
-                                        </div>
-                                        <ul class="table-list flex-grow-1 overflow-auto" id="postList"
-                                            style="max-height: 500px;">
-                                            <?php if (empty($blogPosts)): ?>
-                                                <li class="text-muted p-3">暂无文章，请先发布。</li>
-                                            <?php else: ?>
-                                                <?php foreach ($blogPosts as $post): ?>
-                                                    <li
-                                                        class="selectable<?php echo ($blogEditPost && (int) $blogEditPost['id'] === (int) $post['id']) ? ' active' : ''; ?>">
-                                                        <div style="flex: 1;">
-                                                            <strong><?php echo htmlspecialchars($post['title'] ?? ('文章 ' . $post['id']), ENT_QUOTES, 'UTF-8'); ?></strong>
-                                                            <div class="text-muted" style="font-size: 0.85rem;">
-                                                                <?php
-                                                                $metaPieces = [];
-                                                                if (!empty($post['author'])) {
-                                                                    $metaPieces[] = htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8');
-                                                                }
-                                                                if (!empty($post['published_at'])) {
-                                                                    $metaPieces[] = htmlspecialchars($post['published_at'], ENT_QUOTES, 'UTF-8');
-                                                                }
-                                                                $summary = trim((string) ($post['summary'] ?? ''));
-                                                                if ($summary !== '') {
-                                                                    $metaPieces[] = mb_strimwidth($summary, 0, 60, '…', 'UTF-8');
-                                                                }
-                                                                $metaText = $metaPieces ? implode(' · ', $metaPieces) : '';
-                                                                ?>
-                                                                <?php echo '文章ID：' . (int) $post['id'] . ($metaText ? ' · ' . htmlspecialchars($metaText, ENT_QUOTES, 'UTF-8') : ''); ?>
-                                                            </div>
-                                                        </div>
-                                                        <div class="list-actions"
-                                                            style="display: flex; gap: 0.5rem; align-items: center;">
-                                                            <a class="nav-btn nav-btn-outline py-1 px-2 small"
-                                                                href="/rarelight/admin?tab=posts&post_id=<?php echo (int) $post['id']; ?>#posts"><i
-                                                                    class="bi bi-pencil"></i></a>
-                                                            <form method="post" action="/rarelight/admin?tab=posts#posts"
-                                                                onsubmit="return confirm('确定删除该文章？');">
-                                                                <input type="hidden" name="post_action" value="delete">
-                                                                <input type="hidden" name="post_id"
-                                                                    value="<?php echo (int) $post['id']; ?>">
-                                                                <button type="submit"
-                                                                    class="nav-btn nav-btn-outline text-danger border-danger-subtle py-1 px-2 small"><i
-                                                                        class="bi bi-trash"></i></button>
-                                                            </form>
-                                                        </div>
-                                                    </li>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </ul>
-                                        <div class="message inline" id="postListMessage" hidden></div>
 
-                                        <form id="updatePostForm" class="p-3 border-top border-light" method="post"
-                                            action="/rarelight/admin?tab=posts#posts" <?php echo $blogEditPost ? '' : 'hidden'; ?>>
-                                            <input type="hidden" name="post_action" value="update">
-                                            <input type="hidden" name="post_id"
-                                                value="<?php echo $blogEditPost ? (int) $blogEditPost['id'] : 0; ?>">
-                                            <h3 class="panel-title mb-3">编辑文章</h3>
                                             <div class="mb-3">
-                                                <label for="editPostTitle" class="form-label">文章标题</label>
-                                                <input id="editPostTitle" name="title" class="form-control"
-                                                    value="<?php echo htmlspecialchars($blogEditPost['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                                    required>
+                                                <label for="postTitleInput" class="form-label">文章标题</label>
+                                                <input id="postTitleInput" name="title" class="form-control"
+                                                    placeholder="例如：阶段成果总结" required>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="editPostLink" class="form-label">公众号文章链接</label>
-                                                <input id="editPostLink" name="link_url" class="form-control"
-                                                    value="<?php echo htmlspecialchars($blogEditPost['link_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                <label for="postLinkInput" class="form-label">公众号文章链接</label>
+                                                <input id="postLinkInput" name="link_url" class="form-control"
                                                     placeholder="https://mp.weixin.qq.com/..." required>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="editPostDate" class="form-label">发布日期</label>
-                                                <input id="editPostDate" name="published_at" type="date"
-                                                    class="form-control"
-                                                    value="<?php echo htmlspecialchars($blogEditPost['published_at'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                                <label for="postDateInput" class="form-label">发布日期</label>
+                                                <input id="postDateInput" name="published_at" type="date"
+                                                    class="form-control">
                                             </div>
                                             <div class="mb-3">
-                                                <label for="editPostAuthor" class="form-label">作者/负责人</label>
-                                                <input id="editPostAuthor" name="author" class="form-control"
-                                                    value="<?php echo htmlspecialchars($blogEditPost['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                <label for="postAuthorInput" class="form-label">作者/负责人</label>
+                                                <input id="postAuthorInput" name="author" class="form-control"
                                                     placeholder="可选，填写负责人">
                                             </div>
                                             <div class="mb-3">
-                                                <label for="editPostTags" class="form-label">标签</label>
-                                                <input id="editPostTags" name="tags" class="form-control"
-                                                    value="<?php echo htmlspecialchars($blogEditPost['tags'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                                    placeholder="用逗号分隔标签">
+                                                <label for="postTagsInput" class="form-label">标签</label>
+                                                <input id="postTagsInput" name="tags" class="form-control"
+                                                    placeholder="用逗号分隔，例如：调研,里程碑">
                                             </div>
                                             <div class="mb-4">
-                                                <label for="editPostSummary" class="form-label">摘要</label>
-                                                <textarea id="editPostSummary" name="summary" class="form-control"
-                                                    rows="3"
-                                                    placeholder="简要概述（可选）"><?php echo htmlspecialchars($blogEditPost['summary'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                                <label for="postSummaryInput" class="form-label">摘要</label>
+                                                <textarea id="postSummaryInput" name="summary" class="form-control" rows="3"
+                                                    placeholder="简要概述（可选）"></textarea>
                                             </div>
-                                            <div class="d-flex gap-2">
-                                                <button type="submit"
-                                                    class="nav-btn nav-btn-primary flex-fill justify-content-center py-2">保存修改</button>
-                                                <a class="nav-btn nav-btn-ghost flex-fill justify-content-center py-2"
-                                                    href="/rarelight/admin?tab=posts#posts">取消</a>
+                                            <button type="submit"
+                                                class="nav-btn nav-btn-primary w-100 justify-content-center py-2">发布文章</button>
+                                            <div class="message inline <?php echo $blogFlash['type'] === 'error' ? 'text-danger' : ($blogFlash['type'] === 'success' ? 'text-success' : ''); ?>"
+                                                id="createPostMessage" <?php echo $blogFlash['message'] ? '' : 'hidden'; ?>>
+                                                <?php echo htmlspecialchars($blogFlash['message'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                                             </div>
-                                            <div class="message inline" id="updatePostMessage" hidden></div>
                                         </form>
+                                    </div>
+                                    <div class="col-12 col-xl-7 col-xxl-8">
+                                        <div class="panel-glass h-100">
+                                            <div class="panel-header">
+                                                <div>
+                                                    <h3 class="panel-title mb-1">文章列表</h3>
+                                                    <p class="hint mb-0">点击文章可编辑，删除不可恢复。</p>
+                                                </div>
+                                            </div>
+                                            <ul class="table-list flex-grow-1 overflow-auto" id="postList"
+                                                style="max-height: 500px;">
+                                                <?php if (empty($blogPosts)): ?>
+                                                    <li class="text-muted p-3">暂无文章，请先发布。</li>
+                                                <?php else: ?>
+                                                    <?php foreach ($blogPosts as $post): ?>
+                                                        <li
+                                                            class="selectable<?php echo ($blogEditPost && (int) $blogEditPost['id'] === (int) $post['id']) ? ' active' : ''; ?>">
+                                                            <div style="flex: 1;">
+                                                                <strong><?php echo htmlspecialchars($post['title'] ?? ('文章 ' . $post['id']), ENT_QUOTES, 'UTF-8'); ?></strong>
+                                                                <div class="text-muted" style="font-size: 0.85rem;">
+                                                                    <?php
+                                                                    $metaPieces = [];
+                                                                    if (!empty($post['author'])) {
+                                                                        $metaPieces[] = htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8');
+                                                                    }
+                                                                    if (!empty($post['published_at'])) {
+                                                                        $metaPieces[] = htmlspecialchars($post['published_at'], ENT_QUOTES, 'UTF-8');
+                                                                    }
+                                                                    $summary = trim((string) ($post['summary'] ?? ''));
+                                                                    if ($summary !== '') {
+                                                                        $metaPieces[] = mb_strimwidth($summary, 0, 60, '…', 'UTF-8');
+                                                                    }
+                                                                    $metaText = $metaPieces ? implode(' · ', $metaPieces) : '';
+                                                                    ?>
+                                                                    <?php echo '文章ID：' . (int) $post['id'] . ($metaText ? ' · ' . htmlspecialchars($metaText, ENT_QUOTES, 'UTF-8') : ''); ?>
+                                                                </div>
+                                                            </div>
+                                                            <div class="list-actions"
+                                                                style="display: flex; gap: 0.5rem; align-items: center;">
+                                                                <a class="nav-btn nav-btn-outline py-1 px-2 small"
+                                                                    href="/rarelight/admin?tab=posts&post_id=<?php echo (int) $post['id']; ?>#posts"><i
+                                                                        class="bi bi-pencil"></i></a>
+                                                                <form method="post" action="/rarelight/admin?tab=posts#posts"
+                                                                    onsubmit="return confirm('确定删除该文章？');">
+                                                                    <input type="hidden" name="post_action" value="delete">
+                                                                    <input type="hidden" name="post_id"
+                                                                        value="<?php echo (int) $post['id']; ?>">
+                                                                    <button type="submit"
+                                                                        class="nav-btn nav-btn-outline text-danger border-danger-subtle py-1 px-2 small"><i
+                                                                            class="bi bi-trash"></i></button>
+                                                                </form>
+                                                            </div>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </ul>
+                                            <div class="message inline" id="postListMessage" hidden></div>
+
+                                            <form id="updatePostForm" class="p-3 border-top border-light" method="post"
+                                                action="/rarelight/admin?tab=posts#posts" <?php echo $blogEditPost ? '' : 'hidden'; ?>>
+                                                <input type="hidden" name="post_action" value="update">
+                                                <input type="hidden" name="post_id"
+                                                    value="<?php echo $blogEditPost ? (int) $blogEditPost['id'] : 0; ?>">
+                                                <h3 class="panel-title mb-3">编辑文章</h3>
+                                                <div class="mb-3">
+                                                    <label for="editPostTitle" class="form-label">文章标题</label>
+                                                    <input id="editPostTitle" name="title" class="form-control"
+                                                        value="<?php echo htmlspecialchars($blogEditPost['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                        required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="editPostLink" class="form-label">公众号文章链接</label>
+                                                    <input id="editPostLink" name="link_url" class="form-control"
+                                                        value="<?php echo htmlspecialchars($blogEditPost['link_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                        placeholder="https://mp.weixin.qq.com/..." required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="editPostDate" class="form-label">发布日期</label>
+                                                    <input id="editPostDate" name="published_at" type="date"
+                                                        class="form-control"
+                                                        value="<?php echo htmlspecialchars($blogEditPost['published_at'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="editPostAuthor" class="form-label">作者/负责人</label>
+                                                    <input id="editPostAuthor" name="author" class="form-control"
+                                                        value="<?php echo htmlspecialchars($blogEditPost['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                        placeholder="可选，填写负责人">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="editPostTags" class="form-label">标签</label>
+                                                    <input id="editPostTags" name="tags" class="form-control"
+                                                        value="<?php echo htmlspecialchars($blogEditPost['tags'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                        placeholder="用逗号分隔标签">
+                                                </div>
+                                                <div class="mb-4">
+                                                    <label for="editPostSummary" class="form-label">摘要</label>
+                                                    <textarea id="editPostSummary" name="summary" class="form-control"
+                                                        rows="3"
+                                                        placeholder="简要概述（可选）"><?php echo htmlspecialchars($blogEditPost['summary'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button type="submit"
+                                                        class="nav-btn nav-btn-primary flex-fill justify-content-center py-2">保存修改</button>
+                                                    <a class="nav-btn nav-btn-ghost flex-fill justify-content-center py-2"
+                                                        href="/rarelight/admin?tab=posts#posts">取消</a>
+                                                </div>
+                                                <div class="message inline" id="updatePostMessage" hidden></div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
     </main>
