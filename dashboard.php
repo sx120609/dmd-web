@@ -449,6 +449,8 @@
                 grid-template-columns: 1fr;
                 height: auto;
                 display: block;
+                padding-bottom: 80px;
+                /* Space for bottom nav */
             }
 
             .sidebar {
@@ -456,7 +458,9 @@
                 top: 0;
                 left: 0;
                 bottom: 0;
-                width: 300px;
+                width: 85vw;
+                /* Better fit for small screens */
+                max-width: 320px;
                 z-index: 1050;
                 background: var(--rl-bg);
                 padding: 1rem;
@@ -479,21 +483,85 @@
                 pointer-events: auto;
             }
 
-            /* 移动端将侧边栏拆分为两个抽屉，这里简化处理，隐藏默认侧边栏，通过按钮唤起 */
             .sidebar-section {
                 display: none;
             }
 
-            /* JS控制显示 */
             .sidebar-section.active {
                 display: flex;
                 height: 100%;
             }
+
+            /* 隐藏顶部导航的部分元素以简化视图 */
+            .site-nav .d-flex.align-items-center:not(.w-100) {
+                /* Keep logo visible, hide right side actions if needed, or adjust */
+            }
+        }
+
+        /* 移动端底部导航 */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 16px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--rl-text-muted);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+        }
+
+        .mobile-nav-item i {
+            font-size: 1.4rem;
+            margin-bottom: -2px;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--rl-primary);
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        @media (max-width: 992px) {
+            .mobile-bottom-nav {
+                display: flex;
+            }
+
+            .mobile-only-buttons {
+                display: none !important;
+            }
+
+            /* Hide old buttons */
         }
 
         @media (min-width: 993px) {
             .mobile-only {
                 display: none !important;
+            }
+
+            .mobile-bottom-nav {
+                display: none;
             }
         }
     </style>
@@ -592,14 +660,7 @@
         </aside>
 
         <section class="stage">
-            <div class="panel-glass p-2 d-flex gap-2 mb-3 mobile-only align-items-center">
-                <button class="nav-btn nav-btn-outline flex-fill" id="courseDrawerToggle">
-                    <i class="bi bi-collection-play"></i> 切换课程
-                </button>
-                <button class="nav-btn nav-btn-outline flex-fill" id="lessonDrawerToggle">
-                    <i class="bi bi-list-task"></i> 课节列表
-                </button>
-            </div>
+                <!-- Mobile buttons removed, replaced by bottom nav -->
 
             <div class="panel-glass p-4" style="flex-shrink: 0;">
                 <div class="stage-header">
@@ -641,6 +702,22 @@
         </section>
     </main>
 
+    <!-- 底部导航栏 -->
+    <div class="mobile-bottom-nav">
+        <button class="mobile-nav-item" onclick="window.location.href='/rarelight/'">
+            <i class="bi bi-house"></i>
+            <span>首页</span>
+        </button>
+        <button class="mobile-nav-item" id="mobileCourseToggle">
+            <i class="bi bi-collection-play"></i>
+            <span>课程</span>
+        </button>
+        <button class="mobile-nav-item" id="mobileLessonToggle">
+            <i class="bi bi-list-task"></i>
+            <span>课节</span>
+        </button>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js"></script>
 
@@ -677,8 +754,10 @@
 
         // Mobile Drawers
         const drawerBackdrop = document.getElementById('drawerBackdrop');
-        const courseDrawerToggle = document.getElementById('courseDrawerToggle');
-        const lessonDrawerToggle = document.getElementById('lessonDrawerToggle');
+        // New Bottom Nav Buttons
+        const mobileCourseToggle = document.getElementById('mobileCourseToggle');
+        const mobileLessonToggle = document.getElementById('mobileLessonToggle');
+        
         const mainSidebar = document.getElementById('mainSidebar');
 
         // Filters
@@ -734,9 +813,24 @@
             }
         });
 
-        if (courseDrawerToggle) courseDrawerToggle.addEventListener('click', () => openDrawer('course'));
-        if (lessonDrawerToggle) lessonDrawerToggle.addEventListener('click', () => openDrawer('lesson'));
-        if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeAllDrawers);
+        if (mobileCourseToggle) mobileCourseToggle.addEventListener('click', () => {
+            openDrawer('course');
+            updateMobileNavActive('course');
+        });
+        if (mobileLessonToggle) mobileLessonToggle.addEventListener('click', () => {
+            openDrawer('lesson');
+            updateMobileNavActive('lesson');
+        });
+        if (drawerBackdrop) drawerBackdrop.addEventListener('click', () => {
+             closeAllDrawers();
+             updateMobileNavActive(null);
+        });
+
+        function updateMobileNavActive(type) {
+            document.querySelectorAll('.mobile-nav-item').forEach(btn => btn.classList.remove('active'));
+            if (type === 'course') mobileCourseToggle.classList.add('active');
+            if (type === 'lesson') mobileLessonToggle.classList.add('active');
+        }
 
         // --- UI Update Functions (Re-styled) ---
 
@@ -1091,7 +1185,10 @@
                 renderLessonList(lessons, data.course);
 
                 // Mobile: switch to lesson drawer
-                if (window.innerWidth <= 992) openDrawer('lesson');
+                if (window.innerWidth <= 992) {
+                     openDrawer('lesson');
+                     updateMobileNavActive('lesson');
+                }
 
             } catch (e) { console.error(e); }
         }
