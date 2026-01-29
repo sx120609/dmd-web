@@ -507,6 +507,28 @@ if (file_exists($configFile)) {
             background: #dc2626;
             color: white;
         }
+
+        /* Tab Logic */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -573,12 +595,12 @@ if (file_exists($configFile)) {
                                 <ul class="table-list user-table" id="userList"></ul>
                             </div>
                             <form id="createUserForm" class="panel-glass p-4 form-grid">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div>
-                                        <h3 class="mb-1">创建用户</h3>
-                                        <p class="hint mb-0">单个创建或使用右侧按钮批量导入。</p>
+                                <div class="d-flex align-items-start justify-content-between mb-3 gap-3">
+                                    <div class="min-width-0">
+                                        <h3 class="mb-1 panel-title">创建用户</h3>
+                                        <p class="hint mb-0 text-break">单个创建或使用右侧按钮批量导入。</p>
                                     </div>
-                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 flex-shrink-0"
                                         id="openUserImportModal">批量导入</button>
                                 </div>
                                 <div>
@@ -871,44 +893,44 @@ if (file_exists($configFile)) {
                             </div>
                             <ul class="table-list" id="postList">
                                 <?php if (empty($blogPosts)): ?>
-                                    <li class="text-muted">暂无文章，请先发布。</li>
+                                        <li class="text-muted">暂无文章，请先发布。</li>
                                 <?php else: ?>
-                                    <?php foreach ($blogPosts as $post): ?>
-                                        <li
-                                            class="selectable<?php echo ($blogEditPost && (int) $blogEditPost['id'] === (int) $post['id']) ? ' active' : ''; ?>">
-                                            <div style="flex: 1;">
-                                                <strong><?php echo htmlspecialchars($post['title'] ?? ('文章 ' . $post['id']), ENT_QUOTES, 'UTF-8'); ?></strong>
-                                                <div class="text-muted" style="font-size: 0.85rem;">
-                                                    <?php
-                                                    $metaPieces = [];
-                                                    if (!empty($post['author'])) {
-                                                        $metaPieces[] = htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8');
-                                                    }
-                                                    if (!empty($post['published_at'])) {
-                                                        $metaPieces[] = htmlspecialchars($post['published_at'], ENT_QUOTES, 'UTF-8');
-                                                    }
-                                                    $summary = trim((string) ($post['summary'] ?? ''));
-                                                    if ($summary !== '') {
-                                                        $metaPieces[] = mb_strimwidth($summary, 0, 60, '…', 'UTF-8');
-                                                    }
-                                                    $metaText = $metaPieces ? implode(' · ', $metaPieces) : '';
-                                                    ?>
-                                                    <?php echo '文章ID：' . (int) $post['id'] . ($metaText ? ' · ' . htmlspecialchars($metaText, ENT_QUOTES, 'UTF-8') : ''); ?>
-                                                </div>
-                                            </div>
-                                            <div class="list-actions" style="display: flex; gap: 0.5rem; align-items: center;">
-                                                <a class="inline-button"
-                                                    href="/rarelight/admin?tab=posts&post_id=<?php echo (int) $post['id']; ?>#posts">编辑</a>
-                                                <form method="post" action="/rarelight/admin?tab=posts#posts"
-                                                    onsubmit="return confirm('确定删除该文章？');">
-                                                    <input type="hidden" name="post_action" value="delete">
-                                                    <input type="hidden" name="post_id"
-                                                        value="<?php echo (int) $post['id']; ?>">
-                                                    <button type="submit" class="inline-button danger">删除</button>
-                                                </form>
-                                            </div>
-                                        </li>
-                                    <?php endforeach; ?>
+                                        <?php foreach ($blogPosts as $post): ?>
+                                                <li
+                                                    class="selectable<?php echo ($blogEditPost && (int) $blogEditPost['id'] === (int) $post['id']) ? ' active' : ''; ?>">
+                                                    <div style="flex: 1;">
+                                                        <strong><?php echo htmlspecialchars($post['title'] ?? ('文章 ' . $post['id']), ENT_QUOTES, 'UTF-8'); ?></strong>
+                                                        <div class="text-muted" style="font-size: 0.85rem;">
+                                                            <?php
+                                                            $metaPieces = [];
+                                                            if (!empty($post['author'])) {
+                                                                $metaPieces[] = htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8');
+                                                            }
+                                                            if (!empty($post['published_at'])) {
+                                                                $metaPieces[] = htmlspecialchars($post['published_at'], ENT_QUOTES, 'UTF-8');
+                                                            }
+                                                            $summary = trim((string) ($post['summary'] ?? ''));
+                                                            if ($summary !== '') {
+                                                                $metaPieces[] = mb_strimwidth($summary, 0, 60, '…', 'UTF-8');
+                                                            }
+                                                            $metaText = $metaPieces ? implode(' · ', $metaPieces) : '';
+                                                            ?>
+                                                            <?php echo '文章ID：' . (int) $post['id'] . ($metaText ? ' · ' . htmlspecialchars($metaText, ENT_QUOTES, 'UTF-8') : ''); ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class="list-actions" style="display: flex; gap: 0.5rem; align-items: center;">
+                                                        <a class="inline-button"
+                                                            href="/rarelight/admin?tab=posts&post_id=<?php echo (int) $post['id']; ?>#posts">编辑</a>
+                                                        <form method="post" action="/rarelight/admin?tab=posts#posts"
+                                                            onsubmit="return confirm('确定删除该文章？');">
+                                                            <input type="hidden" name="post_action" value="delete">
+                                                            <input type="hidden" name="post_id"
+                                                                value="<?php echo (int) $post['id']; ?>">
+                                                            <button type="submit" class="inline-button danger">删除</button>
+                                                        </form>
+                                                    </div>
+                                                </li>
+                                        <?php endforeach; ?>
                                 <?php endif; ?>
                             </ul>
                             <div class="message inline" id="postListMessage" hidden></div>
@@ -3107,7 +3129,7 @@ if (file_exists($configFile)) {
             window.location.href = ROUTE_DASHBOARD;
         });
 
-        loadInitialData();
+     loadInitialData();
     </script>
 </body>
 
