@@ -188,13 +188,13 @@
         }
 
         .panel-title {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 700;
             margin: 0;
             display: flex;
             align-items: center;
-            gap: 6px;
-            white-space: nowrap;
+            gap: 8px;
+            line-height: 1.2;
         }
 
         .panel-subtitle {
@@ -252,17 +252,17 @@
         .item-title {
             font-weight: 600;
             color: var(--rl-text-main);
-            font-size: 0.9rem;
-            margin-bottom: 0.3rem;
-            line-height: 1.3;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+            line-height: 1.4;
         }
 
         .item-desc {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--rl-text-muted);
-            line-height: 1.4;
+            line-height: 1.5;
             display: -webkit-box;
-            -webkit-line-clamp: 1;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -824,8 +824,8 @@
 
                 btn.innerHTML = `
                 <div class="pt-1">${statusIcon}</div>
-                <div class="flex-grow-1">
-                    <div class="item-title mb-1">${lesson.title}</div>
+                <div class="flex-grow-1" style="min-width: 0;">
+                    <div class="item-title mb-1 text-break">${lesson.title}</div>
                     <div class="small text-muted">课节 ${order}</div>
                 </div>
             `;
