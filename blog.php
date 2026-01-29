@@ -621,7 +621,7 @@ if (file_exists($configFile)) {
             currentLang = lang;
             localStorage.setItem(LANG_KEY, currentLang);
 
-            const langText = lang === 'zh' ? '<i class="bi bi-translate me-1"></i> 中文 / EN' : '<i class="bi bi-translate me-1"></i> EN / 中文';
+            const langText = lang === 'zh' ? '<i class="bi bi-translate me-1"></i> EN / 中文' : '<i class="bi bi-translate me-1"></i> 中文 / EN';
             if (langToggle) langToggle.innerHTML = langText;
         }
 
