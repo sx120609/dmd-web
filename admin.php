@@ -98,9 +98,12 @@ if (file_exists($configFile)) {
                                 header('Location: /rarelight/admin?tab=posts&post_id=' . $newId . '#posts');
                                 exit;
                             }
+                            $errorDetail = $stmt->error;
                             $stmt->close();
+                            $blogFlash = ['type' => 'error', 'message' => '发布失败：' . $errorDetail];
+                            goto blog_posts_done;
                         }
-                        $blogFlash = ['type' => 'error', 'message' => '发布失败'];
+                        $blogFlash = ['type' => 'error', 'message' => '发布失败：' . $mysqli->error];
                     }
                 } elseif ($action === 'update') {
                     $postId = (int) ($_POST['post_id'] ?? 0);
@@ -117,9 +120,12 @@ if (file_exists($configFile)) {
                                 header('Location: /rarelight/admin?tab=posts&post_id=' . $postId . '#posts');
                                 exit;
                             }
+                            $errorDetail = $stmt->error;
                             $stmt->close();
+                            $blogFlash = ['type' => 'error', 'message' => '保存失败：' . $errorDetail];
+                            goto blog_posts_done;
                         }
-                        $blogFlash = ['type' => 'error', 'message' => '保存失败'];
+                        $blogFlash = ['type' => 'error', 'message' => '保存失败：' . $mysqli->error];
                     }
                 } elseif ($action === 'delete') {
                     $postId = (int) ($_POST['post_id'] ?? 0);
@@ -137,6 +143,7 @@ if (file_exists($configFile)) {
                 }
             }
         }
+        blog_posts_done:
 
         $postsResult = $mysqli->query('SELECT id, title, summary, link_url, published_at, author, tags, created_at FROM blog_posts ORDER BY COALESCE(published_at, created_at) DESC, id DESC');
         if ($postsResult) {
