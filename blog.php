@@ -146,6 +146,11 @@ if (file_exists($configFile)) {
             font-weight: 600;
             text-decoration: none;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid transparent;
         }
 
         .nav-btn-ghost {
@@ -621,7 +626,7 @@ if (file_exists($configFile)) {
             currentLang = lang;
             localStorage.setItem(LANG_KEY, currentLang);
 
-            const langText = lang === 'zh' ? '<i class="bi bi-translate me-1"></i> EN / 中文' : '<i class="bi bi-translate me-1"></i> 中文 / EN';
+            const langText = lang === 'zh' ? '<i class="bi bi-translate me-1"></i> 中文 / EN' : '<i class="bi bi-translate me-1"></i> EN / 中文';
             if (langToggle) langToggle.innerHTML = langText;
         }
 
