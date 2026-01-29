@@ -414,6 +414,20 @@ if (file_exists($configFile)) {
                 font-size: 2rem;
             }
         }
+
+        /* Typewriter Cursor */
+        .typewriter-cursor {
+            display: inline-block;
+            width: 3px;
+            background: var(--rl-primary);
+            margin-left: 2px;
+            animation: blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes blink-caret {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
     </style>
 </head>
 
@@ -459,7 +473,7 @@ if (file_exists($configFile)) {
             <div class="hero-badge" data-i18n="heroBadge">
                 <i class="bi bi-stars"></i> 公益项目动态
             </div>
-            <h1 class="hero-title" data-i18n="heroTitle">项目日志与进展</h1>
+            <h1 class="hero-title" id="heroTitle" data-i18n="heroTitle"></h1>
             <p class="hero-desc" data-i18n="heroDesc">记录 Rare Light 在罕见病儿童公益领域的行动点滴。这里的每一个脚印，都凝聚着爱与希望。</p>
         </div>
     </header>
@@ -621,8 +635,38 @@ if (file_exists($configFile)) {
             if (mobileLangToggle) mobileLangToggle.addEventListener('click', toggleHandler);
         }
 
+        // Typewriter effect
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.innerHTML = '';
+            const cursor = document.createElement('span');
+            cursor.className = 'typewriter-cursor';
+            cursor.innerHTML = '&nbsp;';
+            element.appendChild(cursor);
+            
+            function type() {
+                if (i < text.length) {
+                    element.insertBefore(document.createTextNode(text.charAt(i)), cursor);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    setTimeout(() => cursor.remove(), 2000);
+                }
+            }
+            type();
+        }
+
+        function initTypewriter() {
+            const heroTitle = document.getElementById('heroTitle');
+            if (heroTitle) {
+                const text = i18n[currentLang].heroTitle || '项目日志与进展';
+                typeWriter(heroTitle, text, 80);
+            }
+        }
+
         initFontControls();
         initLangToggle();
+        initTypewriter();
     </script>
 </body>
 
