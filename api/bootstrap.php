@@ -183,12 +183,32 @@ function ensure_blog_posts_table(mysqli $mysqli): void
             `title` VARCHAR(200) NOT NULL,
             `summary` TEXT,
             `content` MEDIUMTEXT NOT NULL,
+            `link_url` VARCHAR(500) DEFAULT NULL,
+            `published_at` DATE DEFAULT NULL,
             `tags` VARCHAR(255) DEFAULT NULL,
             `author` VARCHAR(120) DEFAULT NULL,
             `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     );
+
+    $columns = $mysqli->query("SHOW COLUMNS FROM `blog_posts` LIKE 'link_url'");
+    if ($columns instanceof mysqli_result) {
+        $hasLink = $columns->num_rows > 0;
+        $columns->free();
+        if (!$hasLink) {
+            $mysqli->query("ALTER TABLE `blog_posts` ADD COLUMN `link_url` VARCHAR(500) DEFAULT NULL AFTER `content`");
+        }
+    }
+
+    $columns = $mysqli->query("SHOW COLUMNS FROM `blog_posts` LIKE 'published_at'");
+    if ($columns instanceof mysqli_result) {
+        $hasDate = $columns->num_rows > 0;
+        $columns->free();
+        if (!$hasDate) {
+            $mysqli->query("ALTER TABLE `blog_posts` ADD COLUMN `published_at` DATE DEFAULT NULL AFTER `link_url`");
+        }
+    }
 }
 
 function ensure_user_progress_table(mysqli $mysqli): void

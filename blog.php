@@ -276,41 +276,8 @@
     <section class="mb-4">
         <h2 class="section-title">公众号文章精选</h2>
         <p class="section-subtitle">将公众号文章链接填到卡片里，作为对外展示内容。</p>
-        <div class="wechat-grid">
-            <!-- 复制卡片并替换链接/标题/摘要 -->
-            <article class="wechat-card">
-                <div class="wechat-meta">
-                    <span>2026-01-29</span>
-                    <span>公众号推文</span>
-                </div>
-                <div class="wechat-title">示例：罕见病儿童线上课堂阶段成果</div>
-                <p class="wechat-summary">这里填写文章摘要，简要说明内容亮点与结论。</p>
-                <a class="wechat-link" href="https://mp.weixin.qq.com/" target="_blank" rel="noopener noreferrer">
-                    阅读原文 →
-                </a>
-            </article>
-            <article class="wechat-card">
-                <div class="wechat-meta">
-                    <span>2026-01-15</span>
-                    <span>公众号推文</span>
-                </div>
-                <div class="wechat-title">示例：志愿者课堂故事与学生反馈</div>
-                <p class="wechat-summary">这里填写文章摘要，简要说明内容亮点与结论。</p>
-                <a class="wechat-link" href="https://mp.weixin.qq.com/" target="_blank" rel="noopener noreferrer">
-                    阅读原文 →
-                </a>
-            </article>
-            <article class="wechat-card">
-                <div class="wechat-meta">
-                    <span>2026-01-02</span>
-                    <span>公众号推文</span>
-                </div>
-                <div class="wechat-title">示例：线下科普行走进医院</div>
-                <p class="wechat-summary">这里填写文章摘要，简要说明内容亮点与结论。</p>
-                <a class="wechat-link" href="https://mp.weixin.qq.com/" target="_blank" rel="noopener noreferrer">
-                    阅读原文 →
-                </a>
-            </article>
+        <div class="wechat-grid" id="wechatList">
+            <div class="wechat-card text-secondary">正在加载内容...</div>
         </div>
     </section>
 
@@ -336,7 +303,74 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 仅展示公众号文章卡片，内容由手动维护
+    const BASE_PATH = '/rarelight';
+    const API_BASE = `${BASE_PATH}/api`;
+    const wechatListEl = document.getElementById('wechatList');
+
+    function escapeHtml(str = '') {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function summarize(text = '', maxLength = 140) {
+        const clean = String(text).replace(/\s+/g, ' ').trim();
+        if (clean.length <= maxLength) return clean;
+        return `${clean.slice(0, maxLength)}…`;
+    }
+
+    function formatDate(value) {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function renderWechatPosts(posts) {
+        wechatListEl.innerHTML = '';
+        if (!Array.isArray(posts) || posts.length === 0) {
+            wechatListEl.innerHTML = '<div class="wechat-card text-secondary">暂无公众号文章，请先在后台新增。</div>';
+            return;
+        }
+        posts.forEach((post) => {
+            const summary = post.summary && post.summary.trim() ? post.summary : summarize(post.content || '', 160);
+            const date = post.published_at || post.created_at;
+            const metaParts = [
+                formatDate(date),
+                '公众号推文',
+                post.author ? `负责人：${escapeHtml(post.author)}` : ''
+            ].filter(Boolean);
+            const card = document.createElement('article');
+            card.className = 'wechat-card';
+            card.innerHTML = `
+                <div class="wechat-meta">${metaParts.map((item) => `<span>${item}</span>`).join('')}</div>
+                <div class="wechat-title">${escapeHtml(post.title || '未命名文章')}</div>
+                <p class="wechat-summary">${escapeHtml(summary)}</p>
+                <a class="wechat-link" href="${escapeHtml(post.link_url || '#')}" target="_blank" rel="noopener noreferrer">
+                    阅读原文 →
+                </a>
+            `;
+            wechatListEl.appendChild(card);
+        });
+    }
+
+    async function loadWechatPosts() {
+        try {
+            const response = await fetch(`${API_BASE}/blog_posts.php`);
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data && (data.message || data.error) || '加载失败');
+            }
+            renderWechatPosts(data.posts || []);
+        } catch (error) {
+            wechatListEl.innerHTML = `<div class="wechat-card text-danger">加载失败：${escapeHtml(error.message)}</div>`;
+        }
+    }
+
+    loadWechatPosts();
 </script>
 </body>
 </html>

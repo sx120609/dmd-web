@@ -351,6 +351,14 @@
                                 <input id="postTitleInput" name="title" placeholder="例如：阶段成果总结" required>
                             </div>
                             <div>
+                                <label for="postLinkInput">公众号文章链接</label>
+                                <input id="postLinkInput" name="link_url" placeholder="https://mp.weixin.qq.com/..." required>
+                            </div>
+                            <div>
+                                <label for="postDateInput">发布日期</label>
+                                <input id="postDateInput" name="published_at" type="date">
+                            </div>
+                            <div>
                                 <label for="postAuthorInput">作者/负责人</label>
                                 <input id="postAuthorInput" name="author" placeholder="可选，填写负责人">
                             </div>
@@ -361,10 +369,6 @@
                             <div>
                                 <label for="postSummaryInput">摘要</label>
                                 <textarea id="postSummaryInput" name="summary" rows="3" placeholder="简要概述（可选）"></textarea>
-                            </div>
-                            <div>
-                                <label for="postContentInput">正文内容</label>
-                                <textarea id="postContentInput" name="content" rows="6" placeholder="填写正文内容" required></textarea>
                             </div>
                             <button type="submit" class="primary-button">发布文章</button>
                             <div class="message inline" id="createPostMessage" hidden></div>
@@ -386,6 +390,14 @@
                                 <input id="editPostTitle" required>
                             </div>
                             <div>
+                                <label for="editPostLink">公众号文章链接</label>
+                                <input id="editPostLink" placeholder="https://mp.weixin.qq.com/..." required>
+                            </div>
+                            <div>
+                                <label for="editPostDate">发布日期</label>
+                                <input id="editPostDate" type="date">
+                            </div>
+                            <div>
                                 <label for="editPostAuthor">作者/负责人</label>
                                 <input id="editPostAuthor" placeholder="可选，填写负责人">
                             </div>
@@ -396,10 +408,6 @@
                             <div>
                                 <label for="editPostSummary">摘要</label>
                                 <textarea id="editPostSummary" rows="3" placeholder="简要概述（可选）"></textarea>
-                            </div>
-                            <div>
-                                <label for="editPostContent">正文内容</label>
-                                <textarea id="editPostContent" rows="6" placeholder="填写正文内容" required></textarea>
                             </div>
                             <div class="split">
                                 <button type="submit" class="primary-button">保存修改</button>
@@ -654,19 +662,21 @@
     const createPostForm = document.getElementById('createPostForm');
     const createPostMessage = document.getElementById('createPostMessage');
     const postTitleInput = document.getElementById('postTitleInput');
+    const postLinkInput = document.getElementById('postLinkInput');
+    const postDateInput = document.getElementById('postDateInput');
     const postAuthorInput = document.getElementById('postAuthorInput');
     const postTagsInput = document.getElementById('postTagsInput');
     const postSummaryInput = document.getElementById('postSummaryInput');
-    const postContentInput = document.getElementById('postContentInput');
     const postListEl = document.getElementById('postList');
     const postListMessage = document.getElementById('postListMessage');
     const updatePostForm = document.getElementById('updatePostForm');
     const updatePostMessage = document.getElementById('updatePostMessage');
     const editPostTitleInput = document.getElementById('editPostTitle');
+    const editPostLinkInput = document.getElementById('editPostLink');
+    const editPostDateInput = document.getElementById('editPostDate');
     const editPostAuthorInput = document.getElementById('editPostAuthor');
     const editPostTagsInput = document.getElementById('editPostTags');
     const editPostSummaryInput = document.getElementById('editPostSummary');
-    const editPostContentInput = document.getElementById('editPostContent');
     const cancelPostEditButton = document.getElementById('cancelPostEdit');
 
     if (cancelCourseEditButton) {
@@ -2146,7 +2156,9 @@
             meta.style.fontSize = '0.85rem';
             const summary = summarize(post.summary || '', 64);
             const author = post.author ? ` · ${post.author}` : '';
-            meta.textContent = summary ? `文章ID：${post.id}${author} · ${summary}` : `文章ID：${post.id}${author}`;
+            const date = post.published_at || '';
+            const dateText = date ? ` · ${date}` : '';
+            meta.textContent = summary ? `文章ID：${post.id}${author}${dateText} · ${summary}` : `文章ID：${post.id}${author}${dateText}`;
             info.appendChild(meta);
             item.appendChild(info);
 
@@ -2203,6 +2215,12 @@
             if (editPostTitleInput) {
                 editPostTitleInput.value = post.title || '';
             }
+            if (editPostLinkInput) {
+                editPostLinkInput.value = post.link_url || '';
+            }
+            if (editPostDateInput) {
+                editPostDateInput.value = post.published_at || '';
+            }
             if (editPostAuthorInput) {
                 editPostAuthorInput.value = post.author || '';
             }
@@ -2211,9 +2229,6 @@
             }
             if (editPostSummaryInput) {
                 editPostSummaryInput.value = post.summary || '';
-            }
-            if (editPostContentInput) {
-                editPostContentInput.value = post.content || '';
             }
             setMessage(updatePostMessage);
         } catch (error) {
@@ -2465,13 +2480,15 @@
             event.preventDefault();
             const payload = {
                 title: postTitleInput ? postTitleInput.value.trim() : '',
+                link_url: postLinkInput ? postLinkInput.value.trim() : '',
+                published_at: postDateInput ? postDateInput.value : '',
                 author: postAuthorInput ? postAuthorInput.value.trim() : '',
                 tags: postTagsInput ? postTagsInput.value.trim() : '',
                 summary: postSummaryInput ? postSummaryInput.value.trim() : '',
-                content: postContentInput ? postContentInput.value.trim() : ''
+                content: ''
             };
-            if (!payload.title || !payload.content) {
-                setMessage(createPostMessage, '标题与正文不能为空', 'error');
+            if (!payload.title || !payload.link_url) {
+                setMessage(createPostMessage, '标题与链接不能为空', 'error');
                 return;
             }
             setMessage(createPostMessage, '正在发布文章，请稍候...');
@@ -2505,13 +2522,15 @@
             const payload = {
                 id: state.selectedPostId,
                 title: editPostTitleInput ? editPostTitleInput.value.trim() : '',
+                link_url: editPostLinkInput ? editPostLinkInput.value.trim() : '',
+                published_at: editPostDateInput ? editPostDateInput.value : '',
                 author: editPostAuthorInput ? editPostAuthorInput.value.trim() : '',
                 tags: editPostTagsInput ? editPostTagsInput.value.trim() : '',
                 summary: editPostSummaryInput ? editPostSummaryInput.value.trim() : '',
-                content: editPostContentInput ? editPostContentInput.value.trim() : ''
+                content: ''
             };
-            if (!payload.title || !payload.content) {
-                setMessage(updatePostMessage, '标题与正文不能为空', 'error');
+            if (!payload.title || !payload.link_url) {
+                setMessage(updatePostMessage, '标题与链接不能为空', 'error');
                 return;
             }
             setMessage(updatePostMessage, '正在保存文章，请稍候...');

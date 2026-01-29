@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS blog_posts (
     title VARCHAR(200) NOT NULL,
     summary TEXT,
     content MEDIUMTEXT NOT NULL,
+    link_url VARCHAR(500) DEFAULT NULL,
+    published_at DATE DEFAULT NULL,
     tags VARCHAR(255) DEFAULT NULL,
     author VARCHAR(120) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

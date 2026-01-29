@@ -18,7 +18,7 @@ if ($method === 'GET') {
     $postId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
     if ($postId > 0) {
-        $stmt = $mysqli->prepare('SELECT id, title, summary, content, tags, author, created_at, updated_at FROM blog_posts WHERE id = ? LIMIT 1');
+        $stmt = $mysqli->prepare('SELECT id, title, summary, content, link_url, published_at, tags, author, created_at, updated_at FROM blog_posts WHERE id = ? LIMIT 1');
         if (!$stmt) {
             error_response('无法获取文章');
         }
@@ -34,7 +34,7 @@ if ($method === 'GET') {
         json_response(['post' => $post]);
     }
 
-    $result = $mysqli->query('SELECT id, title, summary, content, tags, author, created_at, updated_at FROM blog_posts ORDER BY created_at DESC, id DESC');
+    $result = $mysqli->query('SELECT id, title, summary, content, link_url, published_at, tags, author, created_at, updated_at FROM blog_posts ORDER BY COALESCE(published_at, created_at) DESC, id DESC');
     if (!$result) {
         error_response('无法获取文章列表');
     }
@@ -56,25 +56,27 @@ if ($method === 'POST') {
     $title = trim((string) ($input['title'] ?? ''));
     $summary = trim((string) ($input['summary'] ?? ''));
     $content = trim((string) ($input['content'] ?? ''));
+    $linkUrl = trim((string) ($input['link_url'] ?? ''));
+    $publishedAt = trim((string) ($input['published_at'] ?? ''));
     $tags = trim((string) ($input['tags'] ?? ''));
     $author = trim((string) ($input['author'] ?? ''));
 
     if ($method === 'POST' && !isset($input['id'])) {
-        if ($title === '' || $content === '') {
-            error_response('标题与正文不能为空');
+        if ($title === '' || $linkUrl === '') {
+            error_response('标题与链接不能为空');
         }
-        $stmt = $mysqli->prepare('INSERT INTO blog_posts (title, summary, content, tags, author) VALUES (?, ?, ?, ?, ?)');
+        $stmt = $mysqli->prepare('INSERT INTO blog_posts (title, summary, content, link_url, published_at, tags, author) VALUES (?, ?, ?, ?, ?, ?, ?)');
         if (!$stmt) {
             error_response('无法创建文章');
         }
-        $stmt->bind_param('sssss', $title, $summary, $content, $tags, $author);
+        $stmt->bind_param('sssssss', $title, $summary, $content, $linkUrl, $publishedAt, $tags, $author);
         if (!$stmt->execute()) {
             $stmt->close();
             error_response('创建文章失败');
         }
         $postId = $stmt->insert_id;
         $stmt->close();
-        $post = $mysqli->query('SELECT id, title, summary, content, tags, author, created_at, updated_at FROM blog_posts WHERE id = ' . (int) $postId)->fetch_assoc();
+        $post = $mysqli->query('SELECT id, title, summary, content, link_url, published_at, tags, author, created_at, updated_at FROM blog_posts WHERE id = ' . (int) $postId)->fetch_assoc();
         json_response(['post' => $post], 201);
     }
 
@@ -83,20 +85,20 @@ if ($method === 'POST') {
         if ($postId <= 0) {
             error_response('文章ID无效');
         }
-        if ($title === '' || $content === '') {
-            error_response('标题与正文不能为空');
+        if ($title === '' || $linkUrl === '') {
+            error_response('标题与链接不能为空');
         }
-        $stmt = $mysqli->prepare('UPDATE blog_posts SET title = ?, summary = ?, content = ?, tags = ?, author = ? WHERE id = ?');
+        $stmt = $mysqli->prepare('UPDATE blog_posts SET title = ?, summary = ?, content = ?, link_url = ?, published_at = ?, tags = ?, author = ? WHERE id = ?');
         if (!$stmt) {
             error_response('无法更新文章');
         }
-        $stmt->bind_param('sssssi', $title, $summary, $content, $tags, $author, $postId);
+        $stmt->bind_param('sssssssi', $title, $summary, $content, $linkUrl, $publishedAt, $tags, $author, $postId);
         if (!$stmt->execute()) {
             $stmt->close();
             error_response('更新文章失败');
         }
         $stmt->close();
-        $post = $mysqli->query('SELECT id, title, summary, content, tags, author, created_at, updated_at FROM blog_posts WHERE id = ' . (int) $postId)->fetch_assoc();
+        $post = $mysqli->query('SELECT id, title, summary, content, link_url, published_at, tags, author, created_at, updated_at FROM blog_posts WHERE id = ' . (int) $postId)->fetch_assoc();
         json_response(['post' => $post]);
     }
 
