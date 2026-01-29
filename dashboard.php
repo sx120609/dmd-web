@@ -972,7 +972,12 @@
             if (video) {
                 const player = new Plyr(video, {
                     controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
-                    settings: ['speed']
+                    settings: ['speed'],
+                    fullscreen: {
+                        enabled: true,
+                        fallback: true,
+                        iosNative: true
+                    }
                 });
                 player.on('ended', () => {
                     setLessonCompleted(currentCourseId, currentLessonId, true);
