@@ -370,48 +370,53 @@ if (file_exists($configFile)) {
             font-weight: 700;
             color: var(--rl-text-main);
             margin-bottom: 0.2rem;
+            letter-spacing: -0.02em;
         }
 
         .admin-tabs {
             display: inline-flex;
             gap: 0.25rem;
-            padding: 0.35rem;
-            background: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 12px;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            padding: 0.4rem;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 14px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            border: none;
+            padding: 0.6rem 1.1rem;
+            border-radius: 10px;
+            border: 1px solid transparent;
             background: transparent;
             color: var(--rl-text-muted);
             font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            font-size: 0.95rem;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             white-space: nowrap;
         }
 
         .tab-btn:hover {
             color: var(--rl-text-main);
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.6);
+            transform: translateY(-1px);
         }
 
         .tab-btn.active {
             background: white;
             color: var(--rl-primary);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1), 0 1px 2px rgba(0, 0, 0, 0.03);
+            border-color: rgba(59, 130, 246, 0.1);
         }
 
         .tab-content {
             display: none;
-            animation: fadeIn 0.3s ease-out;
+            animation: fadeIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .tab-content.active {
@@ -421,12 +426,14 @@ if (file_exists($configFile)) {
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(5px);
+                transform: translateY(10px);
+                filter: blur(2px);
             }
 
             to {
                 opacity: 1;
                 transform: translateY(0);
+                filter: blur(0);
             }
         }
 
@@ -434,39 +441,49 @@ if (file_exists($configFile)) {
         .form-grid {
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            gap: 1.5rem;
         }
 
         .form-label {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            color: var(--rl-text-muted);
-            margin-bottom: 0.4rem;
+            color: var(--rl-text-main);
+            margin-bottom: 0.5rem;
             display: block;
+            letter-spacing: 0.01em;
         }
 
         .form-control,
         .form-select {
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid #e2e8f0;
             background: #fff;
-            padding: 0.6rem 0.8rem;
+            padding: 0.75rem 1rem;
             font-size: 0.95rem;
             width: 100%;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
             color: var(--rl-text-main);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+            line-height: 1.5;
+        }
+
+        .form-control:hover,
+        .form-select:hover {
+            border-color: #cbd5e1;
         }
 
         .form-control:focus,
         .form-select:focus {
             border-color: var(--rl-primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
             outline: none;
+            transform: translateY(-1px);
         }
 
-        background: white;
-        border-color: var(--rl-primary);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        .form-text {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--rl-text-muted);
         }
 
         .table-list {
@@ -476,79 +493,123 @@ if (file_exists($configFile)) {
         }
 
         .table-list li {
-            padding: 1rem;
+            padding: 1.25rem;
             border-bottom: 1px solid rgba(0, 0, 0, 0.03);
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            transition: background 0.15s;
+            align-items: start;
+            transition: all 0.2s;
+            border-radius: 8px;
+            margin-bottom: 2px;
         }
 
         .table-list li:last-child {
             border-bottom: none;
+            margin-bottom: 0;
         }
 
         .table-list li:hover {
-            background: rgba(59, 130, 246, 0.02);
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0.995);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         }
 
         .table-list li.active {
-            background: rgba(59, 130, 246, 0.05);
+            background: rgba(59, 130, 246, 0.04);
             border-left: 3px solid var(--rl-primary);
+            transform: scale(1);
+            box-shadow: none;
         }
 
         .user-meta {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 4px;
         }
 
         .user-meta strong {
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: var(--rl-text-main);
-        }
-
-        .user-meta span {
-            font-size: 0.8rem;
-            color: var(--rl-text-muted);
-        }
-
-        .user-role-tag {
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--rl-text-muted);
             font-weight: 600;
         }
 
+        .user-meta span {
+            font-size: 0.85rem;
+            color: var(--rl-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .user-role-tag {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--rl-text-muted);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
         .user-role-tag.is-admin {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.12);
             color: var(--rl-primary);
+        }
+
+        .user-role-tag.is-teacher {
+            background: rgba(139, 92, 246, 0.12);
+            color: var(--rl-accent);
         }
 
         .list-actions {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
             align-items: center;
         }
 
         .hint {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--rl-text-muted);
+            line-height: 1.5;
         }
 
         .message {
             font-size: 0.9rem;
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .message.inline {
+            padding: 0;
             margin-top: 0.5rem;
+            display: block;
         }
 
         .message.error {
-            color: #ef4444;
+            color: #e11d48;
+            background: rgba(225, 29, 72, 0.08);
+            border: 1px solid rgba(225, 29, 72, 0.1);
         }
 
         .message.success {
-            color: #10b981;
+            color: #059669;
+            background: rgba(5, 150, 105, 0.08);
+            border: 1px solid rgba(5, 150, 105, 0.1);
+        }
+
+        .message.inline.error {
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+
+        .message.inline.success {
+            background: transparent;
+            border: none;
+            padding: 0;
         }
     </style>
 
