@@ -1152,7 +1152,33 @@
         function refreshProgressUI() {
             renderCourseList(allCourses);
             // Also update summary if this is current course
-            if (currentCourse) updateCourseSummary(currentCourse, currentLessons.length);
+            if (currentCourse) {
+                updateCourseSummary(currentCourse, currentLessons.length);
+
+                // Update lesson list sidebar icons locally without full re-render
+                if (currentLessons.length) {
+                    const items = lessonListEl.querySelectorAll('.sidebar-item');
+                    items.forEach(item => {
+                        const lid = Number(item.dataset.lessonId);
+                        if (!lid) return;
+
+                        const isVisited = isLessonVisited(currentCourse.id, lid);
+                        const isCompleted = isLessonCompleted(currentCourse.id, lid);
+
+                        // Re-generate icon
+                        let statusIcon = isCompleted ? '<i class="bi bi-check-circle-fill text-success"></i>' :
+                            (isVisited ? '<i class="bi bi-circle-half text-primary"></i>' : '<i class="bi bi-circle text-muted"></i>');
+
+                        // Update icon container (first child)
+                        const iconContainer = item.querySelector('.pt-1');
+                        if (iconContainer) iconContainer.innerHTML = statusIcon;
+
+                        // Update border class (toggle)
+                        if (isCompleted) item.classList.add('border-success-subtle');
+                        else item.classList.remove('border-success-subtle');
+                    });
+                }
+            }
         }
         async function loadProgressStore() {
             try {
