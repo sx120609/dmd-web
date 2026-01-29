@@ -35,7 +35,7 @@ if (file_exists($configFile)) {
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -49,14 +49,15 @@ if (file_exists($configFile)) {
             --rl-primary: #3b82f6;
             --rl-accent: #8b5cf6;
             
-            /* 渐变色 */
-            --gradient-brand: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            /* 原始Logo所需的渐变和阴影 */
+            --deep-gradient: linear-gradient(135deg, #2563eb, #60a5fa, #22d3ee);
+            
+            /* 页面背景渐变 */
             --gradient-glow: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.05), transparent 70%);
             
             /* 卡片样式 */
             --card-bg: rgba(255, 255, 255, 0.85);
             --card-border: 1px solid rgba(255, 255, 255, 0.6);
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
             --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
         }
 
@@ -85,42 +86,46 @@ if (file_exists($configFile)) {
             transition: all 0.3s ease;
         }
 
+        /* * === 关键修改：完全保留原始 Logo 样式 ===
+         * 直接使用用户提供的 CSS，确保 100% 一致
+         */
         .nav-brand {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: var(--rl-text-main);
+            gap: 0.75rem;
+            font-family: 'Inter', sans-serif; /* 确保Logo区域使用原始字体 */
+            text-decoration: none; /* 去除链接下划线 */
         }
 
-        .brand-logo {
-            width: 40px;
-            height: 40px;
-            background: var(--gradient-brand);
-            border-radius: 10px;
-            display: flex;
+        .brand-mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--deep-gradient);
+            color: #fff;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 800;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        .brand-text h1 {
-            font-size: 1rem;
             font-weight: 700;
-            margin: 0;
-            line-height: 1.2;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+            font-size: 1.1rem; /* 微调字体大小以匹配原图 */
         }
 
-        .brand-text span {
+        .brand-text .small {
             font-size: 0.75rem;
-            color: var(--rl-text-muted);
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b; /* text-secondary */
+            font-weight: 600;
         }
+
+        .brand-text .fw-bold {
+            font-weight: 700 !important;
+            color: #0f172a;
+            font-size: 1.05rem;
+            letter-spacing: -0.01em;
+        }
+        /* === Logo 样式结束 === */
+
 
         .nav-btn {
             padding: 0.5rem 1rem;
@@ -221,7 +226,7 @@ if (file_exists($configFile)) {
             background: #fff;
         }
 
-        /* 卡片顶部的装饰条（可选） */
+        /* 卡片顶部的装饰条 */
         .blog-card::before {
             content: '';
             position: absolute;
@@ -229,7 +234,8 @@ if (file_exists($configFile)) {
             left: 0;
             width: 100%;
             height: 4px;
-            background: var(--gradient-brand);
+            /* 使用Logo同款渐变 */
+            background: var(--deep-gradient);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -272,7 +278,7 @@ if (file_exists($configFile)) {
             color: var(--rl-text-muted);
             font-size: 0.95rem;
             line-height: 1.6;
-            flex-grow: 1; /* 让摘要占据剩余空间，保证底部按钮对齐 */
+            flex-grow: 1;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
@@ -326,11 +332,12 @@ if (file_exists($configFile)) {
 
 <nav class="site-nav">
     <div class="container-xxl d-flex align-items-center justify-content-between">
+        
         <a href="/rarelight/" class="nav-brand">
-            <div class="brand-logo">RL</div>
+            <span class="brand-mark">RL</span>
             <div class="brand-text">
-                <span>PROJECT LOGS</span>
-                <h1>Rare Light</h1>
+                <div class="small text-uppercase">RARE LIGHT</div>
+                <div class="fw-bold">Rare Light · 罕见病儿童公益</div>
             </div>
         </a>
         <div class="d-flex gap-2">
@@ -345,10 +352,10 @@ if (file_exists($configFile)) {
 <header class="blog-hero">
     <div class="container-xxl">
         <div class="hero-badge">
-            <i class="bi bi-stars"></i> 项目动态更新
+            <i class="bi bi-stars"></i> 公益项目动态
         </div>
         <h1 class="hero-title">项目日志与进展</h1>
-        <p class="hero-desc">记录 Rare Light 项目的需求调研、开发进度与阶段性成果展示。这里的每一个脚印，都是通往最终产品的基石。</p>
+        <p class="hero-desc">记录 Rare Light 在罕见病儿童公益领域的行动点滴。这里的每一个脚印，都凝聚着爱与希望。</p>
     </div>
 </header>
 
