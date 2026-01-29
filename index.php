@@ -3,29 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="pageTitle">Rare Light · 点亮罕见病儿童的希望</title>
+    <title data-i18n="pageTitle">Rare Light · 点亮罕见病儿童的希望</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <style>
         :root {
-            --home-bg: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.12), transparent 25%),
-                radial-gradient(circle at 80% 10%, rgba(45, 212, 191, 0.14), transparent 26%),
-                radial-gradient(circle at 80% 70%, rgba(76, 29, 149, 0.08), transparent 40%),
-                #f8fafc;
-            --card-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
-            --card-border: 1px solid rgba(148, 163, 184, 0.14);
+            /* === 统一色盘 (与日志页一致) === */
+            --rl-bg: #f8fafc;
+            --rl-text-main: #0f172a;
+            --rl-text-muted: #64748b;
+            --rl-primary: #3b82f6;
+            --rl-accent: #8b5cf6;
+
+            /* 原始Logo所需的渐变 (保留) */
             --deep-gradient: linear-gradient(135deg, #2563eb, #60a5fa, #22d3ee);
-            --pill-bg: rgba(255, 255, 255, 0.65);
+            
+            /* 新版背景渐变 */
+            --gradient-glow: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.05), transparent 70%);
+
+            /* 卡片样式 */
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: 1px solid rgba(255, 255, 255, 0.6);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            
+            /* 字体基准变量 */
+            --font-base: 16px;
         }
 
         body.home {
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--home-bg);
-            color: #0f172a;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans SC', system-ui, sans-serif;
+            background-color: var(--rl-bg);
+            background-image: var(--gradient-glow);
+            background-attachment: fixed;
+            background-size: 100% 100vh;
+            background-repeat: no-repeat;
+            color: var(--rl-text-main);
             min-height: 100vh;
+            font-size: var(--font-base); /* 支持字号缩放 */
+            -webkit-font-smoothing: antialiased;
         }
 
         .site-shell {
@@ -34,33 +56,26 @@
             min-height: 100vh;
         }
 
-        /* Reveal animation */
-        .reveal {
-            opacity: 0;
-            transform: translateY(22px) scale(0.98);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
+        /* --- 统一导航栏样式 --- */
         .site-nav {
             position: sticky;
             top: 0;
-            z-index: 10;
-            backdrop-filter: blur(16px);
-            background: rgba(248, 250, 252, 0.9);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.75);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 0.75rem 0;
+            transition: all 0.3s ease;
         }
 
+        /* Logo 样式 (严格保留原样) */
         .nav-brand {
             display: inline-flex;
             align-items: center;
             gap: 0.75rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
         }
 
         .brand-mark {
@@ -74,403 +89,322 @@
             justify-content: center;
             font-weight: 700;
             box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+            font-size: 1.1rem;
         }
 
-        .brand-eyebrow {
+        .brand-text .small {
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .brand-text .fw-bold {
+            font-weight: 700 !important;
+            color: #0f172a;
+            font-size: 1.05rem;
+            letter-spacing: -0.01em;
+        }
+
+        /* 导航右侧按钮组 */
+        .nav-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        /* 统一按钮基础样式 */
+        .nav-btn {
+            padding: 0.45rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-            padding: 0.45rem 0.9rem;
-            border-radius: 999px;
-            background: var(--pill-bg);
-            color: #1e293b;
-            font-weight: 600;
-            font-size: 0.78rem;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid transparent;
         }
 
-        .hero {
-            position: relative;
-            padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(2.5rem, 6vw, 4.5rem);
+        /* 幽灵按钮 (用于次要链接) */
+        .nav-btn-ghost {
+            color: var(--rl-text-muted);
+            background: transparent;
+        }
+        .nav-btn-ghost:hover {
+            color: var(--rl-text-main);
+            background: rgba(0,0,0,0.04);
         }
 
-        .hero-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-            gap: clamp(1.75rem, 3vw, 2.5rem);
+        /* 主要按钮 (CTA) */
+        .nav-btn-primary {
+            background: var(--rl-text-main);
+            color: white;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        }
+        .nav-btn-primary:hover {
+            transform: translateY(-1px);
+            background: #1e293b;
+            color: white;
+        }
+
+        /* 工具条样式 (字号/语言) */
+        .tool-bar {
+            display: flex;
             align-items: center;
+            gap: 0.25rem;
+            background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(0,0,0,0.05);
+            padding: 4px;
+            border-radius: 10px;
+            margin-right: 0.5rem;
+        }
+
+        .tool-btn {
+            border: none;
+            background: transparent;
+            color: var(--rl-text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .tool-btn:hover {
+            background: rgba(0,0,0,0.05);
+            color: var(--rl-text-main);
+        }
+        .tool-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* --- Hero 区域微调 --- */
+        .hero {
+            padding: clamp(3rem, 6vw, 5rem) 0;
+            position: relative;
         }
 
         .hero h1 {
             font-size: clamp(2.4rem, 4vw, 3.6rem);
             font-weight: 800;
             letter-spacing: -0.02em;
-            line-height: 1.1;
+            line-height: 1.15;
             margin: 1rem 0 1.25rem;
+            background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .hero p.lead {
-            font-size: 1.06rem;
-            color: #475569;
+            font-size: 1.1rem;
+            color: var(--rl-text-muted);
             line-height: 1.8;
-            margin-bottom: 1.75rem;
+            margin-bottom: 2rem;
         }
 
-        .hero-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.9rem;
-            align-items: center;
-        }
-
-        .ghost-button {
+        .brand-eyebrow {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.85rem 1.1rem;
-            border-radius: 12px;
-            border: 1px solid rgba(15, 23, 42, 0.12);
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--rl-primary);
+            border-radius: 99px;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: #0f172a;
-            background: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            transition: transform 160ms ease, box-shadow 160ms ease;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
         }
 
-        .ghost-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        /* Hero Card (玻璃拟态增强) */
+        .hero-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: clamp(1.6rem, 2vw, 2.5rem);
+            border: var(--card-border);
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
         }
 
-        .primary-button,
-        .ghost-button {
-            text-align: center;
-            justify-content: center;
+        /* 统计数据块 */
+        .stat {
+            background: white;
+            border-radius: 16px;
+            padding: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.03);
+            transition: transform 0.2s;
+        }
+        .stat:hover {
+            transform: translateY(-2px);
+        }
+        .stat strong {
+            font-size: 1.5rem;
+            color: var(--rl-text-main);
+            font-weight: 800;
         }
 
-        .nav-actions {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .lang-toggle,
-        .font-toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.55rem 0.95rem;
-            border-radius: 999px;
-            border: 1px solid rgba(15, 23, 42, 0.12);
-            background: rgba(255, 255, 255, 0.85);
-            font-weight: 600;
-            color: #0f172a;
-            font-size: 0.92rem;
-            min-height: 42px;
-        }
-
-        .font-toggle button {
-            border: none;
-            background: transparent;
-            padding: 0.2rem 0.45rem;
-            border-radius: 8px;
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        .nav-actions .primary-button {
-            padding: 0.55rem 1.1rem;
-            min-height: 42px;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .font-toggle button:hover,
-        .lang-toggle:hover {
-            background: rgba(79, 70, 229, 0.08);
-        }
-
-        .font-toggle button:disabled {
-            opacity: 0.5;
-        }
-
-        .session-note {
-            margin-top: 1rem;
-            color: #0f172a;
-            font-weight: 600;
+        /* --- 通用 Section 样式 --- */
+        .section {
+            padding: clamp(3rem, 6vw, 5rem) 0;
         }
 
         .eyebrow {
             font-weight: 700;
-            color: #2563eb;
-            letter-spacing: 0.02em;
+            color: var(--rl-primary);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 0.9rem;
         }
 
-        .hero-card {
-            position: relative;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 22px;
-            padding: clamp(1.6rem, 2vw, 2rem);
-            box-shadow: var(--card-shadow);
-            border: var(--card-border);
-            overflow: hidden;
-        }
-
-        .hero-card::after {
-            content: '';
-            position: absolute;
-            inset: -35% -10% auto auto;
-            height: 260px;
-            width: 260px;
-            background: radial-gradient(circle at center, rgba(96, 165, 250, 0.2), transparent 70%);
-            z-index: 0;
-            transform: rotate(-8deg);
-        }
-
-        .hero-card > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-            margin-top: 1.25rem;
-        }
-
-        .stat {
-            padding: 1rem;
-            border-radius: 14px;
-            background: rgba(248, 250, 252, 0.75);
-            border: 1px solid rgba(148, 163, 184, 0.18);
-        }
-
-        .stat strong {
-            display: block;
-            font-size: 1.4rem;
-            color: #0f172a;
-        }
-
-        .section {
-            padding: clamp(2.5rem, 6vw, 4rem) 0;
-        }
-
-        .section header {
-            margin-bottom: 1.5rem;
-        }
-
-        .section header h2 {
-            font-weight: 800;
-            letter-spacing: -0.01em;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1rem;
-        }
-
+        /* Feature Cards */
         .feature-card {
-            padding: 1.4rem;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.92);
+            background: var(--card-bg);
             border: var(--card-border);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-            display: grid;
-            gap: 0.6rem;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            background: white;
+            box-shadow: var(--card-shadow-hover);
+            border-color: rgba(59, 130, 246, 0.2);
         }
 
         .feature-icon {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
-            background: rgba(37, 99, 235, 0.1);
+            background: var(--deep-gradient);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #2563eb;
+            color: white;
             font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
         }
 
-        .pathway {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
-        }
-
-        .pathway-step {
-            padding: 1.4rem;
-            border-radius: 14px;
-            border: 1px dashed rgba(148, 163, 184, 0.45);
-            background: rgba(248, 250, 252, 0.8);
-        }
-
-        .qr-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.2rem;
-            align-items: center;
-        }
-
-        .qr-card {
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.92);
-            border: var(--card-border);
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .qr-card .qr-image {
-            width: 180px;
-            height: 180px;
-            border-radius: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            object-fit: cover;
-            background: #f8fafc;
-        }
-
-        .cta-banner {
-            margin-top: 1.5rem;
-            padding: 1.4rem;
-            border-radius: 16px;
-            background: var(--deep-gradient);
-            color: #fff;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 1rem;
-            justify-content: space-between;
-        }
-
-        .cta-banner .cta-button {
-            background: #ffffff;
-            text-align: center;
-            justify-content: center;
-            color: #1d4ed8;
-            border: 1px solid rgba(255, 255, 255, 0.75);
-            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
-            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
-        }
-
-        .cta-banner .cta-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
-            filter: brightness(1.02);
-        }
-
-        .classroom {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 22px;
-            border: var(--card-border);
-            box-shadow: var(--card-shadow);
-            padding: clamp(1.75rem, 4vw, 2.5rem);
-            scroll-margin-top: 120px;
-        }
-
-        .classroom-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-            gap: clamp(1.5rem, 3vw, 2rem);
-            align-items: start;
-        }
-
+        /* Login Panel */
         .login-panel {
-            padding: 1.25rem;
-            border-radius: 16px;
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            background: rgba(248, 250, 252, 0.85);
-            backdrop-filter: blur(16px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: var(--card-border);
+            background: white;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .login-panel input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        .login-panel input:focus {
+            outline: none;
+            border-color: var(--rl-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: white;
+        }
+        
+        .login-panel label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--rl-text-main);
         }
 
-        .login-panel form {
-            display: grid;
-            gap: 0.9rem;
+        /* CTA Banner */
+        .cta-banner {
+            background: var(--deep-gradient);
+            border-radius: 20px;
+            padding: 2.5rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .login-panel .message {
-            min-height: 1.4rem;
+        /* Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .footer {
-            padding: 2.25rem 0;
-            color: #475569;
-            font-size: 0.95rem;
+            padding: 3rem 0;
+            color: var(--rl-text-muted);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            background: white;
         }
 
-        @media (max-width: 960px) {
-            .hero-grid,
-            .classroom-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .site-nav {
-                position: static;
-                padding-inline: 1rem;
-            }
-
-            .hero {
-                padding-top: 2rem;
-            }
-
-            .hero-actions {
+        @media (max-width: 992px) {
+            .hero-grid, .classroom-grid { grid-template-columns: 1fr; }
+            .nav-actions { 
+                position: fixed;
+                bottom: 0;
+                left: 0;
                 width: 100%;
-                justify-content: flex-start;
+                background: white;
+                padding: 1rem;
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+                z-index: 99;
+                justify-content: space-between;
+                display: flex; /* Override bootstrap if needed */
             }
-
-            .primary-button,
-            .ghost-button {
-                width: 100%;
-                text-align: center;
-                justify-content: center;
-            }
-
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .pathway {
-                grid-template-columns: 1fr;
-            }
-
-            .qr-card {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .nav-actions {
-                display: none;
-            }
+            .site-nav .nav-actions { display: none; } /* Hide top actions on mobile */
+            body { padding-bottom: 80px; } /* Space for bottom nav */
+        }
+        
+        /* 针对大屏保留顶部导航 */
+        @media (min-width: 993px) {
+            .mobile-bottom-nav { display: none; }
         }
     </style>
 </head>
 <body class="home">
 <div class="site-shell">
     <nav class="site-nav">
-        <div class="container-xxl py-3 d-flex align-items-center justify-content-between gap-3">
+        <div class="container-xxl d-flex align-items-center justify-content-between">
             <div class="nav-brand">
                 <span class="brand-mark">RL</span>
-                <div>
-                    <div class="small text-uppercase text-secondary" data-i18n="brandTagline">Rare Light</div>
+                <div class="brand-text">
+                    <div class="small text-uppercase" data-i18n="brandTagline">Rare Light</div>
                     <div class="fw-bold" data-i18n="brandTitle">Rare Light · 罕见病儿童公益</div>
                 </div>
             </div>
-            <div class="nav-actions">
-                <div class="font-toggle" aria-label="Font size controls">
-                    <span data-i18n="fontLabel">A</span>
-                    <button type="button" id="fontSmaller" aria-label="Smaller font">A-</button>
-                    <button type="button" id="fontReset" aria-label="Default font">A</button>
-                    <button type="button" id="fontLarger" aria-label="Larger font">A+</button>
+
+            <div class="nav-actions d-none d-lg-flex">
+                <div class="tool-bar" aria-label="Font size controls">
+                    <button type="button" class="tool-btn" id="fontSmaller" aria-label="Smaller font"><i class="bi bi-type"></i>-</button>
+                    <button type="button" class="tool-btn" id="fontReset" aria-label="Default font"><i class="bi bi-arrow-counterclockwise"></i></button>
+                    <button type="button" class="tool-btn" id="fontLarger" aria-label="Larger font"><i class="bi bi-type"></i>+</button>
                 </div>
-                <button class="lang-toggle" type="button" id="langToggle" aria-label="Language toggle">EN / 中文</button>
-                <a class="ghost-button" href="/rarelight/blog">项目日志</a>
-                <a class="primary-button" id="classroomCta" data-classroom-link href="#classroom" data-i18n="navLogin">进入网课</a>
+                
+                <button class="nav-btn nav-btn-ghost me-2" type="button" id="langToggle" aria-label="Language toggle">
+                    <i class="bi bi-translate me-1"></i> EN / 中文
+                </button>
+                
+                <a class="nav-btn nav-btn-ghost" href="/rarelight/blog">项目日志</a>
+                <a class="nav-btn nav-btn-primary ms-2" id="classroomCta" data-classroom-link href="#classroom">
+                    <i class="bi bi-grid-fill me-2"></i><span data-i18n="navLogin">进入网课</span>
+                </a>
             </div>
         </div>
     </nav>
@@ -478,34 +412,44 @@
     <main>
         <section class="hero">
             <div class="container-xxl">
-                <div class="hero-grid">
+                <div class="hero-grid" style="display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 3rem; align-items: center;">
                     <div class="hero-copy reveal" data-reveal>
-                        <span class="brand-eyebrow" data-i18n="heroEyebrow">Rare Light · 点亮希望</span>
+                        <div class="brand-eyebrow mb-3" data-i18n="heroEyebrow">
+                            <i class="bi bi-stars me-1"></i> Rare Light · 点亮希望
+                        </div>
                         <h1 data-i18n="heroTitle">“线上趣味课 + 线下科普行” 双轨陪伴罕见病儿童</h1>
                         <p class="lead" data-i18n="heroLead">RARE LIGHT 罕见病关爱项目，面向患儿与家庭同步提供线上趣味课堂与线下科普关怀，兼顾成长需求与社会认知，打造专业且温暖的公益服务体系。</p>
-                        <div class="hero-actions">
-                            <a class="primary-button" data-classroom-link href="#classroom" data-i18n="ctaEnter">进入网课</a>
-                            <a class="ghost-button" href="/rarelight/blog">项目日志</a>
-                            <a class="ghost-button" href="#contact" data-i18n="ctaPartner">与我们合作</a>
+                        
+                        <div class="d-flex flex-wrap gap-3 mt-4">
+                            <a class="nav-btn nav-btn-primary" data-classroom-link href="#classroom" style="padding: 0.6rem 1.4rem; font-size: 1rem;">
+                                <span data-i18n="ctaEnter">进入网课</span>
+                            </a>
+                            <a class="nav-btn nav-btn-ghost" href="/rarelight/blog" style="border: 1px solid rgba(0,0,0,0.1); background: white;">
+                                项目日志
+                            </a>
                         </div>
-                        <div class="session-note" id="sessionNote" data-i18n="sessionNote">课堂由专业志愿者维护，登录后即可继续学习。</div>
+                        <div class="mt-3 text-secondary small" id="sessionNote" data-i18n="sessionNote" style="opacity: 0.8;">
+                            课堂由专业志愿者维护，登录后即可继续学习。
+                        </div>
                     </div>
+                    
                     <div class="hero-card reveal" data-reveal>
                         <p class="eyebrow mb-2" data-i18n="cardEyebrow">项目全景</p>
                         <h3 class="fw-bold mb-3" data-i18n="cardTitle">线上课堂迭代五期 · 线下科普深入社区与校园</h3>
-                        <p class="text-secondary mb-3" data-i18n="cardDesc">教师梯队与服务规模同步壮大，课堂覆盖语文、数学、英语、科学、地理、历史、AI 等学科，累计近千课时，陪伴 30+ 罕见病患儿家庭。线下科普行走进医院、校园与社区，媒体报道与实践成果持续放大影响。</p>
-                        <div class="stat-grid">
+                        <p class="text-muted mb-4" data-i18n="cardDesc">教师梯队与服务规模同步壮大，课堂覆盖多学科，累计近千课时，陪伴 30+ 罕见病患儿家庭。</p>
+                        
+                        <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
                             <div class="stat">
-                                <strong data-i18n="stat1">5 期课堂</strong>
-                                <span class="text-secondary" data-i18n="stat1Desc">近千课时，覆盖多学科</span>
+                                <strong data-i18n="stat1" class="text-primary">5 期</strong>
+                                <div class="small text-muted mt-1" data-i18n="stat1Desc">近千课时覆盖</div>
                             </div>
                             <div class="stat">
-                                <strong data-i18n="stat2">70 位志愿者</strong>
-                                <span class="text-secondary" data-i18n="stat2Desc">教师梯队持续壮大</span>
+                                <strong data-i18n="stat2" class="text-primary">70+</strong>
+                                <div class="small text-muted mt-1" data-i18n="stat2Desc">专业志愿者</div>
                             </div>
                             <div class="stat">
-                                <strong data-i18n="stat3">30+ 家庭</strong>
-                                <span class="text-secondary" data-i18n="stat3Desc">5 年持续陪伴</span>
+                                <strong data-i18n="stat3" class="text-primary">30+</strong>
+                                <div class="small text-muted mt-1" data-i18n="stat3Desc">家庭长期陪伴</div>
                             </div>
                         </div>
                     </div>
@@ -515,52 +459,51 @@
 
         <section class="section reveal" id="about" data-reveal>
             <div class="container-xxl">
-                <header>
-                    <p class="eyebrow mb-1" data-i18n="sectionActionEyebrow">我们的行动</p>
-                    <h2 data-i18n="sectionActionTitle">线上趣味课 + 线下科普行 · 双轨服务模式</h2>
+                <header class="mb-5">
+                    <p class="eyebrow mb-2" data-i18n="sectionActionEyebrow">我们的行动</p>
+                    <h2 class="fw-bold h2" data-i18n="sectionActionTitle">线上趣味课 + 线下科普行 · 双轨服务模式</h2>
                 </header>
-                <div class="feature-grid">
+                <div class="d-grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
                     <div class="feature-card reveal" data-reveal>
-                        <span class="feature-icon">A</span>
-                        <h4 class="fw-bold mb-1" data-i18n="featureA">线上趣味课堂</h4>
+                        <div class="feature-icon"><i class="bi bi-laptop"></i></div>
+                        <h4 class="fw-bold mb-2" data-i18n="featureA">线上趣味课堂</h4>
                         <p class="text-secondary mb-0" data-i18n="featureAText">中国药科大学志愿者面向患儿开展系列教学，从英语拓展到语数外、科学、地理、历史、AI，多学科陪伴成长。</p>
                     </div>
                     <div class="feature-card reveal" data-reveal>
-                        <span class="feature-icon">B</span>
-                        <h4 class="fw-bold mb-1" data-i18n="featureB">线下科普关怀</h4>
+                        <div class="feature-icon"><i class="bi bi-people"></i></div>
+                        <h4 class="fw-bold mb-2" data-i18n="featureB">线下科普关怀</h4>
                         <p class="text-secondary mb-0" data-i18n="featureBText">“罕见病患儿进校园”“罕爱童行・药语同航”等活动走进校园、医院与社区，让公众看见、理解并支持罕见病家庭。</p>
                     </div>
                     <div class="feature-card reveal" data-reveal>
-                        <span class="feature-icon">C</span>
-                        <h4 class="fw-bold mb-1" data-i18n="featureC">科普传播与倡导</h4>
+                        <div class="feature-icon"><i class="bi bi-megaphone"></i></div>
+                        <h4 class="fw-bold mb-2" data-i18n="featureC">科普传播与倡导</h4>
                         <p class="text-secondary mb-0" data-i18n="featureCText">媒体报道、公众号“因你罕见，我药看见”持续输出诊疗指南、药物政策与真实故事，为家庭提供权威信息服务。</p>
                     </div>
                     <div class="feature-card reveal" data-reveal>
-                        <span class="feature-icon">D</span>
-                        <h4 class="fw-bold mb-1" data-i18n="featureD">志愿者与科研支撑</h4>
+                        <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                        <h4 class="fw-bold mb-2" data-i18n="featureD">志愿者与科研支撑</h4>
                         <p class="text-secondary mb-0" data-i18n="featureDText">70 人志愿者队伍与调研报告双线推进，沉淀实证数据，为服务迭代和政策倡导提供依据。</p>
                     </div>
                 </div>
-                <div class="cta-banner mt-4">
+                
+                <div class="cta-banner mt-5 d-flex align-items-center justify-content-between flex-wrap gap-4">
                     <div>
-                        <div class="fw-bold fs-5" data-i18n="ctaJoinTitle">想加入我们？</div>
-                        <div data-i18n="ctaJoinDesc">欢迎医疗机构、教育机构与企业伙伴共建罕见病儿童支持网络。</div>
+                        <div class="fw-bold fs-4 mb-1" data-i18n="ctaJoinTitle">想加入我们？</div>
+                        <div data-i18n="ctaJoinDesc" style="opacity: 0.9;">欢迎医疗机构、教育机构与企业伙伴共建罕见病儿童支持网络。</div>
                     </div>
-                    <a class="ghost-button cta-button" href="#contact" data-i18n="ctaJoinBtn">成为合作伙伴 ↗</a>
+                    <a class="nav-btn" href="#contact" data-i18n="ctaJoinBtn" style="background: white; color: var(--rl-primary);">成为合作伙伴 ↗</a>
                 </div>
             </div>
         </section>
 
         <section class="section reveal" id="resources" data-reveal>
             <div class="container-xxl">
-                <div class="qr-section">
-                    <div class="qr-card reveal" data-reveal>
-                        <img src="assets/img/wechat-qr.png" alt="微信扫码关注 Rare Light 公众号" class="qr-image">
-                        <div>
-                            <p class="eyebrow mb-2" data-i18n="qrTitle">关注 Rare Light 公众号</p>
-                            <h3 class="fw-bold mb-2" data-i18n="qrSubtitle">微信扫码，获取最新课程与科普动态</h3>
-                            <p class="text-secondary mb-0" data-i18n="qrDesc">用微信扫描二维码即可关注，第一时间了解课程安排、线下活动、科普信息与政策更新。</p>
-                        </div>
+                <div class="feature-card d-flex flex-wrap flex-md-nowrap align-items-center gap-4 p-4">
+                    <img src="assets/img/wechat-qr.png" alt="QR Code" style="width: 160px; height: 160px; border-radius: 12px; object-fit: cover; background: #eee;" class="flex-shrink-0">
+                    <div>
+                        <p class="eyebrow mb-2" data-i18n="qrTitle">关注 Rare Light 公众号</p>
+                        <h3 class="fw-bold mb-2" data-i18n="qrSubtitle">微信扫码，获取最新课程与科普动态</h3>
+                        <p class="text-secondary mb-0" data-i18n="qrDesc">用微信扫描二维码即可关注，第一时间了解课程安排、线下活动、科普信息与政策更新。</p>
                     </div>
                 </div>
             </div>
@@ -568,22 +511,22 @@
 
         <section class="section reveal" id="news" data-reveal>
             <div class="container-xxl">
-                <header>
-                    <p class="eyebrow mb-1" data-i18n="pathwayEyebrow">陪伴路径</p>
-                    <h2 data-i18n="pathwayTitle">从需求到陪伴，我们这样行动</h2>
+                <header class="mb-5">
+                    <p class="eyebrow mb-2" data-i18n="pathwayEyebrow">陪伴路径</p>
+                    <h2 class="fw-bold" data-i18n="pathwayTitle">从需求到陪伴，我们这样行动</h2>
                 </header>
-                <div class="pathway">
-                    <div class="pathway-step reveal" data-reveal>
-                        <h5 class="fw-bold" data-i18n="pathway1">1. 了解家庭需求</h5>
-                        <p class="text-secondary mb-0" data-i18n="pathway1Desc">与家长沟通病情、教育与心理需求，建立一对一档案。</p>
+                <div class="d-grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                    <div class="feature-card reveal" data-reveal style="border-left: 4px solid var(--rl-primary);">
+                        <h5 class="fw-bold text-primary" data-i18n="pathway1">1. 了解家庭需求</h5>
+                        <p class="text-secondary mb-0 mt-2" data-i18n="pathway1Desc">与家长沟通病情、教育与心理需求，建立一对一档案。</p>
                     </div>
-                    <div class="pathway-step reveal" data-reveal>
-                        <h5 class="fw-bold" data-i18n="pathway2">2. 匹配资源与课堂</h5>
-                        <p class="text-secondary mb-0" data-i18n="pathway2Desc">为孩子安排合适的线上课程与志愿者陪伴，并链接医疗与社会资源。</p>
+                    <div class="feature-card reveal" data-reveal style="border-left: 4px solid var(--rl-accent);">
+                        <h5 class="fw-bold" style="color: var(--rl-accent);" data-i18n="pathway2">2. 匹配资源与课堂</h5>
+                        <p class="text-secondary mb-0 mt-2" data-i18n="pathway2Desc">为孩子安排合适的线上课程与志愿者陪伴，并链接医疗与社会资源。</p>
                     </div>
-                    <div class="pathway-step reveal" data-reveal>
-                        <h5 class="fw-bold" data-i18n="pathway3">3. 持续跟进与评估</h5>
-                        <p class="text-secondary mb-0" data-i18n="pathway3Desc">定期回访，评估课堂效果与家庭需求，调整支持方案。</p>
+                    <div class="feature-card reveal" data-reveal style="border-left: 4px solid #10b981;">
+                        <h5 class="fw-bold" style="color: #10b981;" data-i18n="pathway3">3. 持续跟进与评估</h5>
+                        <p class="text-secondary mb-0 mt-2" data-i18n="pathway3Desc">定期回访，评估课堂效果与家庭需求，调整支持方案。</p>
                     </div>
                 </div>
             </div>
@@ -591,31 +534,33 @@
 
         <section class="section reveal" data-reveal>
             <div class="container-xxl">
-                <div class="classroom" id="classroom">
-                    <div class="classroom-grid">
-                        <div class="reveal" data-reveal>
-                            <p class="eyebrow mb-1" data-i18n="classroomEyebrow">Rare Light School</p>
-                            <h3 class="fw-bold" data-i18n="classroomTitle">网课入口</h3>
-                            <p class="text-secondary" data-i18n="classroomDesc">患儿与家长可在此登录进入课堂；已分配课程的用户将直接跳转至学习页面。</p>
-                            <div class="d-flex flex-wrap gap-2">
-                                <a class="primary-button" data-classroom-link href="#classroom" data-i18n="ctaImmediate">立即进入网课</a>
+                <div class="classroom" id="classroom" style="scroll-margin-top: 100px;">
+                    <div class="row g-5 align-items-center">
+                        <div class="col-lg-6 reveal" data-reveal>
+                            <p class="eyebrow mb-2" data-i18n="classroomEyebrow">Rare Light School</p>
+                            <h3 class="fw-bold mb-3" data-i18n="classroomTitle">网课入口</h3>
+                            <p class="text-muted mb-4" data-i18n="classroomDesc">患儿与家长可在此登录进入课堂；已分配课程的用户将直接跳转至学习页面。</p>
+                            <div class="d-flex gap-2">
+                                <a class="nav-btn nav-btn-primary px-4 py-2" data-classroom-link href="#classroom" data-i18n="ctaImmediate">立即进入网课</a>
                             </div>
                         </div>
-                        <div class="login-panel reveal" data-reveal>
-                            <h4 class="fw-bold mb-2" data-i18n="loginTitle">课堂登录</h4>
-                            <p class="text-secondary mb-3" data-i18n="loginDesc">请输入管理员分配的账号登录。如果您尚未拥有账户，请联系我们的协调员。</p>
-                            <form id="loginForm" autocomplete="on">
-                                <div>
-                                    <label for="username" data-i18n="loginUsername">用户名</label>
-                                    <input id="username" name="username" type="text" placeholder="student01" required>
-                                </div>
-                                <div>
-                            <label for="password" data-i18n="loginPasswordLabel">密码</label>
-                            <input id="password" name="password" type="password" placeholder="请输入密码" required data-i18n-placeholder="loginPasswordPlaceholder">
-                                </div>
-                                <button type="submit" class="primary-button w-100" id="loginButton" data-i18n="loginButton">登录并进入课堂</button>
-                                <div class="message login-message" id="loginMessage" aria-live="polite" hidden></div>
-                            </form>
+                        <div class="col-lg-6">
+                            <div class="login-panel reveal" data-reveal>
+                                <h4 class="fw-bold mb-3" data-i18n="loginTitle">课堂登录</h4>
+                                <p class="small text-secondary mb-4" data-i18n="loginDesc">请输入管理员分配的账号登录。</p>
+                                <form id="loginForm" autocomplete="on">
+                                    <div>
+                                        <label for="username" data-i18n="loginUsername">用户名</label>
+                                        <input id="username" name="username" type="text" placeholder="student01" required>
+                                    </div>
+                                    <div>
+                                        <label for="password" data-i18n="loginPasswordLabel">密码</label>
+                                        <input id="password" name="password" type="password" placeholder="请输入密码" required data-i18n-placeholder="loginPasswordPlaceholder">
+                                    </div>
+                                    <button type="submit" class="nav-btn nav-btn-primary w-100 py-2 mt-2" id="loginButton" data-i18n="loginButton">登录并进入课堂</button>
+                                    <div class="mt-3 text-center small fw-bold" id="loginMessage" aria-live="polite" hidden></div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -624,22 +569,31 @@
 
         <section class="section reveal" id="contact" data-reveal>
             <div class="container-xxl">
-                <header>
-                    <p class="eyebrow mb-1" data-i18n="contactEyebrow">联系与合作</p>
-                    <h2 data-i18n="contactTitle">一起为罕见病儿童点亮更多光</h2>
+                <header class="text-center mb-5">
+                    <p class="eyebrow mb-2" data-i18n="contactEyebrow">联系与合作</p>
+                    <h2 class="fw-bold" data-i18n="contactTitle">一起为罕见病儿童点亮更多光</h2>
                 </header>
-                <div class="feature-grid">
-                    <div class="feature-card reveal" data-reveal>
-                        <h5 class="fw-bold mb-1" data-i18n="contactVolunteer">成为志愿者</h5>
-                        <p class="text-secondary mb-0" data-i18n="contactVolunteerDesc">加入陪伴小组、教学与运营支持团队。</p>
+                <div class="row g-4 justify-content-center">
+                    <div class="col-md-4">
+                        <div class="feature-card text-center h-100 reveal" data-reveal>
+                            <div class="text-primary fs-2 mb-3"><i class="bi bi-heart-fill"></i></div>
+                            <h5 class="fw-bold mb-2" data-i18n="contactVolunteer">成为志愿者</h5>
+                            <p class="text-secondary small mb-0" data-i18n="contactVolunteerDesc">加入陪伴小组、教学与运营支持团队。</p>
+                        </div>
                     </div>
-                    <div class="feature-card reveal" data-reveal>
-                        <h5 class="fw-bold mb-1" data-i18n="contactPartner">机构合作</h5>
-                        <p class="text-secondary mb-0" data-i18n="contactPartnerDesc">医疗、教育、公益、企业伙伴欢迎联系共建项目。</p>
+                    <div class="col-md-4">
+                        <div class="feature-card text-center h-100 reveal" data-reveal>
+                            <div class="text-primary fs-2 mb-3"><i class="bi bi-building"></i></div>
+                            <h5 class="fw-bold mb-2" data-i18n="contactPartner">机构合作</h5>
+                            <p class="text-secondary small mb-0" data-i18n="contactPartnerDesc">医疗、教育、公益、企业伙伴欢迎联系共建项目。</p>
+                        </div>
                     </div>
-                    <div class="feature-card reveal" data-reveal>
-                        <h5 class="fw-bold mb-1" data-i18n="contactFamily">家庭申请</h5>
-                        <p class="text-secondary mb-0" data-i18n="contactFamilyDesc">罕见病患儿家庭可申请课堂访问与陪伴支持。</p>
+                    <div class="col-md-4">
+                        <div class="feature-card text-center h-100 reveal" data-reveal>
+                            <div class="text-primary fs-2 mb-3"><i class="bi bi-house-door-fill"></i></div>
+                            <h5 class="fw-bold mb-2" data-i18n="contactFamily">家庭申请</h5>
+                            <p class="text-secondary small mb-0" data-i18n="contactFamilyDesc">罕见病患儿家庭可申请课堂访问与陪伴支持。</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -647,15 +601,28 @@
     </main>
 
     <footer class="footer">
-        <div class="container-xxl d-flex flex-wrap justify-content-between gap-2">
-            <div data-i18n="footerText">Rare Light — 为罕见病儿童提供陪伴、教育与资源链接。</div>
-            <div class="text-secondary" data-i18n="footerEmail">联系邮箱：hello@rarelight.org</div>
+        <div class="container-xxl d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-dark">Rare Light</span>
+                <span class="text-muted">|</span>
+                <span class="small" data-i18n="footerText">为罕见病儿童提供陪伴、教育与资源链接。</span>
+            </div>
+            <div class="small text-secondary" data-i18n="footerEmail">
+                <i class="bi bi-envelope me-1"></i> hello@rarelight.org
+            </div>
         </div>
     </footer>
+    
+    <div class="nav-actions d-lg-none" style="display: flex; gap: 10px; align-items: center; justify-content: space-around;">
+        <button class="nav-btn nav-btn-ghost" id="mobileLangToggle"><i class="bi bi-translate"></i></button>
+        <a class="nav-btn nav-btn-ghost" href="/rarelight/blog">日志</a>
+        <a class="nav-btn nav-btn-primary flex-grow-1" href="#classroom">进入网课</a>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // 保持原有逻辑不变
     const BASE_PATH = '/rarelight';
     const API_BASE = `${BASE_PATH}/api`;
     const ROUTE_DASHBOARD = `${BASE_PATH}/dashboard`;
@@ -798,17 +765,18 @@
             contactPartner: 'Institutional Partnership',
             contactPartnerDesc: 'Hospitals, schools, NGOs, and companies are welcome to co-build the program.',
             contactFamily: 'Family Application',
-        contactFamilyDesc: 'Rare disease families can apply for classroom access and companion support.',
-        footerText: 'Rare Light — Providing companionship, education, and resources for children with rare diseases.',
-        footerEmail: 'Email: hello@rarelight.org'
-    }
-};
+            contactFamilyDesc: 'Rare disease families can apply for classroom access and companion support.',
+            footerText: 'Rare Light — Providing companionship, education, and resources for children with rare diseases.',
+            footerEmail: 'Email: hello@rarelight.org'
+        }
+    };
 
     const htmlEl = document.documentElement;
     const fontSmallerBtn = document.getElementById('fontSmaller');
     const fontResetBtn = document.getElementById('fontReset');
     const fontLargerBtn = document.getElementById('fontLarger');
     const langToggle = document.getElementById('langToggle');
+    const mobileLangToggle = document.getElementById('mobileLangToggle');
     let currentFontScale = 1;
     let currentLang = localStorage.getItem(LANG_KEY) || 'zh';
     const classroomLinks = document.querySelectorAll('[data-classroom-link]');
@@ -875,19 +843,20 @@
         document.title = dict.pageTitle || 'Rare Light';
         currentLang = lang;
         localStorage.setItem(LANG_KEY, currentLang);
-        if (langToggle) {
-            langToggle.textContent = lang === 'zh' ? '中文 / EN' : 'EN / 中文';
-        }
+        
+        const langText = lang === 'zh' ? '<i class="bi bi-translate me-1"></i> 中文 / EN' : '<i class="bi bi-translate me-1"></i> EN / 中文';
+        if (langToggle) langToggle.innerHTML = langText;
+        
     }
 
     function initLangToggle() {
         applyTranslations(currentLang);
-        if (langToggle) {
-            langToggle.addEventListener('click', () => {
-                const next = currentLang === 'zh' ? 'en' : 'zh';
-                applyTranslations(next);
-            });
-        }
+        const toggleHandler = () => {
+            const next = currentLang === 'zh' ? 'en' : 'zh';
+            applyTranslations(next);
+        };
+        if (langToggle) langToggle.addEventListener('click', toggleHandler);
+        if (mobileLangToggle) mobileLangToggle.addEventListener('click', toggleHandler);
     }
 
     function initRevealOnScroll() {
@@ -911,8 +880,13 @@
         const href = withBasePath(target);
         classroomLinks.forEach((link) => {
             link.href = href;
+            // 只有当提供了 text 时才替换文本，且需要保留图标（如果有）
             if (text) {
-                link.textContent = text;
+                // 如果里面有图标，保留图标
+                const icon = link.querySelector('i');
+                link.textContent = ''; // 清空
+                if(icon) link.appendChild(icon); // 放回图标
+                link.appendChild(document.createTextNode(' ' + text));
             }
         });
     }
@@ -920,10 +894,10 @@
     function showMessage(text = '', type = '') {
         const hasText = Boolean(text);
         loginMessage.textContent = hasText ? text : '';
-        loginMessage.classList.remove('error', 'success');
+        loginMessage.classList.remove('text-danger', 'text-success');
         loginMessage.hidden = !hasText;
         if (hasText && type) {
-            loginMessage.classList.add(type);
+            loginMessage.classList.add(type === 'error' ? 'text-danger' : 'text-success');
         }
     }
 
