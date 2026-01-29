@@ -10,10 +10,102 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/main.css">
     <style>
-        body.blog {
-            background: radial-gradient(circle at 15% 18%, rgba(59, 130, 246, 0.12), transparent 25%),
-                radial-gradient(circle at 80% 12%, rgba(45, 212, 191, 0.12), transparent 25%),
+        :root {
+            --home-bg: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.12), transparent 25%),
+                radial-gradient(circle at 80% 10%, rgba(45, 212, 191, 0.14), transparent 26%),
+                radial-gradient(circle at 80% 70%, rgba(76, 29, 149, 0.08), transparent 40%),
                 #f8fafc;
+            --card-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+            --card-border: 1px solid rgba(148, 163, 184, 0.14);
+            --deep-gradient: linear-gradient(135deg, #2563eb, #60a5fa, #22d3ee);
+            --pill-bg: rgba(255, 255, 255, 0.65);
+        }
+
+        body.blog {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--home-bg);
+            color: #0f172a;
+            min-height: 100vh;
+        }
+
+        .site-nav {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(16px);
+            background: rgba(248, 250, 252, 0.9);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .nav-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .brand-mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--deep-gradient);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+        }
+
+        .brand-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            background: var(--pill-bg);
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 0.78rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .primary-button,
+        .ghost-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1.1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            font-weight: 600;
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: transform 160ms ease, box-shadow 160ms ease;
+            min-height: 42px;
+        }
+
+        .primary-button {
+            background: var(--deep-gradient);
+            color: #fff;
+            border: none;
+        }
+
+        .primary-button:hover,
+        .ghost-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
         }
 
         .blog-hero {
@@ -22,14 +114,27 @@
 
         .blog-hero .hero-panel {
             border-radius: 22px;
-            background: linear-gradient(135deg, #0f172a, #1d4ed8);
-            color: #fff;
-            box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
+            background: rgba(255, 255, 255, 0.92);
+            border: var(--card-border);
+            color: #0f172a;
+            box-shadow: var(--card-shadow);
         }
 
         .blog-hero .hero-pill {
-            background: rgba(255, 255, 255, 0.18);
-            color: #e0f2fe;
+            background: rgba(37, 99, 235, 0.1);
+            color: #1d4ed8;
+        }
+
+        .hero-title {
+            font-size: clamp(2.2rem, 4vw, 3.2rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.6rem;
+        }
+
+        .hero-subtitle {
+            color: #475569;
+            line-height: 1.7;
         }
 
         .blog-layout {
@@ -40,9 +145,9 @@
 
         .post-card {
             border-radius: 18px;
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            background: rgba(255, 255, 255, 0.94);
-            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+            border: var(--card-border);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
             padding: 1.4rem 1.5rem;
         }
 
@@ -69,8 +174,8 @@
         .post-tags span {
             padding: 0.15rem 0.6rem;
             border-radius: 999px;
-            background: rgba(99, 102, 241, 0.12);
-            color: #3730a3;
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
             font-size: 0.78rem;
             font-weight: 600;
         }
@@ -90,10 +195,10 @@
 
         .side-card {
             border-radius: 18px;
-            border: 1px solid rgba(148, 163, 184, 0.16);
+            border: var(--card-border);
             background: rgba(255, 255, 255, 0.92);
             padding: 1.25rem 1.3rem;
-            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
         }
 
         .side-card h3 {
@@ -108,30 +213,34 @@
             .sticky-side {
                 position: static;
             }
+            .nav-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
         }
     </style>
 </head>
-<body class="app-shell blog">
-<nav class="navbar navbar-expand-lg app-navbar">
-    <div class="container-xxl py-3 px-3 px-lg-4 w-100 d-flex align-items-center gap-3 flex-wrap">
-        <div class="d-flex align-items-center gap-3">
-            <div class="brand-glow">RL</div>
-            <div class="d-flex flex-column">
-                <span class="brand-eyebrow text-uppercase">RARE LIGHT</span>
-                <span class="navbar-brand p-0 m-0 fw-semibold">项目日志</span>
+<body class="blog">
+<nav class="site-nav">
+    <div class="container-xxl py-3 d-flex align-items-center justify-content-between gap-3">
+        <div class="nav-brand">
+            <span class="brand-mark">RL</span>
+            <div>
+                <div class="small text-uppercase text-secondary">Rare Light</div>
+                <div class="fw-bold">Rare Light · 项目日志</div>
             </div>
         </div>
-        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
-            <a class="btn btn-outline-secondary btn-sm rounded-pill" href="/rarelight/">返回首页</a>
-            <a class="btn btn-outline-primary btn-sm rounded-pill" href="/rarelight/dashboard">进入课堂</a>
+        <div class="nav-actions">
+            <a class="ghost-button" href="/rarelight/">返回首页</a>
+            <a class="primary-button" href="/rarelight/dashboard">进入课堂</a>
         </div>
     </div>
 </nav>
 
 <section class="blog-hero">
     <div class="container-xxl hero-container">
-        <div class="hero-panel student-hero p-4 p-lg-5">
-            <div class="hero-eyebrow">Rare Light · 项目展示</div>
+        <div class="hero-panel p-4 p-lg-5">
+            <div class="brand-eyebrow">Rare Light · 项目展示</div>
             <div class="hero-main">
                 <div class="hero-copy">
                     <h1 class="hero-title mb-3">项目日志 / Blog</h1>
