@@ -130,11 +130,70 @@
             font-weight: 800;
             letter-spacing: -0.02em;
             margin-bottom: 0.6rem;
+            color: #0f172a;
+            text-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
         }
 
         .hero-subtitle {
             color: #475569;
             line-height: 1.7;
+        }
+
+        .section-title {
+            font-size: clamp(1.4rem, 2.6vw, 2rem);
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            margin: 0 0 0.5rem;
+        }
+
+        .section-subtitle {
+            color: #64748b;
+            margin-bottom: 1.2rem;
+        }
+
+        .wechat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .wechat-card {
+            border-radius: 18px;
+            border: var(--card-border);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+            padding: 1.2rem 1.3rem;
+            display: grid;
+            gap: 0.6rem;
+        }
+
+        .wechat-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .wechat-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #0f172a;
+        }
+
+        .wechat-summary {
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .wechat-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 600;
+            color: #1d4ed8;
+            text-decoration: none;
         }
 
         .blog-layout {
@@ -256,6 +315,47 @@
 </section>
 
 <main class="container-xxl pb-5">
+    <section class="mb-4">
+        <h2 class="section-title">公众号文章精选</h2>
+        <p class="section-subtitle">将公众号文章链接填到卡片里，展示对外传播内容。</p>
+        <div class="wechat-grid">
+            <!-- 复制卡片并替换链接/标题/摘要 -->
+            <article class="wechat-card">
+                <div class="wechat-meta">
+                    <span>2026-01-29</span>
+                    <span>公众号推文</span>
+                </div>
+                <div class="wechat-title">示例：罕见病儿童线上课堂阶段成果</div>
+                <p class="wechat-summary">这里填写文章摘要，简要说明内容亮点与结论。</p>
+                <a class="wechat-link" href="https://mp.weixin.qq.com/" target="_blank" rel="noopener noreferrer">
+                    阅读原文 →
+                </a>
+            </article>
+            <article class="wechat-card">
+                <div class="wechat-meta">
+                    <span>2026-01-15</span>
+                    <span>公众号推文</span>
+                </div>
+                <div class="wechat-title">示例：志愿者课堂故事与学生反馈</div>
+                <p class="wechat-summary">这里填写文章摘要，简要说明内容亮点与结论。</p>
+                <a class="wechat-link" href="https://mp.weixin.qq.com/" target="_blank" rel="noopener noreferrer">
+                    阅读原文 →
+                </a>
+            </article>
+            <article class="wechat-card">
+                <div class="wechat-meta">
+                    <span>2026-01-02</span>
+                    <span>公众号推文</span>
+                </div>
+                <div class="wechat-title">示例：线下科普行走进医院</div>
+                <p class="wechat-summary">这里填写文章摘要，简要说明内容亮点与结论。</p>
+                <a class="wechat-link" href="https://mp.weixin.qq.com/" target="_blank" rel="noopener noreferrer">
+                    阅读原文 →
+                </a>
+            </article>
+        </div>
+    </section>
+
     <div class="blog-layout">
         <section class="d-flex flex-column gap-4" id="postList">
             <div class="post-card text-secondary">正在加载内容...</div>
