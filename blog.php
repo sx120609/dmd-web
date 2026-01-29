@@ -485,8 +485,10 @@ if (file_exists($configFile)) {
                         $date = $post['published_at'] ?? $post['created_at'] ?? '';
                         $dateText = $date ? date('M d, Y', strtotime($date)) : 'Date Unknown';
                         $summary = trim((string) ($post['summary'] ?? ''));
+                        $hasDefaultSummary = false;
                         if ($summary === '') {
                             $summary = '点击阅读详细内容与完整报告。';
+                            $hasDefaultSummary = true;
                         }
                         $link = trim((string) ($post['link_url'] ?? ''));
                         $author = !empty($post['author']) ? $post['author'] : 'Team';
@@ -504,7 +506,7 @@ if (file_exists($configFile)) {
                                 <?php echo htmlspecialchars($post['title'] ?? '无标题日志', ENT_QUOTES, 'UTF-8'); ?>
                             </h3>
 
-                            <p class="card-summary">
+                            <p class="card-summary"<?php if ($hasDefaultSummary): ?> data-i18n="defaultSummary"<?php endif; ?>>
                                 <?php echo htmlspecialchars($summary, ENT_QUOTES, 'UTF-8'); ?>
                             </p>
 
@@ -554,7 +556,8 @@ if (file_exists($configFile)) {
                 totalRecordsPrefix: '共',
                 totalRecordsSuffix: '篇记录',
                 emptyState: '暂无项目日志，请在后台添加新的进展。',
-                readMore: '阅读完整文章'
+                readMore: '阅读完整文章',
+                defaultSummary: '点击阅读详细内容与完整报告。'
             },
             en: {
                 brandTagline: 'Rare Light',
@@ -569,7 +572,8 @@ if (file_exists($configFile)) {
                 totalRecordsPrefix: 'Total',
                 totalRecordsSuffix: 'records',
                 emptyState: 'No project logs available. Please add new progress in the backend.',
-                readMore: 'Read Full Article'
+                readMore: 'Read Full Article',
+                defaultSummary: 'Click to read detailed content and full report.'
             }
         };
 
