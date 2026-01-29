@@ -58,6 +58,8 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-x: hidden; /* 防止水平滚动 */
+            width: 100%;
         }
 
         /* --- 统一导航栏样式 --- */
@@ -192,6 +194,14 @@
         .hero {
             padding: clamp(3rem, 6vw, 5rem) 0;
             position: relative;
+        }
+
+        /* 桌面端默认 Grid */
+        .hero-grid {
+             display: grid;
+             grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+             gap: 3rem;
+             align-items: center;
         }
 
         .hero h1 {
@@ -397,9 +407,18 @@
             }
 
             /* Hide top actions on mobile */
+            /* Hide top actions on mobile */
             body {
                 padding-bottom: 80px;
             }
+
+            /* 强制单列布局 */
+            .hero-grid {
+                display: grid;
+                grid-template-columns: 1fr !important;
+                gap: 2rem !important; /* 缩小间距 */
+            }
+        }
         }
 
         /* 针对大屏保留顶部导航 */
@@ -449,8 +468,7 @@
         <main>
             <section class="hero">
                 <div class="container-xxl">
-                    <div class="hero-grid"
-                        style="display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 3rem; align-items: center;">
+                    <div class="hero-grid" style="gap: 3rem; align-items: center;">
                         <div class="hero-copy reveal" data-reveal>
                             <div class="brand-eyebrow mb-3" data-i18n="heroEyebrow">
                                 <i class="bi bi-stars me-1"></i> Rare Light · 点亮希望

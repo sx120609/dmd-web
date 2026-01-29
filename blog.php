@@ -74,6 +74,8 @@ if (file_exists($configFile)) {
             color: var(--rl-text-main);
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            width: 100%;
         }
 
         /* --- 导航栏优化 --- */
@@ -376,16 +378,30 @@ if (file_exists($configFile)) {
             z-index: 1000;
             justify-content: space-around;
             align-items: center;
-            border-top: 1px solid rgba(0,0,0,0.05);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
             padding-bottom: max(10px, env(safe-area-inset-bottom));
         }
 
         @media (max-width: 992px) {
-            .site-nav .d-flex.align-items-center { display: none !important; }
-            .mobile-bottom-nav { display: flex; }
-            body { padding-bottom: 80px; }
-            .grid-container { grid-template-columns: 1fr; }
-            .hero-title { font-size: 2rem; }
+            .site-nav .d-flex.align-items-center {
+                display: none !important;
+            }
+
+            .mobile-bottom-nav {
+                display: flex;
+            }
+
+            body {
+                padding-bottom: 80px;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
