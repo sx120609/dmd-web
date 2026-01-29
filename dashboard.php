@@ -5,9 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>网课系统 · 我的课堂</title>
-    <?php $basePath = dirname($_SERVER['SCRIPT_NAME']); ?>
-    <link rel="icon" type="image/svg+xml" href="<?php echo $basePath; ?>/favicon.svg">
-    <link rel="shortcut icon" href="<?php echo $basePath; ?>/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/rarelight/favicon.svg">
+    <link rel="shortcut icon" href="/rarelight/favicon.svg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
