@@ -287,6 +287,13 @@ label {
     color: var(--brand-color);
 }
 
+.center-button {
+    justify-self: center;
+    justify-content: center;
+    text-align: center;
+    width: min(360px, 100%);
+}
+
 .reveal {
     opacity: 0;
     transform: translateY(28px);

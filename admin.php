@@ -622,7 +622,7 @@ if (file_exists($configFile)) {
                             </div>
                             <div class="split">
                                 <button type="submit" class="primary-button">保存修改</button>
-                                <a class="ghost-button" href="/rarelight/admin?tab=posts#posts">取消</a>
+                                <a class="ghost-button center-button" href="/rarelight/admin?tab=posts#posts">取消</a>
                             </div>
                             <div class="message inline" id="updatePostMessage" hidden></div>
                         </form>
