@@ -36,7 +36,7 @@
 
             /* 布局变量 */
             --header-height: 70px;
-            --sidebar-width: 380px;
+            --sidebar-width: 420px;
         }
 
         body {
@@ -166,12 +166,11 @@
             gap: 1rem;
         }
 
-        /* 主舞台 - 使用sticky让视频区域在滚动时保持可见 */
+        /* 主舞台 - 自然高度，完整显示 */
         .stage {
-            position: sticky;
-            top: calc(var(--header-height) + 1.5rem);
-            max-height: calc(100vh - var(--header-height) - 3rem);
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .panel-glass {
