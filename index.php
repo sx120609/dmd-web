@@ -361,46 +361,24 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Typewriter Animation */
-        .typewriter {
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 3px solid var(--rl-primary);
-            animation: typing 3s steps(30, end), blink-caret 0.75s step-end infinite;
-        }
-
-        .typewriter-wrapper h1 {
+        /* Typewriter Cursor */
+        .typewriter-cursor {
             display: inline-block;
-        }
-
-        @keyframes typing {
-            from {
-                max-width: 0;
-            }
-
-            to {
-                max-width: 100%;
-            }
+            width: 3px;
+            background: var(--rl-primary);
+            margin-left: 2px;
+            animation: blink-caret 0.75s step-end infinite;
         }
 
         @keyframes blink-caret {
 
             from,
             to {
-                border-color: transparent;
+                opacity: 1;
             }
 
             50% {
-                border-color: var(--rl-primary);
-            }
-        }
-
-        /* Mobile: disable typewriter animation to avoid text overflow */
-        @media (max-width: 768px) {
-            .typewriter {
-                white-space: normal;
-                border-right: none;
-                animation: none;
+                opacity: 0;
             }
         }
 
@@ -520,9 +498,7 @@
                             <div class="brand-eyebrow mb-3" data-i18n="heroEyebrow">
                                 <i class="bi bi-stars me-1"></i> Rare Light · 点亮希望
                             </div>
-                            <div class="typewriter-wrapper">
-                                <h1 class="typewriter" data-i18n="heroTitle">"线上趣味课 + 线下科普行" 双轨陪伴罕见病儿童</h1>
-                            </div>
+                            <h1 id="heroTitle" data-i18n="heroTitle"></h1>
                             <p class="lead" data-i18n="heroLead">RARE LIGHT
                                 罕见病关爱项目，面向患儿与家庭同步提供线上趣味课堂与线下科普关怀，兼顾成长需求与社会认知，打造专业且温暖的公益服务体系。</p>
 
@@ -1135,9 +1111,40 @@
             }
         });
 
+        // Typewriter effect
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.innerHTML = '';
+            const cursor = document.createElement('span');
+            cursor.className = 'typewriter-cursor';
+            cursor.innerHTML = '&nbsp;';
+            element.appendChild(cursor);
+
+            function type() {
+                if (i < text.length) {
+                    element.insertBefore(document.createTextNode(text.charAt(i)), cursor);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    // Remove cursor after typing completes
+                    setTimeout(() => cursor.remove(), 2000);
+                }
+            }
+            type();
+        }
+
+        function initTypewriter() {
+            const heroTitle = document.getElementById('heroTitle');
+            if (heroTitle) {
+                const text = i18n[currentLang].heroTitle || '"线上趣味课 + 线下科普行" 双轨陪伴罕见病儿童';
+                typeWriter(heroTitle, text, 60);
+            }
+        }
+
         initFontControls();
         initLangToggle();
         initRevealOnScroll();
+        initTypewriter();
         checkSession();
     </script>
 </body>
