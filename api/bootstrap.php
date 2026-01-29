@@ -170,6 +170,27 @@ function ensure_teacher_role_enum(mysqli $mysqli): void
     $mysqli->query("ALTER TABLE `users` MODIFY `role` ENUM('student','admin','teacher') NOT NULL DEFAULT 'student'");
 }
 
+function ensure_blog_posts_table(mysqli $mysqli): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+    $mysqli->query(
+        "CREATE TABLE IF NOT EXISTS `blog_posts` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `title` VARCHAR(200) NOT NULL,
+            `summary` TEXT,
+            `content` MEDIUMTEXT NOT NULL,
+            `tags` VARCHAR(255) DEFAULT NULL,
+            `author` VARCHAR(120) DEFAULT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+    );
+}
+
 function ensure_user_progress_table(mysqli $mysqli): void
 {
     static $checked = false;

@@ -29,7 +29,8 @@
 - `/rarelight/dashboard` → 课堂
 - `/rarelight/admin` → 管理后台
 - `/rarelight/cloud` → 云盘
-- `/rarelight/api/<name>` → 对应接口（login、logout、session、users、users_import、courses、lessons、course_assignments、files、files_multipart）
+- `/rarelight/blog` → 项目日志
+- `/rarelight/api/<name>` → 对应接口（login、logout、session、users、users_import、courses、lessons、course_assignments、course_assignments_import、files、files_multipart、blog_posts）
 
 ## 目录结构
 
@@ -68,6 +69,7 @@ location @rarelight_rewrite {
     rewrite ^/rarelight/dashboard/?$ /rarelight/dashboard.php last;
     rewrite ^/rarelight/admin/?$ /rarelight/admin.php last;
     rewrite ^/rarelight/cloud/?$ /rarelight/cloud.php last;
+    rewrite ^/rarelight/blog/?$ /rarelight/blog.php last;
     rewrite ^/rarelight/install/?$ /rarelight/install.php last;
     rewrite ^/rarelight/api/([a-z0-9_]+)/?$ /rarelight/api/$1.php last;
     rewrite ^/rarelight/?$ /rarelight/index.php last;

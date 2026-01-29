@@ -61,6 +61,7 @@
                     <button type="button" data-target="courses">课程管理</button>
                     <button type="button" data-target="lessons">课节管理</button>
                     <button type="button" data-target="assignments">课程分配</button>
+                    <button type="button" data-target="posts">项目日志</button>
                 </div>
             </div>
             <div class="tab-content active" id="tab-users" role="tabpanel">
@@ -341,6 +342,74 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-content" id="tab-posts" role="tabpanel">
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-xl-5 col-xxl-4">
+                        <form id="createPostForm" class="card surface-section form-grid surface-form">
+                            <div>
+                                <label for="postTitleInput">文章标题</label>
+                                <input id="postTitleInput" name="title" placeholder="例如：阶段成果总结" required>
+                            </div>
+                            <div>
+                                <label for="postAuthorInput">作者/负责人</label>
+                                <input id="postAuthorInput" name="author" placeholder="可选，填写负责人">
+                            </div>
+                            <div>
+                                <label for="postTagsInput">标签</label>
+                                <input id="postTagsInput" name="tags" placeholder="用逗号分隔，例如：调研,里程碑">
+                            </div>
+                            <div>
+                                <label for="postSummaryInput">摘要</label>
+                                <textarea id="postSummaryInput" name="summary" rows="3" placeholder="简要概述（可选）"></textarea>
+                            </div>
+                            <div>
+                                <label for="postContentInput">正文内容</label>
+                                <textarea id="postContentInput" name="content" rows="6" placeholder="填写正文内容" required></textarea>
+                            </div>
+                            <button type="submit" class="primary-button">发布文章</button>
+                            <div class="message inline" id="createPostMessage" hidden></div>
+                        </form>
+                    </div>
+                    <div class="col-12 col-xl-7 col-xxl-8">
+                        <div class="card surface-section list-card">
+                            <div class="panel-header">
+                                <h3>文章列表</h3>
+                                <p class="hint">点击文章可编辑内容，删除后不可恢复。</p>
+                            </div>
+                            <ul class="table-list" id="postList"></ul>
+                            <div class="message inline" id="postListMessage" hidden></div>
+                        </div>
+                        <form id="updatePostForm" class="card surface-section form-grid surface-form mt-4" hidden>
+                            <h3 class="flush-top">编辑文章</h3>
+                            <div>
+                                <label for="editPostTitle">文章标题</label>
+                                <input id="editPostTitle" required>
+                            </div>
+                            <div>
+                                <label for="editPostAuthor">作者/负责人</label>
+                                <input id="editPostAuthor" placeholder="可选，填写负责人">
+                            </div>
+                            <div>
+                                <label for="editPostTags">标签</label>
+                                <input id="editPostTags" placeholder="用逗号分隔标签">
+                            </div>
+                            <div>
+                                <label for="editPostSummary">摘要</label>
+                                <textarea id="editPostSummary" rows="3" placeholder="简要概述（可选）"></textarea>
+                            </div>
+                            <div>
+                                <label for="editPostContent">正文内容</label>
+                                <textarea id="editPostContent" rows="6" placeholder="填写正文内容" required></textarea>
+                            </div>
+                            <div class="split">
+                                <button type="submit" class="primary-button">保存修改</button>
+                                <button type="button" class="ghost-button" id="cancelPostEdit">取消</button>
+                            </div>
+                            <div class="message inline" id="updatePostMessage" hidden></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </main>
@@ -582,6 +651,24 @@
     const editLessonDescriptionInput = document.getElementById('editLessonDescription');
     const cancelLessonEditButton = document.getElementById('cancelLessonEdit');
 
+    const createPostForm = document.getElementById('createPostForm');
+    const createPostMessage = document.getElementById('createPostMessage');
+    const postTitleInput = document.getElementById('postTitleInput');
+    const postAuthorInput = document.getElementById('postAuthorInput');
+    const postTagsInput = document.getElementById('postTagsInput');
+    const postSummaryInput = document.getElementById('postSummaryInput');
+    const postContentInput = document.getElementById('postContentInput');
+    const postListEl = document.getElementById('postList');
+    const postListMessage = document.getElementById('postListMessage');
+    const updatePostForm = document.getElementById('updatePostForm');
+    const updatePostMessage = document.getElementById('updatePostMessage');
+    const editPostTitleInput = document.getElementById('editPostTitle');
+    const editPostAuthorInput = document.getElementById('editPostAuthor');
+    const editPostTagsInput = document.getElementById('editPostTags');
+    const editPostSummaryInput = document.getElementById('editPostSummary');
+    const editPostContentInput = document.getElementById('editPostContent');
+    const cancelPostEditButton = document.getElementById('cancelPostEdit');
+
     if (cancelCourseEditButton) {
         cancelCourseEditButton.addEventListener('click', () => {
             clearCourseEditor();
@@ -615,11 +702,13 @@
         users: [],
         courses: [],
         lessons: {},
+        posts: [],
         currentUser: null,
         selectedUserId: null,
         selectedCourseId: null,
         selectedLessonId: null,
-        editingLessonOriginalCourseId: null
+        editingLessonOriginalCourseId: null,
+        selectedPostId: null
     };
 
     function setMessage(element, text = '', type = '') {
@@ -1567,7 +1656,7 @@
             } else {
                 state.users = [];
                 // hide user/assignment tabs
-                ['users', 'assignments'].forEach((target) => {
+                ['users', 'assignments', 'posts'].forEach((target) => {
                     const btn = document.querySelector(`.pill-tabs button[data-target="${target}"]`);
                     const tab = document.getElementById(`tab-${target}`);
                     if (btn) btn.style.display = 'none';
@@ -1589,6 +1678,7 @@
 
             if (session.user.role === 'admin') {
                 populateSelect(assignCourseSelect, state.courses, 'id', 'title');
+                await loadPosts();
             }
 
             const initialCourseId = parseInt(selectedLessonCourse, 10);
@@ -1906,6 +1996,72 @@
         showLessonEditor(courseId, lessonId);
     });
 
+    if (postListEl) {
+        postListEl.addEventListener('click', async (event) => {
+            const button = event.target.closest('button[data-post-id]');
+            const item = event.target.closest('li[data-post-id]');
+            const targetId = button ? parseInt(button.dataset.postId, 10) : (item ? parseInt(item.dataset.postId, 10) : 0);
+            if (!targetId) {
+                return;
+            }
+            if (button) {
+                const action = button.dataset.postAction || 'edit';
+                if (action === 'edit') {
+                    await showPostEditor(targetId);
+                    return;
+                }
+                if (action === 'delete') {
+                    const post = state.posts.find((p) => p.id === targetId);
+                    const title = post && post.title ? `文章「${post.title}」` : '该文章';
+                    const confirmed = await showConfirm(`确定删除${title}？`);
+                    if (!confirmed) {
+                        return;
+                    }
+                    button.disabled = true;
+                    const originalLabel = button.textContent;
+                    button.textContent = '删除中...';
+                    setMessage(postListMessage, '正在删除文章，请稍候...');
+                    try {
+                        await fetchJSON(`${API_BASE}/blog_posts.php`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id: targetId, _method: 'DELETE' })
+                        });
+                        state.posts = state.posts.filter((postItem) => postItem.id !== targetId);
+                        if (state.selectedPostId === targetId) {
+                            clearPostEditor();
+                        } else {
+                            renderPosts(state.posts);
+                        }
+                        setMessage(postListMessage, '文章已删除', 'success');
+                    } catch (error) {
+                        button.disabled = false;
+                        button.textContent = originalLabel;
+                        setMessage(postListMessage, error.message || '删除失败', 'error');
+                    }
+                    return;
+                }
+            }
+            await showPostEditor(targetId);
+        });
+
+        postListEl.addEventListener('keydown', async (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') {
+                return;
+            }
+            const item = event.target.closest('li[data-post-id]');
+            if (!item) {
+                return;
+            }
+            event.preventDefault();
+            const postId = parseInt(item.dataset.postId, 10);
+            if (!postId) {
+                return;
+            }
+            await showPostEditor(postId);
+        });
+    }
+
     if (downloadUserTemplateButton) {
         downloadUserTemplateButton.addEventListener('click', downloadUserTemplate);
     }
@@ -1944,6 +2100,145 @@
                 userImportModal.show();
             }
         });
+    }
+
+    function renderPostPlaceholder(text, tone = 'muted') {
+        if (!postListEl) {
+            return;
+        }
+        postListEl.innerHTML = '';
+        const item = document.createElement('li');
+        item.textContent = text;
+        if (tone === 'error') {
+            item.style.color = '#b91c1c';
+        } else {
+            item.className = 'text-muted';
+        }
+        postListEl.appendChild(item);
+    }
+
+    function renderPosts(posts) {
+        if (!postListEl) {
+            return;
+        }
+        postListEl.innerHTML = '';
+        if (!Array.isArray(posts) || !posts.length) {
+            renderPostPlaceholder('暂无文章，请先发布。');
+            return;
+        }
+        posts.forEach((post) => {
+            const item = document.createElement('li');
+            item.dataset.postId = post.id;
+            item.classList.add('selectable');
+            item.setAttribute('role', 'button');
+            item.tabIndex = 0;
+            if (state.selectedPostId === post.id) {
+                item.classList.add('active');
+            }
+
+            const info = document.createElement('div');
+            info.style.flex = '1';
+            const title = document.createElement('strong');
+            title.textContent = post.title || `文章 ${post.id}`;
+            info.appendChild(title);
+            const meta = document.createElement('div');
+            meta.className = 'text-muted';
+            meta.style.fontSize = '0.85rem';
+            const summary = summarize(post.summary || '', 64);
+            const author = post.author ? ` · ${post.author}` : '';
+            meta.textContent = summary ? `文章ID：${post.id}${author} · ${summary}` : `文章ID：${post.id}${author}`;
+            info.appendChild(meta);
+            item.appendChild(info);
+
+            const actions = document.createElement('div');
+            actions.className = 'list-actions';
+            actions.style.display = 'flex';
+            actions.style.gap = '0.5rem';
+            actions.style.alignItems = 'center';
+
+            const editButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.className = 'inline-button';
+            editButton.dataset.postId = post.id;
+            editButton.dataset.postAction = 'edit';
+            editButton.textContent = '编辑';
+            actions.appendChild(editButton);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.className = 'inline-button danger';
+            deleteButton.dataset.postId = post.id;
+            deleteButton.dataset.postAction = 'delete';
+            deleteButton.textContent = '删除';
+            actions.appendChild(deleteButton);
+
+            item.appendChild(actions);
+            postListEl.appendChild(item);
+        });
+    }
+
+    function clearPostEditor() {
+        state.selectedPostId = null;
+        if (updatePostForm) {
+            updatePostForm.hidden = true;
+            updatePostForm.reset();
+        }
+        setMessage(updatePostMessage);
+        renderPosts(state.posts);
+    }
+
+    async function showPostEditor(postId) {
+        const target = state.posts.find((post) => post.id === postId);
+        if (!target) {
+            setMessage(updatePostMessage, '未找到文章信息', 'error');
+            return;
+        }
+        state.selectedPostId = target.id;
+        if (updatePostForm) {
+            updatePostForm.hidden = false;
+        }
+        try {
+            const data = await fetchJSON(`${API_BASE}/blog_posts.php?id=${postId}`);
+            const post = data.post || target;
+            if (editPostTitleInput) {
+                editPostTitleInput.value = post.title || '';
+            }
+            if (editPostAuthorInput) {
+                editPostAuthorInput.value = post.author || '';
+            }
+            if (editPostTagsInput) {
+                editPostTagsInput.value = post.tags || '';
+            }
+            if (editPostSummaryInput) {
+                editPostSummaryInput.value = post.summary || '';
+            }
+            if (editPostContentInput) {
+                editPostContentInput.value = post.content || '';
+            }
+            setMessage(updatePostMessage);
+        } catch (error) {
+            setMessage(updatePostMessage, error.message || '加载文章失败', 'error');
+        }
+        renderPosts(state.posts);
+    }
+
+    async function loadPosts() {
+        if (!postListEl) {
+            return;
+        }
+        renderPostPlaceholder('正在加载文章...');
+        try {
+            const data = await fetchJSON(`${API_BASE}/blog_posts.php`);
+            state.posts = (data.posts || []).map((post) => ({
+                ...post,
+                id: Number(post.id)
+            }));
+            renderPosts(state.posts);
+            setMessage(postListMessage);
+        } catch (error) {
+            renderPostPlaceholder(error.message || '加载文章失败', 'error');
+            setMessage(postListMessage, error.message || '加载文章失败', 'error');
+        }
     }
     if (openAssignImportModalButton) {
         openAssignImportModalButton.addEventListener('click', (event) => {
@@ -2158,6 +2453,92 @@
             setMessage(assignCourseMessage, error.message || '分配失败', 'error');
         }
     });
+
+    if (cancelPostEditButton) {
+        cancelPostEditButton.addEventListener('click', () => {
+            clearPostEditor();
+        });
+    }
+
+    if (createPostForm) {
+        createPostForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const payload = {
+                title: postTitleInput ? postTitleInput.value.trim() : '',
+                author: postAuthorInput ? postAuthorInput.value.trim() : '',
+                tags: postTagsInput ? postTagsInput.value.trim() : '',
+                summary: postSummaryInput ? postSummaryInput.value.trim() : '',
+                content: postContentInput ? postContentInput.value.trim() : ''
+            };
+            if (!payload.title || !payload.content) {
+                setMessage(createPostMessage, '标题与正文不能为空', 'error');
+                return;
+            }
+            setMessage(createPostMessage, '正在发布文章，请稍候...');
+            try {
+                const result = await fetchJSON(`${API_BASE}/blog_posts.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const newPost = {
+                    ...result.post,
+                    id: Number(result.post.id)
+                };
+                state.posts.unshift(newPost);
+                renderPosts(state.posts);
+                createPostForm.reset();
+                setMessage(createPostMessage, '发布成功', 'success');
+            } catch (error) {
+                setMessage(createPostMessage, error.message || '发布失败', 'error');
+            }
+        });
+    }
+
+    if (updatePostForm) {
+        updatePostForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (!state.selectedPostId) {
+                setMessage(updatePostMessage, '请选择需要编辑的文章', 'error');
+                return;
+            }
+            const payload = {
+                id: state.selectedPostId,
+                title: editPostTitleInput ? editPostTitleInput.value.trim() : '',
+                author: editPostAuthorInput ? editPostAuthorInput.value.trim() : '',
+                tags: editPostTagsInput ? editPostTagsInput.value.trim() : '',
+                summary: editPostSummaryInput ? editPostSummaryInput.value.trim() : '',
+                content: editPostContentInput ? editPostContentInput.value.trim() : ''
+            };
+            if (!payload.title || !payload.content) {
+                setMessage(updatePostMessage, '标题与正文不能为空', 'error');
+                return;
+            }
+            setMessage(updatePostMessage, '正在保存文章，请稍候...');
+            try {
+                const result = await fetchJSON(`${API_BASE}/blog_posts.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...payload, _method: 'PATCH' })
+                });
+                const updatedPost = {
+                    ...result.post,
+                    id: Number(result.post.id)
+                };
+                const index = state.posts.findIndex((post) => post.id === updatedPost.id);
+                if (index !== -1) {
+                    state.posts[index] = updatedPost;
+                } else {
+                    state.posts.unshift(updatedPost);
+                }
+                renderPosts(state.posts);
+                setMessage(updatePostMessage, '文章已更新', 'success');
+                setMessage(postListMessage, '文章已更新', 'success');
+            } catch (error) {
+                setMessage(updatePostMessage, error.message || '保存失败', 'error');
+            }
+        });
+    }
 
         createLessonForm.addEventListener('submit', async (event) => {
             event.preventDefault();

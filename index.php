@@ -469,6 +469,7 @@
                     <button type="button" id="fontLarger" aria-label="Larger font">A+</button>
                 </div>
                 <button class="lang-toggle" type="button" id="langToggle" aria-label="Language toggle">EN / 中文</button>
+                <a class="ghost-button" href="/rarelight/blog">项目日志</a>
                 <a class="primary-button" id="classroomCta" data-classroom-link href="#classroom" data-i18n="navLogin">进入网课</a>
             </div>
         </div>
@@ -484,6 +485,7 @@
                         <p class="lead" data-i18n="heroLead">RARE LIGHT 罕见病关爱项目，面向患儿与家庭同步提供线上趣味课堂与线下科普关怀，兼顾成长需求与社会认知，打造专业且温暖的公益服务体系。</p>
                         <div class="hero-actions">
                             <a class="primary-button" data-classroom-link href="#classroom" data-i18n="ctaEnter">进入网课</a>
+                            <a class="ghost-button" href="/rarelight/blog">项目日志</a>
                             <a class="ghost-button" href="#contact" data-i18n="ctaPartner">与我们合作</a>
                         </div>
                         <div class="session-note" id="sessionNote" data-i18n="sessionNote">课堂由专业志愿者维护，登录后即可继续学习。</div>
