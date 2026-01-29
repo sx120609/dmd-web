@@ -704,30 +704,31 @@ if (file_exists($configFile)) {
                                                     id="openUserImportModal"><i
                                                         class="bi bi-file-earmark-spreadsheet"></i> 批量导入</button>
                                             </div>
-                                            <div>
-                                                <label for="newUsername">用户名</label>
-                                                <input id="newUsername" name="username" placeholder="例如：student01"
-                                                    required>
+                                            <div class="mb-3">
+                                                <label for="newUsername" class="form-label">用户名</label>
+                                                <input id="newUsername" name="username" class="form-control"
+                                                    placeholder="例如：student01" required>
                                             </div>
-                                            <div>
-                                                <label for="newDisplayName">显示名称</label>
-                                                <input id="newDisplayName" name="display_name" placeholder="学生姓名或昵称">
+                                            <div class="mb-3">
+                                                <label for="newDisplayName" class="form-label">显示名称</label>
+                                                <input id="newDisplayName" name="display_name" class="form-control"
+                                                    placeholder="学生姓名或昵称">
                                             </div>
-                                            <div>
-                                                <label for="newPassword">初始密码</label>
+                                            <div class="mb-3">
+                                                <label for="newPassword" class="form-label">初始密码</label>
                                                 <input id="newPassword" name="password" type="password"
-                                                    placeholder="设置登录密码" required>
+                                                    class="form-control" placeholder="设置登录密码" required>
                                             </div>
-                                            <div>
-                                                <label for="newRole">角色</label>
-                                                <select id="newRole" name="role">
+                                            <div class="mb-4">
+                                                <label for="newRole" class="form-label">角色</label>
+                                                <select id="newRole" name="role" class="form-select">
                                                     <option value="student">学员</option>
                                                     <option value="teacher">老师</option>
                                                     <option value="admin">管理员</option>
                                                 </select>
                                             </div>
                                             <button type="submit"
-                                                class="nav-btn nav-btn-primary w-100 justify-content-center">创建用户</button>
+                                                class="nav-btn nav-btn-primary w-100 justify-content-center py-2">创建用户</button>
                                             <div class="message inline" id="createUserMessage" hidden></div>
                                         </form>
                                     </div>
@@ -745,35 +746,42 @@ if (file_exists($configFile)) {
                                             <div class="user-detail-empty" id="userDetailEmpty">
                                                 没有选中的用户，点击左侧列表中的用户即可开始编辑。
                                             </div>
-                                            <form id="updateUserForm" class="form-grid" hidden>
-                                                <div>
-                                                    <label for="editUsername">用户名</label>
-                                                    <input id="editUsername" required>
-                                                </div>
-                                                <div>
-                                                    <label for="editDisplayName">显示名称</label>
-                                                    <input id="editDisplayName" placeholder="学生姓名或昵称">
-                                                </div>
-                                                <div>
-                                                    <label for="editRole">角色</label>
-                                                    <select id="editRole">
-                                                        <option value="student">学员</option>
-                                                        <option value="teacher">老师</option>
-                                                        <option value="admin">管理员</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label for="editPassword">重置密码</label>
-                                                    <div class="input-group">
-                                                        <input id="editPassword" type="password" class="form-control"
-                                                            placeholder="填写新密码，留空则不修改">
-                                                        <button type="button" class="btn btn-outline-secondary"
-                                                            id="resetPasswordButton">生成</button>
+                                            <form id="updateUserForm" class="p-3" hidden>
+                                                <div class="row g-3">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="editUsername" class="form-label">用户名</label>
+                                                        <input id="editUsername" class="form-control" required>
                                                     </div>
-                                                    <p class="hint mt-sm">生成临时密码会立即生效，并在下方显示结果。</p>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="editDisplayName" class="form-label">显示名称</label>
+                                                        <input id="editDisplayName" class="form-control"
+                                                            placeholder="学生姓名或昵称">
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="editRole" class="form-label">角色</label>
+                                                        <select id="editRole" class="form-select">
+                                                            <option value="student">学员</option>
+                                                            <option value="teacher">老师</option>
+                                                            <option value="admin">管理员</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="editPassword" class="form-label">重置密码</label>
+                                                        <div class="input-group">
+                                                            <input id="editPassword" type="password"
+                                                                class="form-control" placeholder="新密码">
+                                                            <button type="button" class="nav-btn nav-btn-outline"
+                                                                id="resetPasswordButton">生成</button>
+                                                        </div>
+                                                        <p class="hint mt-1 mb-0 small">留空则不修改。</p>
+                                                    </div>
                                                 </div>
-                                                <button type="submit" class="nav-btn nav-btn-primary">保存修改</button>
-                                                <div class="message inline" id="updateUserMessage" hidden></div>
+                                                <div
+                                                    class="d-flex align-items-center gap-3 mt-4 pt-3 border-top border-light">
+                                                    <button type="submit"
+                                                        class="nav-btn nav-btn-primary px-4">保存修改</button>
+                                                    <div class="message inline" id="updateUserMessage" hidden></div>
+                                                </div>
                                             </form>
                                             <div class="danger-zone mt-4 pt-3 border-top border-danger-subtle"
                                                 id="userDangerZone" hidden>
@@ -796,31 +804,33 @@ if (file_exists($configFile)) {
                         <div class="tab-content" id="tab-courses" role="tabpanel">
                             <div class="row g-4 align-items-start">
                                 <div class="col-12 col-xl-5 col-xxl-4">
-                                    <form id="createCourseForm" class="panel-glass p-3 form-grid">
+                                    <form id="createCourseForm" class="panel-glass p-3">
                                         <div class="panel-header ps-0 pe-0 pt-0 bg-transparent border-bottom mb-3">
                                             <h3 class="panel-title mb-1">创建课程</h3>
                                             <p class="hint mb-0">新建一门课程。</p>
                                         </div>
-                                        <div>
-                                            <label for="courseTitleInput">课程名称</label>
-                                            <input id="courseTitleInput" name="title" placeholder="例如：高等数学" required>
+                                        <div class="mb-3">
+                                            <label for="courseTitleInput" class="form-label">课程名称</label>
+                                            <input id="courseTitleInput" name="title" class="form-control"
+                                                placeholder="例如：高等数学" required>
                                         </div>
-                                        <div>
-                                            <label for="courseInstructorInput">讲师/老师</label>
-                                            <input id="courseInstructorInput" name="instructor"
+                                        <div class="mb-3">
+                                            <label for="courseInstructorInput" class="form-label">讲师/老师</label>
+                                            <input id="courseInstructorInput" name="instructor" class="form-control"
                                                 placeholder="可选，填写讲师或负责人">
                                         </div>
-                                        <div>
-                                            <label for="courseTagsInput">标签</label>
-                                            <input id="courseTagsInput" name="tags" placeholder="用逗号分隔，例如：数学,基础,直播">
+                                        <div class="mb-3">
+                                            <label for="courseTagsInput" class="form-label">标签</label>
+                                            <input id="courseTagsInput" name="tags" class="form-control"
+                                                placeholder="用逗号分隔，例如：数学,基础,直播">
                                         </div>
-                                        <div>
-                                            <label for="courseDescriptionInput">课程简介</label>
-                                            <textarea id="courseDescriptionInput" name="description" rows="4"
-                                                placeholder="补充课程概述与亮点"></textarea>
+                                        <div class="mb-4">
+                                            <label for="courseDescriptionInput" class="form-label">课程简介</label>
+                                            <textarea id="courseDescriptionInput" name="description"
+                                                class="form-control" rows="4" placeholder="补充课程概述与亮点"></textarea>
                                         </div>
                                         <button type="submit"
-                                            class="nav-btn nav-btn-primary w-100 justify-content-center">创建课程</button>
+                                            class="nav-btn nav-btn-primary w-100 justify-content-center py-2">创建课程</button>
                                         <div class="message inline" id="createCourseMessage" hidden></div>
                                     </form>
                                 </div>
@@ -836,31 +846,31 @@ if (file_exists($configFile)) {
                                             style="max-height: 500px;"></ul>
                                         <div class="message inline px-3" id="courseListMessage" hidden></div>
 
-                                        <form id="updateCourseForm" class="p-3 border-top border-light form-grid"
-                                            hidden>
+                                        <form id="updateCourseForm" class="p-3 border-top border-light" hidden>
                                             <h3 class="panel-title mb-3">编辑课程</h3>
-                                            <div>
-                                                <label for="editCourseTitle">课程名称</label>
-                                                <input id="editCourseTitle" required>
+                                            <div class="mb-3">
+                                                <label for="editCourseTitle" class="form-label">课程名称</label>
+                                                <input id="editCourseTitle" class="form-control" required>
                                             </div>
-                                            <div>
-                                                <label for="editCourseInstructor">讲师/老师</label>
-                                                <input id="editCourseInstructor" placeholder="可选，填写讲师或负责人">
+                                            <div class="mb-3">
+                                                <label for="editCourseInstructor" class="form-label">讲师/老师</label>
+                                                <input id="editCourseInstructor" class="form-control"
+                                                    placeholder="可选，填写讲师或负责人">
                                             </div>
-                                            <div>
-                                                <label for="editCourseTags">标签</label>
-                                                <input id="editCourseTags" placeholder="用逗号分隔标签">
+                                            <div class="mb-3">
+                                                <label for="editCourseTags" class="form-label">标签</label>
+                                                <input id="editCourseTags" class="form-control" placeholder="用逗号分隔标签">
                                             </div>
-                                            <div>
-                                                <label for="editCourseDescription">课程简介</label>
-                                                <textarea id="editCourseDescription" rows="4"
+                                            <div class="mb-4">
+                                                <label for="editCourseDescription" class="form-label">课程简介</label>
+                                                <textarea id="editCourseDescription" class="form-control" rows="4"
                                                     placeholder="补充课程概述"></textarea>
                                             </div>
                                             <div class="d-flex gap-2">
                                                 <button type="submit"
-                                                    class="nav-btn nav-btn-primary flex-fill justify-content-center">保存修改</button>
+                                                    class="nav-btn nav-btn-primary flex-fill justify-content-center py-2">保存修改</button>
                                                 <button type="button"
-                                                    class="nav-btn nav-btn-ghost flex-fill justify-content-center"
+                                                    class="nav-btn nav-btn-ghost flex-fill justify-content-center py-2"
                                                     id="cancelCourseEdit">取消</button>
                                             </div>
                                             <div class="message inline" id="updateCourseMessage" hidden></div>
@@ -872,22 +882,23 @@ if (file_exists($configFile)) {
                         <div class="tab-content" id="tab-lessons" role="tabpanel">
                             <div class="row g-4 align-items-start">
                                 <div class="col-12 col-xl-5 col-xxl-4">
-                                    <form id="createLessonForm" class="panel-glass p-3 form-grid">
+                                    <form id="createLessonForm" class="panel-glass p-3">
                                         <div class="panel-header ps-0 pe-0 pt-0 bg-transparent border-bottom mb-3">
                                             <h3 class="panel-title mb-1">创建课节</h3>
                                             <p class="hint mb-0">为课程添加章节。</p>
                                         </div>
-                                        <div>
-                                            <label for="lessonCourseSelect">所属课程</label>
-                                            <select id="lessonCourseSelect" name="course_id" required></select>
+                                        <div class="mb-3">
+                                            <label for="lessonCourseSelect" class="form-label">所属课程</label>
+                                            <select id="lessonCourseSelect" name="course_id" class="form-select"
+                                                required></select>
                                         </div>
-                                        <div>
-                                            <label for="lessonTitleInput">课节标题</label>
-                                            <input id="lessonTitleInput" name="title" placeholder="例如：第一章 函数极限"
-                                                required>
+                                        <div class="mb-3">
+                                            <label for="lessonTitleInput" class="form-label">课节标题</label>
+                                            <input id="lessonTitleInput" name="title" class="form-control"
+                                                placeholder="例如：第一章 函数极限" required>
                                         </div>
-                                        <div>
-                                            <label for="lessonVideoInput">视频地址</label>
+                                        <div class="mb-3">
+                                            <label for="lessonVideoInput" class="form-label">视频地址</label>
                                             <div class="input-group">
                                                 <input id="lessonVideoInput" name="video_url" class="form-control"
                                                     placeholder="支持哔哩哔哩链接或本地视频文件路径">
@@ -895,31 +906,32 @@ if (file_exists($configFile)) {
                                                     class="btn btn-outline-secondary cloud-picker-button"
                                                     data-target-input="lessonVideoInput">云盘选择</button>
                                             </div>
-                                            <p class="hint">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
+                                            <p class="hint mt-1 mb-0 small">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
                                         </div>
-                                        <div>
-                                            <label for="lessonAttachmentsInput">附件（每行“名称|链接”或直接粘贴链接）</label>
+                                        <div class="mb-3">
+                                            <label for="lessonAttachmentsInput"
+                                                class="form-label">附件（每行“名称|链接”或直接粘贴链接）</label>
                                             <div class="d-flex flex-column gap-2">
-                                                <textarea id="lessonAttachmentsInput" name="attachments" rows="3"
-                                                    placeholder="示例：
+                                                <textarea id="lessonAttachmentsInput" name="attachments"
+                                                    class="form-control" rows="3" placeholder="示例：
 讲义|https://example.com/file.pdf
 练习|https://example.com/ex.pdf"></textarea>
-                                                <div class="d-flex flex-wrap gap-2">
+                                                <div class="d-flex flex-wrap gap-2 align-items-center">
                                                     <button type="button"
                                                         class="btn btn-outline-secondary btn-sm cloud-picker-button"
                                                         data-target-input="lessonAttachmentsInput"
                                                         data-cloud-mode="attachment">云盘选择</button>
-                                                    <p class="hint mb-0">支持外部链接或云盘外链，留空则无附件。</p>
+                                                    <p class="hint mb-0 small">支持外部链接或云盘外链，留空则无附件。</p>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div>
-                                            <label for="lessonDescriptionInput">课节简介</label>
-                                            <textarea id="lessonDescriptionInput" name="description" rows="4"
-                                                placeholder="填写课节要点"></textarea>
+                                        <div class="mb-4">
+                                            <label for="lessonDescriptionInput" class="form-label">课节简介</label>
+                                            <textarea id="lessonDescriptionInput" name="description"
+                                                class="form-control" rows="4" placeholder="填写课节要点"></textarea>
                                         </div>
                                         <button type="submit"
-                                            class="nav-btn nav-btn-primary w-100 justify-content-center">创建课节</button>
+                                            class="nav-btn nav-btn-primary w-100 justify-content-center py-2">创建课节</button>
                                         <div class="message inline" id="createLessonMessage" hidden></div>
                                     </form>
                                 </div>
@@ -935,19 +947,19 @@ if (file_exists($configFile)) {
                                             style="max-height: 500px;"></ul>
                                         <div class="message inline px-3" id="lessonListMessage" hidden></div>
 
-                                        <form id="updateLessonForm" class="p-3 border-top border-light form-grid"
-                                            hidden>
+                                        <form id="updateLessonForm" class="p-3 border-top border-light" hidden>
                                             <h3 class="panel-title mb-3">编辑课节</h3>
-                                            <div>
-                                                <label for="editLessonCourseSelect">所属课程</label>
-                                                <select id="editLessonCourseSelect" required></select>
+                                            <div class="mb-3">
+                                                <label for="editLessonCourseSelect" class="form-label">所属课程</label>
+                                                <select id="editLessonCourseSelect" class="form-select"
+                                                    required></select>
                                             </div>
-                                            <div>
-                                                <label for="editLessonTitle">课节标题</label>
-                                                <input id="editLessonTitle" required>
+                                            <div class="mb-3">
+                                                <label for="editLessonTitle" class="form-label">课节标题</label>
+                                                <input id="editLessonTitle" class="form-control" required>
                                             </div>
-                                            <div>
-                                                <label for="editLessonVideo">视频地址</label>
+                                            <div class="mb-3">
+                                                <label for="editLessonVideo" class="form-label">视频地址</label>
                                                 <div class="input-group">
                                                     <input id="editLessonVideo" class="form-control"
                                                         placeholder="支持哔哩哔哩链接或本地视频文件路径">
@@ -955,33 +967,35 @@ if (file_exists($configFile)) {
                                                         class="btn btn-outline-secondary cloud-picker-button"
                                                         data-target-input="editLessonVideo">云盘选择</button>
                                                 </div>
-                                                <p class="hint">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
+                                                <p class="hint mt-1 mb-0 small">可直接粘贴外部视频地址，或点击云盘选择已有文件。</p>
                                             </div>
-                                            <div>
-                                                <label for="editLessonAttachments">附件（每行“名称|链接”或直接粘贴链接）</label>
+                                            <div class="mb-3">
+                                                <label for="editLessonAttachments"
+                                                    class="form-label">附件（每行“名称|链接”或直接粘贴链接）</label>
                                                 <div class="d-flex flex-column gap-2">
-                                                    <textarea id="editLessonAttachments" rows="3" placeholder="示例：
+                                                    <textarea id="editLessonAttachments" class="form-control" rows="3"
+                                                        placeholder="示例：
 讲义 PDF|https://example.com/file.pdf
 练习题|https://example.com/ex.pdf"></textarea>
-                                                    <div class="d-flex flex-wrap gap-2">
+                                                    <div class="d-flex flex-wrap gap-2 align-items-center">
                                                         <button type="button"
                                                             class="btn btn-outline-secondary btn-sm cloud-picker-button"
                                                             data-target-input="editLessonAttachments"
                                                             data-cloud-mode="attachment">云盘选择</button>
-                                                        <p class="hint mb-0">支持外部链接或云盘外链。</p>
+                                                        <p class="hint mb-0 small">支持外部链接或云盘外链。</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div>
-                                                <label for="editLessonDescription">课节简介</label>
-                                                <textarea id="editLessonDescription" rows="4"
+                                            <div class="mb-4">
+                                                <label for="editLessonDescription" class="form-label">课节简介</label>
+                                                <textarea id="editLessonDescription" class="form-control" rows="4"
                                                     placeholder="填写课节要点"></textarea>
                                             </div>
                                             <div class="d-flex gap-2">
                                                 <button type="submit"
-                                                    class="nav-btn nav-btn-primary flex-fill justify-content-center">保存修改</button>
+                                                    class="nav-btn nav-btn-primary flex-fill justify-content-center py-2">保存修改</button>
                                                 <button type="button"
-                                                    class="nav-btn nav-btn-ghost flex-fill justify-content-center"
+                                                    class="nav-btn nav-btn-ghost flex-fill justify-content-center py-2"
                                                     id="cancelLessonEdit">取消</button>
                                             </div>
                                             <div class="message inline" id="updateLessonMessage" hidden></div>
@@ -993,7 +1007,7 @@ if (file_exists($configFile)) {
                         <div class="tab-content" id="tab-assignments" role="tabpanel">
                             <div class="row g-4 align-items-start">
                                 <div class="col-12 col-xl-5 col-xxl-4">
-                                    <form id="assignCourseForm" class="panel-glass p-3 form-grid">
+                                    <form id="assignCourseForm" class="panel-glass p-3">
                                         <div
                                             class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
                                             <div>
@@ -1004,16 +1018,18 @@ if (file_exists($configFile)) {
                                                 id="openAssignImportModal"><i
                                                     class="bi bi-file-earmark-spreadsheet"></i> 批量分配</button>
                                         </div>
-                                        <div>
-                                            <label for="assignUserSelect">选择用户</label>
-                                            <select id="assignUserSelect" name="user_id" required></select>
+                                        <div class="mb-3">
+                                            <label for="assignUserSelect" class="form-label">选择用户</label>
+                                            <select id="assignUserSelect" name="user_id" class="form-select"
+                                                required></select>
                                         </div>
-                                        <div>
-                                            <label for="assignCourseSelect">分配课程</label>
-                                            <select id="assignCourseSelect" name="course_id" required></select>
+                                        <div class="mb-4">
+                                            <label for="assignCourseSelect" class="form-label">分配课程</label>
+                                            <select id="assignCourseSelect" name="course_id" class="form-select"
+                                                required></select>
                                         </div>
                                         <button type="submit"
-                                            class="nav-btn nav-btn-primary w-100 justify-content-center">分配课程</button>
+                                            class="nav-btn nav-btn-primary w-100 justify-content-center py-2">分配课程</button>
                                         <div class="message inline" id="assignCourseMessage" hidden></div>
                                     </form>
                                 </div>
@@ -1034,7 +1050,7 @@ if (file_exists($configFile)) {
                         <div class="tab-content" id="tab-posts" role="tabpanel">
                             <div class="row g-4 align-items-start">
                                 <div class="col-12 col-xl-5 col-xxl-4">
-                                    <form id="createPostForm" class="panel-glass p-3 form-grid" method="post"
+                                    <form id="createPostForm" class="panel-glass p-3" method="post"
                                         action="/rarelight/admin?tab=posts#posts">
                                         <input type="hidden" name="post_action" value="create">
 
@@ -1043,34 +1059,38 @@ if (file_exists($configFile)) {
                                             <p class="hint mb-0">发布项目日志或新闻。</p>
                                         </div>
 
-                                        <div>
-                                            <label for="postTitleInput">文章标题</label>
-                                            <input id="postTitleInput" name="title" placeholder="例如：阶段成果总结" required>
+                                        <div class="mb-3">
+                                            <label for="postTitleInput" class="form-label">文章标题</label>
+                                            <input id="postTitleInput" name="title" class="form-control"
+                                                placeholder="例如：阶段成果总结" required>
                                         </div>
-                                        <div>
-                                            <label for="postLinkInput">公众号文章链接</label>
-                                            <input id="postLinkInput" name="link_url"
+                                        <div class="mb-3">
+                                            <label for="postLinkInput" class="form-label">公众号文章链接</label>
+                                            <input id="postLinkInput" name="link_url" class="form-control"
                                                 placeholder="https://mp.weixin.qq.com/..." required>
                                         </div>
-                                        <div>
-                                            <label for="postDateInput">发布日期</label>
-                                            <input id="postDateInput" name="published_at" type="date">
+                                        <div class="mb-3">
+                                            <label for="postDateInput" class="form-label">发布日期</label>
+                                            <input id="postDateInput" name="published_at" type="date"
+                                                class="form-control">
                                         </div>
-                                        <div>
-                                            <label for="postAuthorInput">作者/负责人</label>
-                                            <input id="postAuthorInput" name="author" placeholder="可选，填写负责人">
+                                        <div class="mb-3">
+                                            <label for="postAuthorInput" class="form-label">作者/负责人</label>
+                                            <input id="postAuthorInput" name="author" class="form-control"
+                                                placeholder="可选，填写负责人">
                                         </div>
-                                        <div>
-                                            <label for="postTagsInput">标签</label>
-                                            <input id="postTagsInput" name="tags" placeholder="用逗号分隔，例如：调研,里程碑">
+                                        <div class="mb-3">
+                                            <label for="postTagsInput" class="form-label">标签</label>
+                                            <input id="postTagsInput" name="tags" class="form-control"
+                                                placeholder="用逗号分隔，例如：调研,里程碑">
                                         </div>
-                                        <div>
-                                            <label for="postSummaryInput">摘要</label>
-                                            <textarea id="postSummaryInput" name="summary" rows="3"
+                                        <div class="mb-4">
+                                            <label for="postSummaryInput" class="form-label">摘要</label>
+                                            <textarea id="postSummaryInput" name="summary" class="form-control" rows="3"
                                                 placeholder="简要概述（可选）"></textarea>
                                         </div>
                                         <button type="submit"
-                                            class="nav-btn nav-btn-primary w-100 justify-content-center">发布文章</button>
+                                            class="nav-btn nav-btn-primary w-100 justify-content-center py-2">发布文章</button>
                                         <div class="message inline <?php echo $blogFlash['type'] === 'error' ? 'text-danger' : ($blogFlash['type'] === 'success' ? 'text-success' : ''); ?>"
                                             id="createPostMessage" <?php echo $blogFlash['message'] ? '' : 'hidden'; ?>>
                                             <?php echo htmlspecialchars($blogFlash['message'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
@@ -1134,50 +1154,52 @@ if (file_exists($configFile)) {
                                         </ul>
                                         <div class="message inline" id="postListMessage" hidden></div>
 
-                                        <form id="updatePostForm" class="p-3 border-top border-light form-grid"
-                                            method="post" action="/rarelight/admin?tab=posts#posts" <?php echo $blogEditPost ? '' : 'hidden'; ?>>
+                                        <form id="updatePostForm" class="p-3 border-top border-light" method="post"
+                                            action="/rarelight/admin?tab=posts#posts" <?php echo $blogEditPost ? '' : 'hidden'; ?>>
                                             <input type="hidden" name="post_action" value="update">
                                             <input type="hidden" name="post_id"
                                                 value="<?php echo $blogEditPost ? (int) $blogEditPost['id'] : 0; ?>">
                                             <h3 class="panel-title mb-3">编辑文章</h3>
-                                            <div>
-                                                <label for="editPostTitle">文章标题</label>
-                                                <input id="editPostTitle" name="title"
+                                            <div class="mb-3">
+                                                <label for="editPostTitle" class="form-label">文章标题</label>
+                                                <input id="editPostTitle" name="title" class="form-control"
                                                     value="<?php echo htmlspecialchars($blogEditPost['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                     required>
                                             </div>
-                                            <div>
-                                                <label for="editPostLink">公众号文章链接</label>
-                                                <input id="editPostLink" name="link_url"
+                                            <div class="mb-3">
+                                                <label for="editPostLink" class="form-label">公众号文章链接</label>
+                                                <input id="editPostLink" name="link_url" class="form-control"
                                                     value="<?php echo htmlspecialchars($blogEditPost['link_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                     placeholder="https://mp.weixin.qq.com/..." required>
                                             </div>
-                                            <div>
-                                                <label for="editPostDate">发布日期</label>
+                                            <div class="mb-3">
+                                                <label for="editPostDate" class="form-label">发布日期</label>
                                                 <input id="editPostDate" name="published_at" type="date"
+                                                    class="form-control"
                                                     value="<?php echo htmlspecialchars($blogEditPost['published_at'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                             </div>
-                                            <div>
-                                                <label for="editPostAuthor">作者/负责人</label>
-                                                <input id="editPostAuthor" name="author"
+                                            <div class="mb-3">
+                                                <label for="editPostAuthor" class="form-label">作者/负责人</label>
+                                                <input id="editPostAuthor" name="author" class="form-control"
                                                     value="<?php echo htmlspecialchars($blogEditPost['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                     placeholder="可选，填写负责人">
                                             </div>
-                                            <div>
-                                                <label for="editPostTags">标签</label>
-                                                <input id="editPostTags" name="tags"
+                                            <div class="mb-3">
+                                                <label for="editPostTags" class="form-label">标签</label>
+                                                <input id="editPostTags" name="tags" class="form-control"
                                                     value="<?php echo htmlspecialchars($blogEditPost['tags'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                     placeholder="用逗号分隔标签">
                                             </div>
-                                            <div>
-                                                <label for="editPostSummary">摘要</label>
-                                                <textarea id="editPostSummary" name="summary" rows="3"
+                                            <div class="mb-4">
+                                                <label for="editPostSummary" class="form-label">摘要</label>
+                                                <textarea id="editPostSummary" name="summary" class="form-control"
+                                                    rows="3"
                                                     placeholder="简要概述（可选）"><?php echo htmlspecialchars($blogEditPost['summary'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                             </div>
                                             <div class="d-flex gap-2">
                                                 <button type="submit"
-                                                    class="nav-btn nav-btn-primary flex-fill justify-content-center">保存修改</button>
-                                                <a class="nav-btn nav-btn-ghost flex-fill justify-content-center"
+                                                    class="nav-btn nav-btn-primary flex-fill justify-content-center py-2">保存修改</button>
+                                                <a class="nav-btn nav-btn-ghost flex-fill justify-content-center py-2"
                                                     href="/rarelight/admin?tab=posts#posts">取消</a>
                                             </div>
                                             <div class="message inline" id="updatePostMessage" hidden></div>
