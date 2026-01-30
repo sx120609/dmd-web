@@ -706,10 +706,11 @@
         </main>
 
         <footer class="footer">
-            <div class="container-xxl d-flex flex-wrap justify-content-between align-items-center gap-3">
-                <div class="d-flex align-items-center gap-2">
+            <div
+                class="container-xxl d-flex flex-column flex-md-row justify-content-center justify-content-md-between align-items-center gap-3">
+                <div class="d-flex flex-column flex-sm-row align-items-center gap-2 text-center">
                     <span class="fw-bold text-dark">Rare Light</span>
-                    <span class="text-muted">|</span>
+                    <span class="text-muted d-none d-sm-inline">|</span>
                     <span class="small" data-i18n="footerText">为罕见病儿童提供陪伴、教育与资源链接。</span>
                 </div>
                 <div class="small text-secondary" data-i18n="footerEmail">
