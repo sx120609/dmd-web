@@ -2088,14 +2088,28 @@ if (file_exists($configFile)) {
             activeCloudTargetInputId = targetInputId;
             activeCloudTargetMode = mode || 'default';
             if (!cloudPickerModal) {
-                cloudPickerModal = new bootstrap.Modal(cloudPickerModalEl);
+                cloudPickerModal = new bootstrap.Modal(cloudPickerModalEl, { backdrop: true });
             }
             if (cloudPickerModalEl) {
+                // Count existing backdrops before opening
+                const backdropsBefore = document.querySelectorAll('.modal-backdrop').length;
+
                 // Set higher z-index to appear above other modals
                 cloudPickerModalEl.style.zIndex = '1070';
+
                 cloudPickerModalEl.addEventListener('hidden.bs.modal', () => {
                     cloudPickerModalEl.style.zIndex = '';
-                    clearDanglingBackdrops();
+                    // Only remove the extra backdrop we added, keep the one from the parent modal
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    if (backdrops.length > backdropsBefore) {
+                        // Remove only the topmost (last) backdrop
+                        backdrops[backdrops.length - 1].remove();
+                    }
+                    // Only clear all if no modals are open
+                    const openModals = document.querySelectorAll('.modal.show');
+                    if (openModals.length === 0) {
+                        clearDanglingBackdrops();
+                    }
                 }, { once: true });
             }
             await fetchCloudFiles();
