@@ -2087,12 +2087,16 @@ if (file_exists($configFile)) {
         async function openCloudPicker(targetInputId, mode = 'default') {
             activeCloudTargetInputId = targetInputId;
             activeCloudTargetMode = mode || 'default';
-            clearDanglingBackdrops();
             if (!cloudPickerModal) {
                 cloudPickerModal = new bootstrap.Modal(cloudPickerModalEl);
             }
             if (cloudPickerModalEl) {
-                cloudPickerModalEl.addEventListener('hidden.bs.modal', clearDanglingBackdrops, { once: true });
+                // Set higher z-index to appear above other modals
+                cloudPickerModalEl.style.zIndex = '1070';
+                cloudPickerModalEl.addEventListener('hidden.bs.modal', () => {
+                    cloudPickerModalEl.style.zIndex = '';
+                    clearDanglingBackdrops();
+                }, { once: true });
             }
             await fetchCloudFiles();
             cloudPickerModal.show();
