@@ -3564,8 +3564,8 @@ if (file_exists($configFile)) {
             });
         });
 
+
         // Back to Dashboard button
-        const backButton = document.getElementById('backButton');
         if (backButton) {
             backButton.addEventListener('click', () => {
                 window.location.href = '/rarelight/dashboard';
@@ -3573,7 +3573,6 @@ if (file_exists($configFile)) {
         }
 
         // Logout button
-        const logoutButton = document.getElementById('logoutButton');
         if (logoutButton) {
             logoutButton.addEventListener('click', async () => {
                 try {
