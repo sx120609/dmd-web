@@ -1697,9 +1697,6 @@ if (file_exists($configFile)) {
         const assignCourseSelect = document.getElementById('assignCourseSelect');
         const assignmentListEl = document.getElementById('assignmentList');
         let cloudPickerModal = null;
-        let cloudFiles = [];
-        let activeCloudTargetInputId = null;
-        let activeCloudTargetMode = 'default';
         const confirmModalEl = document.getElementById('confirmModal');
         const confirmModalBody = document.getElementById('confirmModalBody');
         const confirmModalConfirm = document.getElementById('confirmModalConfirm');
