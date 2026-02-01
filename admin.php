@@ -668,9 +668,9 @@ if (file_exists($configFile)) {
                         <!-- Tabs -->
                         <div class="admin-tabs" role="tablist">
                             <?php if ($isAdmin): ?>
-                                    <button type="button" class="tab-btn active" data-target="users">
-                                        <i class="bi bi-people me-1"></i> 用户管理
-                                    </button>
+                                <button type="button" class="tab-btn active" data-target="users">
+                                    <i class="bi bi-people me-1"></i> 用户管理
+                                </button>
                             <?php endif; ?>
 
                             <button type="button" class="tab-btn <?php echo !$isAdmin ? 'active' : ''; ?>"
@@ -682,177 +682,177 @@ if (file_exists($configFile)) {
                             </button>
 
                             <?php if ($isAdmin): ?>
-                                    <button type="button" class="tab-btn" data-target="assignments">
-                                        <i class="bi bi-person-check me-1"></i> 课程分配
-                                    </button>
-                                    <button type="button" class="tab-btn" data-target="posts">
-                                        <i class="bi bi-pencil-square me-1"></i> 项目日志
-                                    </button>
+                                <button type="button" class="tab-btn" data-target="assignments">
+                                    <i class="bi bi-person-check me-1"></i> 课程分配
+                                </button>
+                                <button type="button" class="tab-btn" data-target="posts">
+                                    <i class="bi bi-pencil-square me-1"></i> 项目日志
+                                </button>
                             <?php endif; ?>
                         </div>
                         <?php if ($isAdmin): ?>
 
-                                <div class="tab-content active" id="tab-users" role="tabpanel">
-                                    <div class="row g-4 align-items-start">
-                                        <div class="col-12 col-xl-5 col-xxl-4">
-                                            <div class="d-flex flex-column gap-4">
-                                                <div class="panel-glass user-list-card h-100">
-                                                    <div class="panel-header">
-                                                        <div>
-                                                            <h3 class="panel-title mb-1">用户列表</h3>
-                                                            <p class="hint mb-0">点击用户查看详情。</p>
-                                                        </div>
-                                                    </div>
-                                                    <ul class="table-list user-table flex-grow-1 overflow-auto" id="userList"
-                                                        style="max-height: 400px;"></ul>
-                                                </div>
-                                                <form id="createUserForm" class="panel-glass p-3 form-grid">
-                                                    <div
-                                                        class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-                                                        <div>
-                                                            <h3 class="panel-title mb-1">创建用户</h3>
-                                                            <p class="hint mb-0">批量导入或单个创建。</p>
-                                                        </div>
-                                                        <button type="button" class="nav-btn nav-btn-outline py-1 px-2 small"
-                                                            id="openUserImportModal"><i
-                                                                class="bi bi-file-earmark-spreadsheet"></i> 批量导入</button>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="newUsername" class="form-label">用户名</label>
-                                                        <input id="newUsername" name="username" class="form-control"
-                                                            placeholder="例如：student01" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="newDisplayName" class="form-label">显示名称</label>
-                                                        <input id="newDisplayName" name="display_name" class="form-control"
-                                                            placeholder="学生姓名或昵称">
-                                                    </div>
-                                                    <div id="newEntryWrap">
-                                                        <div class="mb-3">
-                                                            <label for="newEntryYear" class="form-label">入库年份</label>
-                                                            <input id="newEntryYear" name="entry_year" class="form-control"
-                                                                placeholder="例如：2026 或 26">
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="newEntryTerm" class="form-label">入库期次</label>
-                                                            <select id="newEntryTerm" name="entry_term" class="form-select">
-                                                                <option value="01">春季 · 01</option>
-                                                                <option value="02">暑假 · 02</option>
-                                                                <option value="03">秋季 · 03</option>
-                                                                <option value="04">冬令营 · 04</option>
-                                                                <option value="05">特别班 · 05</option>
-                                                            </select>
-                                                        </div>
-                                                        <p class="hint mt-1 mb-3 small">仅学员需要，用于自动生成学号。</p>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="newPassword" class="form-label">初始密码</label>
-                                                        <input id="newPassword" name="password" type="password"
-                                                            class="form-control" placeholder="设置登录密码" required>
-                                                    </div>
-                                                    <div class="mb-4">
-                                                        <label for="newRole" class="form-label">角色</label>
-                                                        <select id="newRole" name="role" class="form-select">
-                                                            <option value="student">学员</option>
-                                                            <option value="teacher">老师</option>
-                                                            <option value="admin">管理员</option>
-                                                        </select>
-                                                    </div>
-                                                    <button type="submit"
-                                                        class="nav-btn nav-btn-primary w-100 justify-content-center py-2">创建用户</button>
-                                                    <div class="message inline" id="createUserMessage" hidden></div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-xl-7 col-xxl-8">
-                                            <section class="panel-glass h-100" id="userDetailCard">
+                            <div class="tab-content active" id="tab-users" role="tabpanel">
+                                <div class="row g-4 align-items-start">
+                                    <div class="col-12 col-xl-5 col-xxl-4">
+                                        <div class="d-flex flex-column gap-4">
+                                            <div class="panel-glass user-list-card h-100">
                                                 <div class="panel-header">
                                                     <div>
-                                                        <h3 class="panel-title" id="userDetailTitle">用户详情</h3>
-                                                        <p class="hint mb-0" id="userDetailSubtitle">请选择左侧用户</p>
-                                                    </div>
-                                                    <span class="rl-badge success" id="userDetailRoleChip" hidden></span>
-                                                </div>
-                                                <div class="panel-body">
-                                                    <div class="user-detail-empty" id="userDetailEmpty">
-                                                        没有选中的用户，点击左侧列表中的用户即可开始编辑。
-                                                    </div>
-                                                    <form id="updateUserForm" class="p-3" hidden>
-                                                        <div class="row g-3">
-                                                            <div class="col-md-6 mb-3">
-                                                                <label for="editUsername" class="form-label">用户名</label>
-                                                                <input id="editUsername" class="form-control" required>
-                                                            </div>
-                                                            <div class="col-md-6 mb-3">
-                                                                <label for="editDisplayName" class="form-label">显示名称</label>
-                                                                <input id="editDisplayName" class="form-control"
-                                                                    placeholder="学生姓名或昵称">
-                                                            </div>
-                                                            <div class="col-md-6 mb-3">
-                                                                <label for="editStudentNo" class="form-label">学号</label>
-                                                                <input id="editStudentNo" class="form-control" placeholder="未生成"
-                                                                    readonly>
-                                                                <p class="hint mt-1 mb-0 small">学号生成后不可修改。</p>
-                                                            </div>
-                                                            <div class="col-md-6 mb-3">
-                                                                <label for="editRole" class="form-label">角色</label>
-                                                                <select id="editRole" class="form-select">
-                                                                    <option value="student">学员</option>
-                                                                    <option value="teacher">老师</option>
-                                                                    <option value="admin">管理员</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-md-6 mb-3" id="editEntryWrap">
-                                                                <label class="form-label">入库年份 / 期次</label>
-                                                                <div class="input-group">
-                                                                    <input id="editEntryYear" class="form-control"
-                                                                        placeholder="例如：2026 或 26">
-                                                                    <select id="editEntryTerm" class="form-select">
-                                                                        <option value="01">春季 · 01</option>
-                                                                        <option value="02">暑假 · 02</option>
-                                                                        <option value="03">秋季 · 03</option>
-                                                                        <option value="04">冬令营 · 04</option>
-                                                                        <option value="05">特别班 · 05</option>
-                                                                    </select>
-                                                                </div>
-                                                                <p class="hint mt-1 mb-0 small">学号为空时填写，用于补发；留空则不生成。</p>
-                                                            </div>
-                                                            <div class="col-md-6 mb-3">
-                                                                <label for="editPassword" class="form-label">重置密码</label>
-                                                                <div class="input-group">
-                                                                    <input id="editPassword" type="password"
-                                                                        class="form-control" placeholder="新密码">
-                                                                    <button type="button" class="nav-btn nav-btn-outline"
-                                                                        id="resetPasswordButton">生成</button>
-                                                                </div>
-                                                                <p class="hint mt-1 mb-0 small">留空则不修改。</p>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="d-flex align-items-center gap-3 mt-4 pt-3 border-top border-light">
-                                                            <button type="submit"
-                                                                class="nav-btn nav-btn-primary px-4">保存修改</button>
-                                                            <div class="message inline" id="updateUserMessage" hidden></div>
-                                                        </div>
-                                                    </form>
-                                                    <div class="danger-zone mt-4 pt-3 border-top border-danger-subtle"
-                                                        id="userDangerZone" hidden>
-                                                        <div class="d-flex align-items-center justify-content-between">
-                                                            <div>
-                                                                <strong class="text-danger">危险操作</strong>
-                                                                <p class="small text-muted mb-0">删除用户将移除其所有关联数据。</p>
-                                                            </div>
-                                                            <button type="button"
-                                                                class="nav-btn nav-btn-outline text-danger border-danger-subtle"
-                                                                id="deleteUserButton"><i class="bi bi-trash"></i> 删除用户</button>
-                                                        </div>
-                                                        <div class="message inline" id="deleteUserMessage" hidden></div>
+                                                        <h3 class="panel-title mb-1">用户列表</h3>
+                                                        <p class="hint mb-0">点击用户查看详情。</p>
                                                     </div>
                                                 </div>
-                                            </section>
+                                                <ul class="table-list user-table flex-grow-1 overflow-auto" id="userList"
+                                                    style="max-height: 400px;"></ul>
+                                            </div>
+                                            <form id="createUserForm" class="panel-glass p-3 form-grid">
+                                                <div
+                                                    class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                                                    <div>
+                                                        <h3 class="panel-title mb-1">创建用户</h3>
+                                                        <p class="hint mb-0">批量导入或单个创建。</p>
+                                                    </div>
+                                                    <button type="button" class="nav-btn nav-btn-outline py-1 px-2 small"
+                                                        id="openUserImportModal"><i
+                                                            class="bi bi-file-earmark-spreadsheet"></i> 批量导入</button>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="newUsername" class="form-label">用户名</label>
+                                                    <input id="newUsername" name="username" class="form-control"
+                                                        placeholder="例如：student01" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="newDisplayName" class="form-label">显示名称</label>
+                                                    <input id="newDisplayName" name="display_name" class="form-control"
+                                                        placeholder="学生姓名或昵称">
+                                                </div>
+                                                <div id="newEntryWrap">
+                                                    <div class="mb-3">
+                                                        <label for="newEntryYear" class="form-label">入库年份</label>
+                                                        <input id="newEntryYear" name="entry_year" class="form-control"
+                                                            placeholder="例如：2026 或 26">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="newEntryTerm" class="form-label">入库期次</label>
+                                                        <select id="newEntryTerm" name="entry_term" class="form-select">
+                                                            <option value="01">春季 · 01</option>
+                                                            <option value="02">暑假 · 02</option>
+                                                            <option value="03">秋季 · 03</option>
+                                                            <option value="04">冬令营 · 04</option>
+                                                            <option value="05">特别班 · 05</option>
+                                                        </select>
+                                                    </div>
+                                                    <p class="hint mt-1 mb-3 small">仅学员需要，用于自动生成学号。</p>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="newPassword" class="form-label">初始密码</label>
+                                                    <input id="newPassword" name="password" type="password"
+                                                        class="form-control" placeholder="设置登录密码" required>
+                                                </div>
+                                                <div class="mb-4">
+                                                    <label for="newRole" class="form-label">角色</label>
+                                                    <select id="newRole" name="role" class="form-select">
+                                                        <option value="student">学员</option>
+                                                        <option value="teacher">老师</option>
+                                                        <option value="admin">管理员</option>
+                                                    </select>
+                                                </div>
+                                                <button type="submit"
+                                                    class="nav-btn nav-btn-primary w-100 justify-content-center py-2">创建用户</button>
+                                                <div class="message inline" id="createUserMessage" hidden></div>
+                                            </form>
                                         </div>
                                     </div>
+                                    <div class="col-12 col-xl-7 col-xxl-8">
+                                        <section class="panel-glass h-100" id="userDetailCard">
+                                            <div class="panel-header">
+                                                <div>
+                                                    <h3 class="panel-title" id="userDetailTitle">用户详情</h3>
+                                                    <p class="hint mb-0" id="userDetailSubtitle">请选择左侧用户</p>
+                                                </div>
+                                                <span class="rl-badge success" id="userDetailRoleChip" hidden></span>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="user-detail-empty" id="userDetailEmpty">
+                                                    没有选中的用户，点击左侧列表中的用户即可开始编辑。
+                                                </div>
+                                                <form id="updateUserForm" class="p-3" hidden>
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="editUsername" class="form-label">用户名</label>
+                                                            <input id="editUsername" class="form-control" required>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="editDisplayName" class="form-label">显示名称</label>
+                                                            <input id="editDisplayName" class="form-control"
+                                                                placeholder="学生姓名或昵称">
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="editStudentNo" class="form-label">学号</label>
+                                                            <input id="editStudentNo" class="form-control" placeholder="未生成"
+                                                                readonly>
+                                                            <p class="hint mt-1 mb-0 small">学号生成后不可修改。</p>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="editRole" class="form-label">角色</label>
+                                                            <select id="editRole" class="form-select">
+                                                                <option value="student">学员</option>
+                                                                <option value="teacher">老师</option>
+                                                                <option value="admin">管理员</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3" id="editEntryWrap">
+                                                            <label class="form-label">入库年份 / 期次</label>
+                                                            <div class="input-group">
+                                                                <input id="editEntryYear" class="form-control"
+                                                                    placeholder="例如：2026 或 26">
+                                                                <select id="editEntryTerm" class="form-select">
+                                                                    <option value="01">春季 · 01</option>
+                                                                    <option value="02">暑假 · 02</option>
+                                                                    <option value="03">秋季 · 03</option>
+                                                                    <option value="04">冬令营 · 04</option>
+                                                                    <option value="05">特别班 · 05</option>
+                                                                </select>
+                                                            </div>
+                                                            <p class="hint mt-1 mb-0 small">学号为空时填写，用于补发；留空则不生成。</p>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="editPassword" class="form-label">重置密码</label>
+                                                            <div class="input-group">
+                                                                <input id="editPassword" type="password"
+                                                                    class="form-control" placeholder="新密码">
+                                                                <button type="button" class="nav-btn nav-btn-outline"
+                                                                    id="resetPasswordButton">生成</button>
+                                                            </div>
+                                                            <p class="hint mt-1 mb-0 small">留空则不修改。</p>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="d-flex align-items-center gap-3 mt-4 pt-3 border-top border-light">
+                                                        <button type="submit"
+                                                            class="nav-btn nav-btn-primary px-4">保存修改</button>
+                                                        <div class="message inline" id="updateUserMessage" hidden></div>
+                                                    </div>
+                                                </form>
+                                                <div class="danger-zone mt-4 pt-3 border-top border-danger-subtle"
+                                                    id="userDangerZone" hidden>
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <div>
+                                                            <strong class="text-danger">危险操作</strong>
+                                                            <p class="small text-muted mb-0">删除用户将移除其所有关联数据。</p>
+                                                        </div>
+                                                        <button type="button"
+                                                            class="nav-btn nav-btn-outline text-danger border-danger-subtle"
+                                                            id="deleteUserButton"><i class="bi bi-trash"></i> 删除用户</button>
+                                                    </div>
+                                                    <div class="message inline" id="deleteUserMessage" hidden></div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
                                 </div>
+                            </div>
                         <?php endif; ?>
 
                         <div class="tab-content <?php echo !$isAdmin ? 'active' : ''; ?>" id="tab-courses"
@@ -1061,213 +1061,166 @@ if (file_exists($configFile)) {
                         </div>
 
                         <?php if ($isAdmin): ?>
-                                <div class="tab-content" id="tab-assignments" role="tabpanel">
-                                    <div class="row g-4 align-items-start">
-                                        <div class="col-12 col-xl-5 col-xxl-4">
-                                            <form id="assignCourseForm" class="panel-glass p-3">
-                                                <div
-                                                    class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-                                                    <div>
-                                                        <h3 class="panel-title mb-1">分配课程</h3>
-                                                        <p class="hint mb-0">批量或单个分配。</p>
-                                                    </div>
-                                                    <button type="button" class="nav-btn nav-btn-outline py-1 px-2 small"
-                                                        id="openAssignImportModal"><i
-                                                            class="bi bi-file-earmark-spreadsheet"></i> 批量分配</button>
+                            <div class="tab-content" id="tab-assignments" role="tabpanel">
+                                <div class="row g-4 align-items-start">
+                                    <div class="col-12 col-xl-5 col-xxl-4">
+                                        <form id="assignCourseForm" class="panel-glass p-3">
+                                            <div
+                                                class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                                                <div>
+                                                    <h3 class="panel-title mb-1">分配课程</h3>
+                                                    <p class="hint mb-0">批量或单个分配。</p>
                                                 </div>
-                                                <div class="mb-3">
-                                                    <label for="assignUserSelect" class="form-label">选择用户</label>
-                                                    <select id="assignUserSelect" name="user_id" class="form-select"
-                                                        required></select>
-                                                </div>
-                                                <div class="mb-4">
-                                                    <label for="assignCourseSelect" class="form-label">分配课程</label>
-                                                    <select id="assignCourseSelect" name="course_id" class="form-select"
-                                                        required></select>
-                                                </div>
-                                                <button type="submit"
-                                                    class="nav-btn nav-btn-primary w-100 justify-content-center py-2">分配课程</button>
-                                                <div class="message inline" id="assignCourseMessage" hidden></div>
-                                            </form>
-                                        </div>
-                                        <div class="col-12 col-xl-7 col-xxl-8">
-                                            <div class="panel-glass h-100">
-                                                <div class="panel-header">
-                                                    <div>
-                                                        <h3 class="panel-title mb-1">用户已分配课程</h3>
-                                                        <p class="hint mb-0">选择用户显示已分配课程。</p>
-                                                    </div>
-                                                </div>
-                                                <ul class="table-list flex-grow-1 overflow-auto" id="assignmentList"
-                                                    style="max-height: 500px;"></ul>
+                                                <button type="button" class="nav-btn nav-btn-outline py-1 px-2 small"
+                                                    id="openAssignImportModal"><i
+                                                        class="bi bi-file-earmark-spreadsheet"></i> 批量分配</button>
                                             </div>
+                                            <div class="mb-3">
+                                                <label for="assignUserSelect" class="form-label">选择用户</label>
+                                                <select id="assignUserSelect" name="user_id" class="form-select"
+                                                    required></select>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="assignCourseSelect" class="form-label">分配课程</label>
+                                                <select id="assignCourseSelect" name="course_id" class="form-select"
+                                                    required></select>
+                                            </div>
+                                            <button type="submit"
+                                                class="nav-btn nav-btn-primary w-100 justify-content-center py-2">分配课程</button>
+                                            <div class="message inline" id="assignCourseMessage" hidden></div>
+                                        </form>
+                                    </div>
+                                    <div class="col-12 col-xl-7 col-xxl-8">
+                                        <div class="panel-glass h-100">
+                                            <div class="panel-header">
+                                                <div>
+                                                    <h3 class="panel-title mb-1">用户已分配课程</h3>
+                                                    <p class="hint mb-0">选择用户显示已分配课程。</p>
+                                                </div>
+                                            </div>
+                                            <ul class="table-list flex-grow-1 overflow-auto" id="assignmentList"
+                                                style="max-height: 500px;"></ul>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
                         <?php endif; ?>
 
                         <?php if ($isAdmin): ?>
-                                <div class="tab-content" id="tab-posts" role="tabpanel">
-                                    <div class="row g-4 align-items-start">
-                                        <div class="col-12 col-xl-5 col-xxl-4">
-                                            <form id="createPostForm" class="panel-glass p-3" method="post"
-                                                action="/rarelight/admin?tab=posts#posts">
-                                                <input type="hidden" name="post_action" value="create">
+                            <div class="tab-content" id="tab-posts" role="tabpanel">
+                                <div class="row g-4 align-items-start">
+                                    <div class="col-12 col-xl-5 col-xxl-4">
+                                        <form id="createPostForm" class="panel-glass p-3" method="post"
+                                            action="/rarelight/admin?tab=posts#posts">
+                                            <input type="hidden" name="post_action" value="create">
 
-                                                <div class="panel-header ps-0 pe-0 pt-0 bg-transparent border-bottom mb-3">
-                                                    <h3 class="panel-title mb-1">发布文章</h3>
-                                                    <p class="hint mb-0">发布项目日志或新闻。</p>
-                                                </div>
-
-                                                <div class="mb-3">
-                                                    <label for="postTitleInput" class="form-label">文章标题</label>
-                                                    <input id="postTitleInput" name="title" class="form-control"
-                                                        placeholder="例如：阶段成果总结" required>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="postLinkInput" class="form-label">公众号文章链接</label>
-                                                    <input id="postLinkInput" name="link_url" class="form-control"
-                                                        placeholder="https://mp.weixin.qq.com/..." required>
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="postDateInput" class="form-label">发布日期</label>
-                                                    <input id="postDateInput" name="published_at" type="date"
-                                                        class="form-control">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="postAuthorInput" class="form-label">作者/负责人</label>
-                                                    <input id="postAuthorInput" name="author" class="form-control"
-                                                        placeholder="可选，填写负责人">
-                                                </div>
-                                                <div class="mb-3">
-                                                    <label for="postTagsInput" class="form-label">标签</label>
-                                                    <input id="postTagsInput" name="tags" class="form-control"
-                                                        placeholder="用逗号分隔，例如：调研,里程碑">
-                                                </div>
-                                                <div class="mb-4">
-                                                    <label for="postSummaryInput" class="form-label">摘要</label>
-                                                    <textarea id="postSummaryInput" name="summary" class="form-control" rows="3"
-                                                        placeholder="简要概述（可选）"></textarea>
-                                                </div>
-                                                <button type="submit"
-                                                    class="nav-btn nav-btn-primary w-100 justify-content-center py-2">发布文章</button>
-                                                <div class="message inline <?php echo $blogFlash['type'] === 'error' ? 'text-danger' : ($blogFlash['type'] === 'success' ? 'text-success' : ''); ?>"
-                                                    id="createPostMessage" <?php echo $blogFlash['message'] ? '' : 'hidden'; ?>>
-                                                    <?php echo htmlspecialchars($blogFlash['message'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
-                                                </div>
-                                            </form>
-                                        </div>
-                                        <div class="col-12 col-xl-7 col-xxl-8">
-                                            <div class="panel-glass h-100">
-                                                <div class="panel-header">
-                                                    <div>
-                                                        <h3 class="panel-title mb-1">文章列表</h3>
-                                                        <p class="hint mb-0">点击文章可编辑，删除不可恢复。</p>
-                                                    </div>
-                                                </div>
-                                                <ul class="table-list flex-grow-1 overflow-auto" id="postList"
-                                                    style="max-height: 500px;">
-                                                    <?php if (empty($blogPosts)): ?>
-                                                            <li class="text-muted p-3">暂无文章，请先发布。</li>
-                                                    <?php else: ?>
-                                                            <?php foreach ($blogPosts as $post): ?>
-                                                                    <li
-                                                                        class="selectable<?php echo ($blogEditPost && (int) $blogEditPost['id'] === (int) $post['id']) ? ' active' : ''; ?>">
-                                                                        <div style="flex: 1;">
-                                                                            <strong><?php echo htmlspecialchars($post['title'] ?? ('文章 ' . $post['id']), ENT_QUOTES, 'UTF-8'); ?></strong>
-                                                                            <div class="text-muted" style="font-size: 0.85rem;">
-                                                                                <?php
-                                                                                $metaPieces = [];
-                                                                                if (!empty($post['author'])) {
-                                                                                    $metaPieces[] = htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8');
-                                                                                }
-                                                                                if (!empty($post['published_at'])) {
-                                                                                    $metaPieces[] = htmlspecialchars($post['published_at'], ENT_QUOTES, 'UTF-8');
-                                                                                }
-                                                                                $summary = trim((string) ($post['summary'] ?? ''));
-                                                                                if ($summary !== '') {
-                                                                                    $metaPieces[] = mb_strimwidth($summary, 0, 60, '…', 'UTF-8');
-                                                                                }
-                                                                                $metaText = $metaPieces ? implode(' · ', $metaPieces) : '';
-                                                                                ?>
-                                                                                <?php echo '文章ID：' . (int) $post['id'] . ($metaText ? ' · ' . htmlspecialchars($metaText, ENT_QUOTES, 'UTF-8') : ''); ?>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="list-actions"
-                                                                            style="display: flex; gap: 0.5rem; align-items: center;">
-                                                                            <a class="nav-btn nav-btn-outline py-1 px-2 small"
-                                                                                href="/rarelight/admin?tab=posts&post_id=<?php echo (int) $post['id']; ?>#posts"><i
-                                                                                    class="bi bi-pencil"></i></a>
-                                                                            <form method="post" action="/rarelight/admin?tab=posts#posts"
-                                                                                onsubmit="return confirm('确定删除该文章？');">
-                                                                                <input type="hidden" name="post_action" value="delete">
-                                                                                <input type="hidden" name="post_id"
-                                                                                    value="<?php echo (int) $post['id']; ?>">
-                                                                                <button type="submit"
-                                                                                    class="nav-btn nav-btn-outline text-danger border-danger-subtle py-1 px-2 small"><i
-                                                                                        class="bi bi-trash"></i></button>
-                                                                            </form>
-                                                                        </div>
-                                                                    </li>
-                                                            <?php endforeach; ?>
-                                                    <?php endif; ?>
-                                                </ul>
-                                                <div class="message inline" id="postListMessage" hidden></div>
-
-                                                <form id="updatePostForm" class="p-3 border-top border-light" method="post"
-                                                    action="/rarelight/admin?tab=posts#posts" <?php echo $blogEditPost ? '' : 'hidden'; ?>>
-                                                    <input type="hidden" name="post_action" value="update">
-                                                    <input type="hidden" name="post_id"
-                                                        value="<?php echo $blogEditPost ? (int) $blogEditPost['id'] : 0; ?>">
-                                                    <h3 class="panel-title mb-3">编辑文章</h3>
-                                                    <div class="mb-3">
-                                                        <label for="editPostTitle" class="form-label">文章标题</label>
-                                                        <input id="editPostTitle" name="title" class="form-control"
-                                                            value="<?php echo htmlspecialchars($blogEditPost['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                                            required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="editPostLink" class="form-label">公众号文章链接</label>
-                                                        <input id="editPostLink" name="link_url" class="form-control"
-                                                            value="<?php echo htmlspecialchars($blogEditPost['link_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                                            placeholder="https://mp.weixin.qq.com/..." required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="editPostDate" class="form-label">发布日期</label>
-                                                        <input id="editPostDate" name="published_at" type="date"
-                                                            class="form-control"
-                                                            value="<?php echo htmlspecialchars($blogEditPost['published_at'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="editPostAuthor" class="form-label">作者/负责人</label>
-                                                        <input id="editPostAuthor" name="author" class="form-control"
-                                                            value="<?php echo htmlspecialchars($blogEditPost['author'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                                            placeholder="可选，填写负责人">
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="editPostTags" class="form-label">标签</label>
-                                                        <input id="editPostTags" name="tags" class="form-control"
-                                                            value="<?php echo htmlspecialchars($blogEditPost['tags'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                                            placeholder="用逗号分隔标签">
-                                                    </div>
-                                                    <div class="mb-4">
-                                                        <label for="editPostSummary" class="form-label">摘要</label>
-                                                        <textarea id="editPostSummary" name="summary" class="form-control"
-                                                            rows="3"
-                                                            placeholder="简要概述（可选）"><?php echo htmlspecialchars($blogEditPost['summary'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
-                                                    </div>
-                                                    <div class="d-flex gap-2">
-                                                        <button type="submit"
-                                                            class="nav-btn nav-btn-primary flex-fill justify-content-center py-2">保存修改</button>
-                                                        <a class="nav-btn nav-btn-ghost flex-fill justify-content-center py-2"
-                                                            href="/rarelight/admin?tab=posts#posts">取消</a>
-                                                    </div>
-                                                    <div class="message inline" id="updatePostMessage" hidden></div>
-                                                </form>
+                                            <div class="panel-header ps-0 pe-0 pt-0 bg-transparent border-bottom mb-3">
+                                                <h3 class="panel-title mb-1">发布文章</h3>
+                                                <p class="hint mb-0">发布项目日志或新闻。</p>
                                             </div>
+
+                                            <div class="mb-3">
+                                                <label for="postTitleInput" class="form-label">文章标题</label>
+                                                <input id="postTitleInput" name="title" class="form-control"
+                                                    placeholder="例如：阶段成果总结" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="postLinkInput" class="form-label">公众号文章链接</label>
+                                                <input id="postLinkInput" name="link_url" class="form-control"
+                                                    placeholder="https://mp.weixin.qq.com/..." required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="postDateInput" class="form-label">发布日期</label>
+                                                <input id="postDateInput" name="published_at" type="date"
+                                                    class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="postAuthorInput" class="form-label">作者/负责人</label>
+                                                <input id="postAuthorInput" name="author" class="form-control"
+                                                    placeholder="可选，填写负责人">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="postTagsInput" class="form-label">标签</label>
+                                                <input id="postTagsInput" name="tags" class="form-control"
+                                                    placeholder="用逗号分隔，例如：调研,里程碑">
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="postSummaryInput" class="form-label">摘要</label>
+                                                <textarea id="postSummaryInput" name="summary" class="form-control" rows="3"
+                                                    placeholder="简要概述（可选）"></textarea>
+                                            </div>
+                                            <button type="submit"
+                                                class="nav-btn nav-btn-primary w-100 justify-content-center py-2">发布文章</button>
+                                            <div class="message inline <?php echo $blogFlash['type'] === 'error' ? 'text-danger' : ($blogFlash['type'] === 'success' ? 'text-success' : ''); ?>"
+                                                id="createPostMessage" <?php echo $blogFlash['message'] ? '' : 'hidden'; ?>>
+                                                <?php echo htmlspecialchars($blogFlash['message'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="col-12 col-xl-7 col-xxl-8">
+                                        <div class="panel-glass h-100">
+                                            <div class="panel-header">
+                                                <div>
+                                                    <h3 class="panel-title mb-1">文章列表</h3>
+                                                    <p class="hint mb-0">点击文章可编辑，删除不可恢复。</p>
+                                                </div>
+                                            </div>
+                                            <ul class="table-list flex-grow-1 overflow-auto" id="postList"
+                                                style="max-height: 500px;">
+                                                <?php if (empty($blogPosts)): ?>
+                                                    <li class="text-muted p-3">暂无文章，请先发布。</li>
+                                                <?php else: ?>
+                                                    <?php foreach ($blogPosts as $post): ?>
+                                                        <li
+                                                            class="selectable<?php echo ($blogEditPost && (int) $blogEditPost['id'] === (int) $post['id']) ? ' active' : ''; ?>">
+                                                            <div style="flex: 1;">
+                                                                <strong><?php echo htmlspecialchars($post['title'] ?? ('文章 ' . $post['id']), ENT_QUOTES, 'UTF-8'); ?></strong>
+                                                                <div class="text-muted" style="font-size: 0.85rem;">
+                                                                    <?php
+                                                                    $metaPieces = [];
+                                                                    if (!empty($post['author'])) {
+                                                                        $metaPieces[] = htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8');
+                                                                    }
+                                                                    if (!empty($post['published_at'])) {
+                                                                        $metaPieces[] = htmlspecialchars($post['published_at'], ENT_QUOTES, 'UTF-8');
+                                                                    }
+                                                                    $summary = trim((string) ($post['summary'] ?? ''));
+                                                                    if ($summary !== '') {
+                                                                        $metaPieces[] = mb_strimwidth($summary, 0, 60, '…', 'UTF-8');
+                                                                    }
+                                                                    $metaText = $metaPieces ? implode(' · ', $metaPieces) : '';
+                                                                    ?>
+                                                                    <?php echo '文章ID：' . (int) $post['id'] . ($metaText ? ' · ' . htmlspecialchars($metaText, ENT_QUOTES, 'UTF-8') : ''); ?>
+                                                                </div>
+                                                            </div>
+                                                            <div class="list-actions"
+                                                                style="display: flex; gap: 0.5rem; align-items: center;">
+                                                                <button type="button"
+                                                                    class="nav-btn nav-btn-outline py-1 px-2 small edit-post-btn"
+                                                                    data-post='<?php echo json_encode($post, JSON_HEX_APOS | JSON_HEX_QUOT); ?>'>
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </button>
+                                                                <form method="post" action="/rarelight/admin?tab=posts#posts"
+                                                                    onsubmit="return confirm('确定删除该文章？');">
+                                                                    <input type="hidden" name="post_action" value="delete">
+                                                                    <input type="hidden" name="post_id"
+                                                                        value="<?php echo (int) $post['id']; ?>">
+                                                                    <button type="submit"
+                                                                        class="nav-btn nav-btn-outline text-danger border-danger-subtle py-1 px-2 small"><i
+                                                                            class="bi bi-trash"></i></button>
+                                                                </form>
+                                                            </div>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </ul>
+                                            <div class="message inline" id="postListMessage" hidden></div>
+
+
                                         </div>
                                     </div>
                                 </div>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -1283,7 +1236,8 @@ if (file_exists($configFile)) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role，学员可补充 entry_year, entry_term（或 student_no）。</p>
+                    <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role，学员可补充 entry_year,
+                        entry_term（或 student_no）。</p>
                     <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
                         <button type="button" class="nav-btn nav-btn-outline py-1 px-2 small"
                             id="downloadUserTemplate">下载模板</button>
@@ -1403,6 +1357,149 @@ if (file_exists($configFile)) {
                 <div class="modal-footer border-top border-light">
                     <button type="button" class="nav-btn nav-btn-ghost" data-bs-dismiss="modal">取消</button>
                     <button type="button" class="nav-btn nav-btn-primary" id="confirmModalConfirm">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Course Modal -->
+    <div class="modal fade" id="editCourseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content panel-glass border-0">
+                <div class="modal-header border-light">
+                    <h5 class="modal-title fw-bold">编辑课程</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="editCourseFormModal">
+                        <input type="hidden" id="modalEditCourseId" name="id">
+                        <div class="mb-3">
+                            <label for="modalEditCourseTitle" class="form-label">课程名称</label>
+                            <input id="modalEditCourseTitle" name="title" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditCourseInstructor" class="form-label">讲师/老师</label>
+                            <input id="modalEditCourseInstructor" name="instructor" class="form-control"
+                                placeholder="可选，填写讲师或负责人">
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditCourseTags" class="form-label">标签</label>
+                            <input id="modalEditCourseTags" name="tags" class="form-control" placeholder="用逗号分隔">
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditCourseDescription" class="form-label">课程简介</label>
+                            <textarea id="modalEditCourseDescription" name="description" class="form-control"
+                                rows="4"></textarea>
+                        </div>
+                        <div class="message inline" id="editCourseModalMessage" hidden></div>
+                    </form>
+                </div>
+                <div class="modal-footer border-light">
+                    <button type="button" class="nav-btn nav-btn-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="nav-btn nav-btn-primary px-4" id="submitEditCourseModal">保存修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Lesson Modal -->
+    <div class="modal fade" id="editLessonModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content panel-glass border-0">
+                <div class="modal-header border-light">
+                    <h5 class="modal-title fw-bold">编辑课节</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="editLessonFormModal">
+                        <input type="hidden" id="modalEditLessonId" name="lesson_id">
+                        <div class="mb-3">
+                            <label for="modalEditLessonCourseSelect" class="form-label">所属课程</label>
+                            <select id="modalEditLessonCourseSelect" name="course_id" class="form-select"
+                                required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditLessonTitle" class="form-label">课节标题</label>
+                            <input id="modalEditLessonTitle" name="title" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditLessonVideo" class="form-label">视频地址</label>
+                            <div class="input-group">
+                                <input id="modalEditLessonVideo" name="video_url" class="form-control"
+                                    placeholder="支持哔哩哔哩链接或本地视频文件路径">
+                                <button type="button" class="btn btn-outline-secondary cloud-picker-button"
+                                    data-target-input="modalEditLessonVideo">云盘选择</button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditLessonAttachments" class="form-label">附件</label>
+                            <div class="d-flex flex-column gap-2">
+                                <textarea id="modalEditLessonAttachments" name="attachments" class="form-control"
+                                    rows="3" placeholder="格式：名称|链接"></textarea>
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm cloud-picker-button"
+                                        data-target-input="modalEditLessonAttachments"
+                                        data-cloud-mode="attachment">云盘选择</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditLessonDescription" class="form-label">课节简介</label>
+                            <textarea id="modalEditLessonDescription" name="description" class="form-control"
+                                rows="4"></textarea>
+                        </div>
+                        <div class="message inline" id="editLessonModalMessage" hidden></div>
+                    </form>
+                </div>
+                <div class="modal-footer border-light">
+                    <button type="button" class="nav-btn nav-btn-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="nav-btn nav-btn-primary px-4" id="submitEditLessonModal">保存修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Post Modal -->
+    <div class="modal fade" id="editPostModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content panel-glass border-0">
+                <div class="modal-header border-light">
+                    <h5 class="modal-title fw-bold">编辑文章</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="editPostFormModal" method="post" action="/rarelight/admin?tab=posts#posts">
+                        <input type="hidden" name="post_action" value="update">
+                        <input type="hidden" id="modalEditPostId" name="post_id">
+                        <div class="mb-3">
+                            <label for="modalEditPostTitle" class="form-label">文章标题</label>
+                            <input id="modalEditPostTitle" name="title" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditPostLink" class="form-label">公众号文章链接</label>
+                            <input id="modalEditPostLink" name="link_url" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditPostDate" class="form-label">发布日期</label>
+                            <input id="modalEditPostDate" name="published_at" type="date" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditPostAuthor" class="form-label">作者/负责人</label>
+                            <input id="modalEditPostAuthor" name="author" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditPostTags" class="form-label">标签</label>
+                            <input id="modalEditPostTags" name="tags" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="modalEditPostSummary" class="form-label">摘要</label>
+                            <textarea id="modalEditPostSummary" name="summary" class="form-control" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-light">
+                    <button type="button" class="nav-btn nav-btn-ghost" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="nav-btn nav-btn-primary px-4" id="submitEditPostModal">保存修改</button>
                 </div>
             </div>
         </div>
@@ -1535,13 +1632,44 @@ if (file_exists($configFile)) {
         const courseTagsInput = document.getElementById('courseTagsInput');
         const courseListEl = document.getElementById('courseList');
         const courseListMessage = document.getElementById('courseListMessage');
-        const updateCourseForm = document.getElementById('updateCourseForm');
-        const updateCourseMessage = document.getElementById('updateCourseMessage');
-        const editCourseTitleInput = document.getElementById('editCourseTitle');
-        const editCourseInstructorInput = document.getElementById('editCourseInstructor');
-        const editCourseTagsInput = document.getElementById('editCourseTags');
-        const editCourseDescriptionInput = document.getElementById('editCourseDescription');
-        const cancelCourseEditButton = document.getElementById('cancelCourseEdit');
+        const updateCourseMessage = document.getElementById('editCourseModalMessage'); // Reused ID mapping for less JS change or new var
+        // Modals
+        let editCourseModal = null;
+        let editLessonModal = null;
+        let editPostModal = null;
+
+        const editCourseModalEl = document.getElementById('editCourseModal');
+        const editLessonModalEl = document.getElementById('editLessonModal');
+        const editPostModalEl = document.getElementById('editPostModal');
+
+        const editCourseFormModal = document.getElementById('editCourseFormModal');
+        const submitEditCourseModalBtn = document.getElementById('submitEditCourseModal');
+        const modalEditCourseId = document.getElementById('modalEditCourseId');
+        const modalEditCourseTitle = document.getElementById('modalEditCourseTitle');
+        const modalEditCourseInstructor = document.getElementById('modalEditCourseInstructor');
+        const modalEditCourseTags = document.getElementById('modalEditCourseTags');
+        const modalEditCourseDescription = document.getElementById('modalEditCourseDescription');
+        const editCourseModalMessage = document.getElementById('editCourseModalMessage');
+
+        const editLessonFormModal = document.getElementById('editLessonFormModal');
+        const submitEditLessonModalBtn = document.getElementById('submitEditLessonModal');
+        const modalEditLessonId = document.getElementById('modalEditLessonId');
+        const modalEditLessonCourseSelect = document.getElementById('modalEditLessonCourseSelect');
+        const modalEditLessonTitle = document.getElementById('modalEditLessonTitle');
+        const modalEditLessonVideo = document.getElementById('modalEditLessonVideo');
+        const modalEditLessonAttachments = document.getElementById('modalEditLessonAttachments');
+        const modalEditLessonDescription = document.getElementById('modalEditLessonDescription');
+        const editLessonModalMessage = document.getElementById('editLessonModalMessage');
+
+        const editPostFormModal = document.getElementById('editPostFormModal');
+        const submitEditPostModalBtn = document.getElementById('submitEditPostModal');
+        const modalEditPostId = document.getElementById('modalEditPostId');
+        const modalEditPostTitle = document.getElementById('modalEditPostTitle');
+        const modalEditPostLink = document.getElementById('modalEditPostLink');
+        const modalEditPostDate = document.getElementById('modalEditPostDate');
+        const modalEditPostAuthor = document.getElementById('modalEditPostAuthor');
+        const modalEditPostTags = document.getElementById('modalEditPostTags');
+        const modalEditPostSummary = document.getElementById('modalEditPostSummary');
 
         const createLessonForm = document.getElementById('createLessonForm');
         const createLessonMessage = document.getElementById('createLessonMessage');
@@ -1552,33 +1680,13 @@ if (file_exists($configFile)) {
         const lessonDescriptionInput = document.getElementById('lessonDescriptionInput');
         const lessonListEl = document.getElementById('lessonList');
         const lessonListMessage = document.getElementById('lessonListMessage');
-        const updateLessonForm = document.getElementById('updateLessonForm');
-        const updateLessonMessage = document.getElementById('updateLessonMessage');
-        const editLessonCourseSelect = document.getElementById('editLessonCourseSelect');
-        const editLessonTitleInput = document.getElementById('editLessonTitle');
-        const editLessonVideoInput = document.getElementById('editLessonVideo');
-        const editLessonAttachmentsInput = document.getElementById('editLessonAttachments');
-        const editLessonDescriptionInput = document.getElementById('editLessonDescription');
-        const cancelLessonEditButton = document.getElementById('cancelLessonEdit');
+
 
         const createPostForm = document.getElementById('createPostForm');
         const createPostMessage = document.getElementById('createPostMessage');
         const postListEl = document.getElementById('postList');
 
-        if (cancelCourseEditButton) {
-            cancelCourseEditButton.addEventListener('click', () => {
-                clearCourseEditor();
-            });
-        }
-        if (cancelLessonEditButton) {
-            cancelLessonEditButton.addEventListener('click', () => {
-                const currentCourseId = parseInt(lessonCourseSelect.value, 10);
-                clearLessonEditor();
-                if (currentCourseId && Array.isArray(state.lessons[currentCourseId])) {
-                    renderLessons(currentCourseId, state.lessons[currentCourseId]);
-                }
-            });
-        }
+
 
         const assignCourseForm = document.getElementById('assignCourseForm');
         const assignCourseMessage = document.getElementById('assignCourseMessage');
@@ -2309,86 +2417,13 @@ if (file_exists($configFile)) {
 
         function clearCourseEditor() {
             state.selectedCourseId = null;
-            if (updateCourseForm) {
-                updateCourseForm.hidden = true;
-                updateCourseForm.reset();
-            }
-            setMessage(updateCourseMessage);
-            refreshCourseList();
-        }
-
-        function showCourseEditor(courseId) {
-            const target = state.courses.find((course) => course.id === courseId);
-            if (!target) {
-                setMessage(updateCourseMessage, '未找到课程信息', 'error');
-                return;
-            }
-            state.selectedCourseId = target.id;
-            if (updateCourseForm) {
-                updateCourseForm.hidden = false;
-            }
-            if (editCourseTitleInput) {
-                editCourseTitleInput.value = target.title || '';
-            }
-            if (editCourseInstructorInput) {
-                editCourseInstructorInput.value = target.instructor || '';
-            }
-            if (editCourseTagsInput) {
-                editCourseTagsInput.value = target.tags || '';
-            }
-            if (editCourseDescriptionInput) {
-                editCourseDescriptionInput.value = target.description || '';
-            }
-            setMessage(updateCourseMessage);
             refreshCourseList();
         }
 
         function clearLessonEditor() {
             state.selectedLessonId = null;
             state.editingLessonOriginalCourseId = null;
-            if (updateLessonForm) {
-                updateLessonForm.hidden = true;
-                updateLessonForm.reset();
-            }
-            setMessage(updateLessonMessage);
-        }
-
-        function showLessonEditor(courseId, lessonId) {
-            const lessons = state.lessons[courseId] || [];
-            const target = lessons.find((lesson) => lesson.id === lessonId);
-            if (!target) {
-                setMessage(updateLessonMessage, '未找到课节信息', 'error');
-                return;
-            }
-            state.selectedLessonId = target.id;
-            state.editingLessonOriginalCourseId = courseId;
-            if (updateLessonForm) {
-                updateLessonForm.hidden = false;
-            }
-            if (editLessonCourseSelect) {
-                populateSelect(editLessonCourseSelect, state.courses, 'id', 'title', courseId);
-            }
-            if (lessonCourseSelect && lessonCourseSelect.value !== String(courseId)) {
-                lessonCourseSelect.value = String(courseId);
-            }
-            if (editLessonTitleInput) {
-                editLessonTitleInput.value = target.title || '';
-            }
-            if (editLessonVideoInput) {
-                editLessonVideoInput.value = target.video_url || '';
-            }
-            if (editLessonDescriptionInput) {
-                editLessonDescriptionInput.value = target.description || '';
-            }
-            if (editLessonAttachmentsInput) {
-                if (Array.isArray(target.attachments)) {
-                    editLessonAttachmentsInput.value = target.attachments.map((att) => `${att.title || att.url || ''}|${att.url || ''}`.trim()).join('\n');
-                } else {
-                    editLessonAttachmentsInput.value = '';
-                }
-            }
-            setMessage(updateLessonMessage);
-            renderLessons(courseId, lessons);
+            // No form to reset, modal handles itself
         }
 
         function summarize(text, maxLength = 60) {
@@ -3365,199 +3400,163 @@ if (file_exists($configFile)) {
         }
 
 
-        if (updateUserForm) {
-            updateUserForm.addEventListener('submit', async (event) => {
-                event.preventDefault();
-                if (!state.selectedUserId) {
-                    setMessage(updateUserMessage, '请选择需要修改的用户', 'error');
-                    return;
-                }
+        if (editCourseModalEl && typeof bootstrap !== 'undefined') {
+            editCourseModal = new bootstrap.Modal(editCourseModalEl);
+        }
+        if (editLessonModalEl && typeof bootstrap !== 'undefined') {
+            editLessonModal = new bootstrap.Modal(editLessonModalEl);
+        }
+        if (editPostModalEl && typeof bootstrap !== 'undefined') {
+            editPostModal = new bootstrap.Modal(editPostModalEl);
+        }
+
+        if (submitEditCourseModalBtn) {
+            submitEditCourseModalBtn.addEventListener('click', async () => {
+                if (!modalEditCourseId.value) return;
                 const payload = {
-                    id: state.selectedUserId,
-                    username: editUsernameInput.value.trim(),
-                    display_name: editDisplayNameInput.value.trim(),
-                    role: editRoleSelect.value
+                    id: modalEditCourseId.value,
+                    title: modalEditCourseTitle.value.trim(),
+                    instructor: modalEditCourseInstructor.value.trim(),
+                    tags: modalEditCourseTags.value.trim(),
+                    description: modalEditCourseDescription.value.trim(),
+                    _method: 'PATCH'
                 };
-                if (!payload.username) {
-                    setMessage(updateUserMessage, '用户名不能为空', 'error');
+                if (!payload.title) {
+                    setMessage(editCourseModalMessage, '课程名称不能为空', 'error');
                     return;
                 }
-                const password = editPasswordInput.value.trim();
-                if (password) {
-                    payload.password = password;
-                }
-                if (payload.role === 'student' && editStudentNoInput && !editStudentNoInput.value) {
-                    const entryYear = editEntryYearInput ? editEntryYearInput.value.trim() : '';
-                    const entryTerm = editEntryTermSelect ? editEntryTermSelect.value : '';
-                    if (entryYear) {
-                        if (!entryTerm) {
-                            setMessage(updateUserMessage, '请补全入库期次', 'error');
-                            return;
-                        }
-                        payload.entry_year = entryYear;
-                        payload.entry_term = entryTerm;
-                    }
-                }
-                setMessage(updateUserMessage, '正在保存修改，请稍候...');
+                setMessage(editCourseModalMessage, '正在保存...', 'info');
                 try {
-                    const result = await fetchJSON(`${API_BASE}/users.php`, {
-                        method: 'POST', // 兼容防火墙拦截 PATCH
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ...payload, _method: 'PATCH' })
+                    const result = await fetchJSON(`${API_BASE}/courses.php`, {
+                        method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json' }
                     });
-                    const updatedUser = {
-                        ...result.user,
-                        id: Number(result.user.id)
+                    const updatedCourse = {
+                        ...result.course,
+                        id: Number(result.course.id)
                     };
-                    const index = state.users.findIndex((user) => user.id === updatedUser.id);
-                    if (index !== -1) {
-                        state.users[index] = updatedUser;
-                    }
-                    state.users.sort((a, b) => a.id - b.id);
-                    state.selectedUserId = updatedUser.id;
-                    refreshUserList();
-                    populateSelect(
-                        assignUserSelect,
-                        state.users,
-                        'id',
-                        (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
-                        updatedUser.id
-                    );
-                    selectUser(updatedUser.id);
-                    if (state.currentUser && Number(state.currentUser.id) === updatedUser.id) {
-                        state.currentUser = { ...state.currentUser, ...updatedUser };
-                        if (adminChip) {
-                            adminChip.textContent = `${state.currentUser.display_name || state.currentUser.username} · 管理员`;
-                            adminChip.style.display = 'inline-flex';
-                        }
-                    }
-                    editPasswordInput.value = '';
-                    setMessage(updateUserMessage, '保存成功', 'success');
-                } catch (error) {
-                    setMessage(updateUserMessage, error.message || '保存失败', 'error');
+                    const index = state.courses.findIndex((course) => course.id === updatedCourse.id);
+                    if (index !== -1) state.courses[index] = updatedCourse;
+                    else state.courses.push(updatedCourse);
+                    state.courses.sort((a, b) => a.id - b.id);
+                    refreshCourseList();
+                    // Update selects
+                    populateSelect(lessonCourseSelect, state.courses, 'id', 'title');
+                    populateSelect(assignCourseSelect, state.courses, 'id', 'title');
+
+                    editCourseModal.hide();
+                    setMessage(createCourseMessage, '课程已更新', 'success');
+                } catch (e) {
+                    setMessage(editCourseModalMessage, e.message, 'error');
                 }
             });
         }
 
-        if (resetPasswordButton) {
-            resetPasswordButton.addEventListener('click', async () => {
-                if (!state.selectedUserId) {
-                    setMessage(updateUserMessage, '请选择需要重置密码的用户', 'error');
+        if (submitEditLessonModalBtn) {
+            submitEditLessonModalBtn.addEventListener('click', async () => {
+                const lid = modalEditLessonId.value;
+                const cid = modalEditLessonCourseSelect.value;
+                if (!lid || !cid) return;
+                const payload = {
+                    lesson_id: lid,
+                    course_id: cid,
+                    title: modalEditLessonTitle.value.trim(),
+                    video_url: modalEditLessonVideo.value.trim(),
+                    attachments: modalEditLessonAttachments.value,
+                    description: modalEditLessonDescription.value.trim(),
+                    _method: 'PATCH'
+                };
+                if (!payload.title) {
+                    setMessage(editLessonModalMessage, '标题不能为空', 'error');
                     return;
                 }
-                const target = state.users.find((user) => user.id === state.selectedUserId);
-                if (!target) {
-                    setMessage(updateUserMessage, '用户不存在', 'error');
-                    return;
-                }
-                const tempPassword = generateTemporaryPassword(10);
-                setMessage(updateUserMessage, '正在重置密码，请稍候...');
+                setMessage(editLessonModalMessage, '正在保存...', 'info');
                 try {
-                    await fetchJSON(`${API_BASE}/users.php`, {
-                        method: 'POST', // 兼容防火墙拦截 PATCH
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: target.id, password: tempPassword, _method: 'PATCH' })
+                    const result = await fetchJSON(`${API_BASE}/lessons.php`, {
+                        method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json' }
                     });
-                    editPasswordInput.value = '';
-                    let copied = false;
-                    if (navigator.clipboard && window.isSecureContext) {
-                        try {
-                            await navigator.clipboard.writeText(tempPassword);
-                            copied = true;
-                        } catch (clipboardError) {
-                            copied = false;
-                        }
+                    editLessonModal.hide();
+                    // Refresh lessons for the course
+                    loadLessonsForCourse(cid);
+                    setMessage(lessonListMessage, '课节已更新', 'success');
+                } catch (e) {
+                    setMessage(editLessonModalMessage, e.message, 'error');
+                }
+            });
+        }
+
+        if (submitEditPostModalBtn && editPostFormModal) {
+            submitEditPostModalBtn.addEventListener('click', () => {
+                editPostFormModal.submit();
+            });
+        }
+
+        // --- Wiring Edit Buttons Open Modal ---
+        function showCourseEditor(courseId) {
+            const course = state.courses.find(c => c.id === Number(courseId));
+            if (!course) return;
+            if (editCourseModal) {
+                modalEditCourseId.value = course.id;
+                modalEditCourseTitle.value = course.title || '';
+                modalEditCourseInstructor.value = course.instructor || '';
+                modalEditCourseTags.value = course.tags || '';
+                modalEditCourseDescription.value = course.description || '';
+                setMessage(editCourseModalMessage);
+                editCourseModal.show();
+            }
+        }
+        function showLessonEditor(courseId, lessonId) {
+            const lessons = state.lessons[courseId] || [];
+            const lesson = lessons.find(l => l.id === Number(lessonId));
+            if (!lesson) return;
+
+            if (editLessonModal) {
+                modalEditLessonId.value = lesson.id;
+                // populate course select
+                populateSelect(modalEditLessonCourseSelect, state.courses, 'id', 'title', courseId);
+                modalEditLessonTitle.value = lesson.title || '';
+                modalEditLessonVideo.value = lesson.video_url || '';
+                if (Array.isArray(lesson.attachments)) {
+                    modalEditLessonAttachments.value = lesson.attachments.map(a => `${a.title || a.url}|${a.url}`).join('\n');
+                } else {
+                    modalEditLessonAttachments.value = lesson.attachments || '';
+                }
+                modalEditLessonDescription.value = lesson.description || '';
+                setMessage(editLessonModalMessage);
+                editLessonModal.show();
+            }
+        }
+
+        if (postListEl) {
+            postListEl.addEventListener('click', (e) => {
+                const btn = e.target.closest('.edit-post-btn');
+                if (btn) {
+                    const post = JSON.parse(btn.dataset.post);
+                    if (editPostModal) {
+                        modalEditPostId.value = post.id;
+                        modalEditPostTitle.value = post.title;
+                        modalEditPostLink.value = post.link_url || '';
+                        modalEditPostDate.value = post.published_at ? post.published_at.split(' ')[0] : '';
+                        modalEditPostAuthor.value = post.author || '';
+                        modalEditPostTags.value = post.tags || '';
+                        modalEditPostSummary.value = post.summary || '';
+                        editPostModal.show();
                     }
-                    const suffix = copied ? '（已复制）' : '';
-                    setMessage(updateUserMessage, `新密码：${tempPassword}${suffix}`, 'success');
-                } catch (error) {
-                    setMessage(updateUserMessage, error.message || '重置密码失败', 'error');
                 }
             });
         }
 
-        if (deleteUserButton) {
-            deleteUserButton.addEventListener('click', async () => {
-                if (!state.selectedUserId) {
-                    setMessage(deleteUserMessage, '请选择需要删除的用户', 'error');
-                    return;
-                }
-                const targetIndex = state.users.findIndex((user) => Number(user.id) === Number(state.selectedUserId));
-                if (targetIndex === -1) {
-                    setMessage(deleteUserMessage, '用户不存在', 'error');
-                    return;
-                }
-                const targetUser = state.users[targetIndex];
-                const label = targetUser.display_name || targetUser.username;
-                const confirm = await showConfirm(`确定删除用户「${label}」吗？该操作无法恢复。`);
-                if (!confirm) {
-                    return;
-                }
-                setMessage(deleteUserMessage, '正在删除用户...');
-                try {
-                    const body = new URLSearchParams({ action: 'delete', id: String(targetUser.id) });
-                    await fetchJSON(`${API_BASE}/users.php`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: body.toString()
-                    });
-                    state.users.splice(targetIndex, 1);
-                    const fallback = state.users[targetIndex] || state.users[targetIndex - 1] || null;
-                    state.users.sort((a, b) => a.id - b.id);
-                    state.selectedUserId = fallback ? fallback.id : null;
-                    refreshUserList();
-                    populateSelect(
-                        assignUserSelect,
-                        state.users,
-                        'id',
-                        (user) => (user.display_name ? `${user.display_name}（${user.username}）` : user.username),
-                        state.selectedUserId
-                    );
-                    setMessage(deleteUserMessage, '用户已删除', 'success');
-                    setMessage(updateUserMessage);
-                    setMessage(assignCourseMessage);
-                    selectUser(state.selectedUserId);
-                } catch (error) {
-                    setMessage(deleteUserMessage, error.message || '删除失败', 'error');
-                }
-            });
-        }
 
-        if (logoutButton) {
-            logoutButton.addEventListener('click', async () => {
-                try {
-                    await fetchJSON(`${API_BASE}/logout.php`, { method: 'POST' });
-                } catch (error) {
-                    console.error(error);
-                }
-                window.location.href = ROUTE_LOGIN;
-            });
-        }
-
-        document.querySelectorAll('.cloud-picker-button').forEach((btn) => {
-            btn.addEventListener('click', async () => {
-                const target = btn.dataset.targetInput;
-                const mode = btn.dataset.cloudMode || 'default';
-                if (!target) {
-                    return;
-                }
-                await openCloudPicker(target, mode);
-            });
-        });
-
-        if (cloudUploadButton) {
-            cloudUploadButton.addEventListener('click', async () => {
-                await uploadToCloud(cloudUploadInput.files);
-            });
-        }
-
-        if (backButton) {
-            backButton.addEventListener('click', () => {
-                window.location.href = ROUTE_DASHBOARD;
-            });
+        function clearDanglingBackdrops() {
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
         }
 
         loadInitialData();
+
+        // Clear up dangling backdrops occasionally
+        clearDanglingBackdrops();
     </script>
 </body>
 
