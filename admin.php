@@ -727,6 +727,24 @@ if (file_exists($configFile)) {
                                                         <input id="newDisplayName" name="display_name" class="form-control"
                                                             placeholder="学生姓名或昵称">
                                                     </div>
+                                                    <div id="newEntryWrap">
+                                                        <div class="mb-3">
+                                                            <label for="newEntryYear" class="form-label">入库年份</label>
+                                                            <input id="newEntryYear" name="entry_year" class="form-control"
+                                                                placeholder="例如：2026 或 26">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="newEntryTerm" class="form-label">入库期次</label>
+                                                            <select id="newEntryTerm" name="entry_term" class="form-select">
+                                                                <option value="01">春季 · 01</option>
+                                                                <option value="02">暑假 · 02</option>
+                                                                <option value="03">秋季 · 03</option>
+                                                                <option value="04">冬令营 · 04</option>
+                                                                <option value="05">特别班 · 05</option>
+                                                            </select>
+                                                        </div>
+                                                        <p class="hint mt-1 mb-3 small">仅学员需要，用于自动生成学号。</p>
+                                                    </div>
                                                     <div class="mb-3">
                                                         <label for="newPassword" class="form-label">初始密码</label>
                                                         <input id="newPassword" name="password" type="password"
@@ -771,12 +789,33 @@ if (file_exists($configFile)) {
                                                                     placeholder="学生姓名或昵称">
                                                             </div>
                                                             <div class="col-md-6 mb-3">
+                                                                <label for="editStudentNo" class="form-label">学号</label>
+                                                                <input id="editStudentNo" class="form-control" placeholder="未生成"
+                                                                    readonly>
+                                                                <p class="hint mt-1 mb-0 small">学号生成后不可修改。</p>
+                                                            </div>
+                                                            <div class="col-md-6 mb-3">
                                                                 <label for="editRole" class="form-label">角色</label>
                                                                 <select id="editRole" class="form-select">
                                                                     <option value="student">学员</option>
                                                                     <option value="teacher">老师</option>
                                                                     <option value="admin">管理员</option>
                                                                 </select>
+                                                            </div>
+                                                            <div class="col-md-6 mb-3" id="editEntryWrap">
+                                                                <label class="form-label">入库年份 / 期次</label>
+                                                                <div class="input-group">
+                                                                    <input id="editEntryYear" class="form-control"
+                                                                        placeholder="例如：2026 或 26">
+                                                                    <select id="editEntryTerm" class="form-select">
+                                                                        <option value="01">春季 · 01</option>
+                                                                        <option value="02">暑假 · 02</option>
+                                                                        <option value="03">秋季 · 03</option>
+                                                                        <option value="04">冬令营 · 04</option>
+                                                                        <option value="05">特别班 · 05</option>
+                                                                    </select>
+                                                                </div>
+                                                                <p class="hint mt-1 mb-0 small">学号为空时填写，用于补发；留空则不生成。</p>
                                                             </div>
                                                             <div class="col-md-6 mb-3">
                                                                 <label for="editPassword" class="form-label">重置密码</label>
@@ -1244,7 +1283,7 @@ if (file_exists($configFile)) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role（student/admin/teacher）。</p>
+                    <p class="hint">下载模板 CSV，填写后上传。字段：username, display_name, password, role，学员可补充 entry_year, entry_term（或 student_no）。</p>
                     <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
                         <button type="button" class="nav-btn nav-btn-outline py-1 px-2 small"
                             id="downloadUserTemplate">下载模板</button>
@@ -1425,6 +1464,10 @@ if (file_exists($configFile)) {
 
         const createUserForm = document.getElementById('createUserForm');
         const createUserMessage = document.getElementById('createUserMessage');
+        const newRoleSelect = document.getElementById('newRole');
+        const newEntryWrap = document.getElementById('newEntryWrap');
+        const newEntryYearInput = document.getElementById('newEntryYear');
+        const newEntryTermSelect = document.getElementById('newEntryTerm');
         const downloadUserTemplateButton = document.getElementById('downloadUserTemplate');
         const downloadAssignTemplateButton = document.getElementById('downloadAssignTemplate');
         const userImportFileInput = document.getElementById('userImportFile');
@@ -1442,8 +1485,12 @@ if (file_exists($configFile)) {
         const updateUserMessage = document.getElementById('updateUserMessage');
         const editUsernameInput = document.getElementById('editUsername');
         const editDisplayNameInput = document.getElementById('editDisplayName');
+        const editStudentNoInput = document.getElementById('editStudentNo');
         const editRoleSelect = document.getElementById('editRole');
         const editPasswordInput = document.getElementById('editPassword');
+        const editEntryWrap = document.getElementById('editEntryWrap');
+        const editEntryYearInput = document.getElementById('editEntryYear');
+        const editEntryTermSelect = document.getElementById('editEntryTerm');
         const resetPasswordButton = document.getElementById('resetPasswordButton');
         const deleteUserButton = document.getElementById('deleteUserButton');
         const deleteUserMessage = document.getElementById('deleteUserMessage');
@@ -1460,6 +1507,27 @@ if (file_exists($configFile)) {
         }
         if (deleteUserButton) {
             deleteUserButton.disabled = true;
+        }
+        if (newRoleSelect) {
+            toggleStudentEntryFields(newRoleSelect.value);
+            newRoleSelect.addEventListener('change', () => {
+                toggleStudentEntryFields(newRoleSelect.value);
+            });
+        }
+        if (editRoleSelect) {
+            editRoleSelect.addEventListener('change', () => {
+                const isStudent = editRoleSelect.value === 'student';
+                const hasStudentNo = Boolean(editStudentNoInput && editStudentNoInput.value);
+                if (editEntryWrap) {
+                    editEntryWrap.hidden = !isStudent || hasStudentNo;
+                }
+                if (editEntryYearInput) {
+                    editEntryYearInput.value = '';
+                }
+                if (editEntryTermSelect) {
+                    editEntryTermSelect.value = getDefaultEntryTerm();
+                }
+            });
         }
         const createCourseForm = document.getElementById('createCourseForm');
         const createCourseMessage = document.getElementById('createCourseMessage');
@@ -1616,12 +1684,42 @@ if (file_exists($configFile)) {
             document.body.style.paddingRight = '';
         }
 
+        function getDefaultEntryYear() {
+            return String(new Date().getFullYear());
+        }
+
+        function getDefaultEntryTerm() {
+            const month = new Date().getMonth() + 1;
+            if (month >= 6 && month <= 8) return '02';
+            if (month >= 9) return '03';
+            return '01';
+        }
+
+        function toggleStudentEntryFields(role) {
+            const isStudent = role === 'student';
+            if (newEntryWrap) {
+                newEntryWrap.hidden = !isStudent;
+            }
+            if (newEntryYearInput) {
+                newEntryYearInput.disabled = !isStudent;
+                if (isStudent && !newEntryYearInput.value) {
+                    newEntryYearInput.value = getDefaultEntryYear();
+                }
+            }
+            if (newEntryTermSelect) {
+                newEntryTermSelect.disabled = !isStudent;
+                if (isStudent && !newEntryTermSelect.value) {
+                    newEntryTermSelect.value = getDefaultEntryTerm();
+                }
+            }
+        }
+
         function downloadUserTemplate() {
             const content = [
-                ['username', 'display_name', 'password', 'role'],
-                ['student01', '学生01', 'pass1234', 'student'],
-                ['teacher01', '老师01', 'teachpass', 'teacher'],
-                ['admin01', '管理员01', 'adminpass', 'admin']
+                ['username', 'display_name', 'password', 'role', 'entry_year', 'entry_term'],
+                ['student01', '学生01', 'pass1234', 'student', '2026', '01'],
+                ['teacher01', '老师01', 'teachpass', 'teacher', '', ''],
+                ['admin01', '管理员01', 'adminpass', 'admin', '', '']
             ].map((row) => row.join(',')).join('\n');
             const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
@@ -1988,7 +2086,12 @@ if (file_exists($configFile)) {
                 nameEl.textContent = user.display_name || user.username;
                 info.appendChild(nameEl);
                 const metaEl = document.createElement('span');
-                metaEl.textContent = `用户名：${user.username}`;
+                const metaParts = [];
+                if (user.student_no) {
+                    metaParts.push(`学号：${user.student_no}`);
+                }
+                metaParts.push(`用户名：${user.username}`);
+                metaEl.textContent = metaParts.join(' · ');
                 info.appendChild(metaEl);
                 item.appendChild(info);
                 const roleTag = document.createElement('span');
@@ -2031,7 +2134,19 @@ if (file_exists($configFile)) {
                 editUsernameInput.value = '';
                 editDisplayNameInput.value = '';
                 editRoleSelect.value = 'student';
+                if (editStudentNoInput) {
+                    editStudentNoInput.value = '';
+                }
                 editPasswordInput.value = '';
+                if (editEntryYearInput) {
+                    editEntryYearInput.value = '';
+                }
+                if (editEntryTermSelect) {
+                    editEntryTermSelect.value = getDefaultEntryTerm();
+                }
+                if (editEntryWrap) {
+                    editEntryWrap.hidden = true;
+                }
                 setMessage(updateUserMessage);
                 setMessage(deleteUserMessage);
                 renderAssignmentPlaceholder(state.users.length ? '请选择用户查看已分配课程' : '暂无用户，请先创建。');
@@ -2039,7 +2154,11 @@ if (file_exists($configFile)) {
             }
 
             userDetailTitle.textContent = target.display_name || target.username;
-            userDetailSubtitle.textContent = `用户名：${target.username}`;
+            if (target.student_no) {
+                userDetailSubtitle.textContent = `学号：${target.student_no} · 用户名：${target.username}`;
+            } else {
+                userDetailSubtitle.textContent = `用户名：${target.username}`;
+            }
             userDetailRoleChip.hidden = false;
             let roleLabel = '学员';
             if (target.role === 'admin') roleLabel = '管理员';
@@ -2051,8 +2170,22 @@ if (file_exists($configFile)) {
             userDangerZone.hidden = false;
             editUsernameInput.value = target.username;
             editDisplayNameInput.value = target.display_name || '';
+            if (editStudentNoInput) {
+                editStudentNoInput.value = target.student_no || '';
+            }
             editRoleSelect.value = target.role;
             editPasswordInput.value = '';
+            const isStudent = target.role === 'student';
+            const hasStudentNo = Boolean(target.student_no);
+            if (editEntryWrap) {
+                editEntryWrap.hidden = !isStudent || hasStudentNo;
+            }
+            if (editEntryYearInput) {
+                editEntryYearInput.value = '';
+            }
+            if (editEntryTermSelect) {
+                editEntryTermSelect.value = getDefaultEntryTerm();
+            }
             if (resetPasswordButton) {
                 resetPasswordButton.disabled = false;
             }
@@ -2910,11 +3043,21 @@ if (file_exists($configFile)) {
                     username: document.getElementById('newUsername').value.trim(),
                     display_name: document.getElementById('newDisplayName').value.trim(),
                     password: document.getElementById('newPassword').value,
-                    role: document.getElementById('newRole').value
+                    role: newRoleSelect ? newRoleSelect.value : document.getElementById('newRole').value
                 };
                 if (!payload.username || !payload.password) {
                     setMessage(createUserMessage, '用户名和密码不能为空', 'error');
                     return;
+                }
+                if (payload.role === 'student') {
+                    const entryYear = newEntryYearInput ? newEntryYearInput.value.trim() : '';
+                    const entryTerm = newEntryTermSelect ? newEntryTermSelect.value : '';
+                    if (!entryYear || !entryTerm) {
+                        setMessage(createUserMessage, '学员需要填写入库年份和期次', 'error');
+                        return;
+                    }
+                    payload.entry_year = entryYear;
+                    payload.entry_term = entryTerm;
                 }
                 setMessage(createUserMessage, '正在创建用户，请稍候...');
                 try {
@@ -2939,6 +3082,15 @@ if (file_exists($configFile)) {
                         newUser.id
                     );
                     createUserForm.reset();
+                    if (newRoleSelect) {
+                        toggleStudentEntryFields(newRoleSelect.value);
+                    }
+                    if (newEntryTermSelect) {
+                        newEntryTermSelect.value = getDefaultEntryTerm();
+                    }
+                    if (newEntryYearInput) {
+                        newEntryYearInput.value = getDefaultEntryYear();
+                    }
                     setMessage(createUserMessage, '创建成功', 'success');
                     setMessage(assignCourseMessage);
                     selectUser(newUser.id);
@@ -3233,6 +3385,18 @@ if (file_exists($configFile)) {
                 const password = editPasswordInput.value.trim();
                 if (password) {
                     payload.password = password;
+                }
+                if (payload.role === 'student' && editStudentNoInput && !editStudentNoInput.value) {
+                    const entryYear = editEntryYearInput ? editEntryYearInput.value.trim() : '';
+                    const entryTerm = editEntryTermSelect ? editEntryTermSelect.value : '';
+                    if (entryYear) {
+                        if (!entryTerm) {
+                            setMessage(updateUserMessage, '请补全入库期次', 'error');
+                            return;
+                        }
+                        payload.entry_year = entryYear;
+                        payload.entry_term = entryTerm;
+                    }
                 }
                 setMessage(updateUserMessage, '正在保存修改，请稍候...');
                 try {

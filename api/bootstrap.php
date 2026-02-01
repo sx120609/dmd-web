@@ -170,6 +170,108 @@ function ensure_teacher_role_enum(mysqli $mysqli): void
     $mysqli->query("ALTER TABLE `users` MODIFY `role` ENUM('student','admin','teacher') NOT NULL DEFAULT 'student'");
 }
 
+function ensure_user_student_no_column(mysqli $mysqli): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+    $checked = true;
+
+    $result = $mysqli->query("SHOW COLUMNS FROM `users` LIKE 'student_no'");
+    if ($result instanceof mysqli_result) {
+        $hasColumn = $result->num_rows > 0;
+        $result->free();
+        if (!$hasColumn) {
+            $mysqli->query("ALTER TABLE `users` ADD COLUMN `student_no` VARCHAR(8) NULL DEFAULT NULL AFTER `display_name`");
+        }
+    } else {
+        return;
+    }
+
+    $indexCheck = $mysqli->query("SHOW INDEX FROM `users` WHERE Key_name = 'uniq_student_no'");
+    if ($indexCheck instanceof mysqli_result) {
+        $hasIndex = $indexCheck->num_rows > 0;
+        $indexCheck->free();
+        if (!$hasIndex) {
+            $mysqli->query("ALTER TABLE `users` ADD UNIQUE KEY `uniq_student_no` (`student_no`)");
+        }
+    }
+}
+
+function normalize_entry_year($value): string
+{
+    $year = trim((string) $value);
+    if ($year === '') {
+        return '';
+    }
+    if (preg_match('/^\d{4}$/', $year)) {
+        $year = substr($year, -2);
+    }
+    if (!preg_match('/^\d{2}$/', $year)) {
+        return '';
+    }
+    return $year;
+}
+
+function normalize_entry_term($value): string
+{
+    $term = trim((string) $value);
+    if ($term === '') {
+        return '';
+    }
+    if (preg_match('/^\d$/', $term)) {
+        $term = '0' . $term;
+    }
+    if (!preg_match('/^\d{2}$/', $term)) {
+        return '';
+    }
+    if ($term === '00') {
+        return '';
+    }
+    return $term;
+}
+
+function normalize_student_no($value): string
+{
+    $studentNo = trim((string) $value);
+    if ($studentNo === '') {
+        return '';
+    }
+    if (!preg_match('/^\d{8}$/', $studentNo)) {
+        return '';
+    }
+    return $studentNo;
+}
+
+function generate_student_no(mysqli $mysqli, string $entryYear, string $entryTerm): ?string
+{
+    $prefix = $entryYear . $entryTerm;
+    if (strlen($prefix) !== 4) {
+        return null;
+    }
+    $like = $prefix . '%';
+    $stmt = $mysqli->prepare('SELECT student_no FROM users WHERE student_no LIKE ? ORDER BY student_no DESC LIMIT 1');
+    if (!$stmt) {
+        return null;
+    }
+    $stmt->bind_param('s', $like);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result ? $result->fetch_assoc() : null;
+    $stmt->close();
+
+    $maxSeq = 0;
+    if ($row && !empty($row['student_no']) && strlen($row['student_no']) === 8) {
+        $maxSeq = (int) substr($row['student_no'], -4);
+    }
+    $nextSeq = $maxSeq + 1;
+    if ($nextSeq > 9999) {
+        return null;
+    }
+    return $prefix . str_pad((string) $nextSeq, 4, '0', STR_PAD_LEFT);
+}
+
 function ensure_blog_posts_table(mysqli $mysqli): void
 {
     static $checked = false;

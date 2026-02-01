@@ -2,9 +2,11 @@ CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(100) NOT NULL UNIQUE,
     display_name VARCHAR(150) DEFAULT NULL,
+    student_no VARCHAR(8) DEFAULT NULL,
     role ENUM('student', 'admin', 'teacher') NOT NULL DEFAULT 'student',
     password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_student_no (student_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS courses (
