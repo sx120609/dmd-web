@@ -1577,6 +1577,9 @@ if (file_exists($configFile)) {
         const assignImportModalEl = document.getElementById('assignImportModal');
         let userImportModal = null;
         let assignImportModal = null;
+        let activeCloudTargetInputId = null;
+        let activeCloudTargetMode = 'default';
+        let cloudFiles = [];
         const userListEl = document.getElementById('userList');
         const updateUserForm = document.getElementById('updateUserForm');
         const updateUserMessage = document.getElementById('updateUserMessage');
