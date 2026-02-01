@@ -3089,6 +3089,91 @@ if (file_exists($configFile)) {
             });
         }
 
+        // Delete User button
+        if (deleteUserButton) {
+            deleteUserButton.addEventListener('click', async () => {
+                if (!state.selectedUserId) {
+                    setMessage(deleteUserMessage, '请先选择用户', 'error');
+                    return;
+                }
+                const user = state.users.find(u => u.id === state.selectedUserId);
+                const userName = user ? (user.display_name || user.username) : `ID ${state.selectedUserId}`;
+                const confirmed = await showConfirm(`确定删除用户"${userName}"？此操作不可恢复。`, '删除用户');
+                if (!confirmed) return;
+
+                const originalText = deleteUserButton.textContent;
+                deleteUserButton.disabled = true;
+                deleteUserButton.textContent = '删除中...';
+                setMessage(deleteUserMessage, '正在删除用户...', 'info');
+
+                try {
+                    await fetchJSON(`${API_BASE}/users.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: state.selectedUserId, _method: 'DELETE' })
+                    });
+
+                    state.users = state.users.filter(u => u.id !== state.selectedUserId);
+                    state.selectedUserId = state.users.length ? state.users[0].id : null;
+                    refreshUserList();
+                    populateSelect(
+                        assignUserSelect,
+                        state.users,
+                        'id',
+                        (u) => (u.display_name ? `${u.display_name}（${u.username}）` : u.username),
+                        state.selectedUserId || ''
+                    );
+                    selectUser(state.selectedUserId);
+                    setMessage(deleteUserMessage, '用户已删除', 'success');
+                } catch (error) {
+                    setMessage(deleteUserMessage, error.message || '删除失败', 'error');
+                } finally {
+                    deleteUserButton.disabled = false;
+                    deleteUserButton.textContent = originalText;
+                }
+            });
+        }
+
+        // Reset Password button
+        if (resetPasswordButton) {
+            resetPasswordButton.addEventListener('click', async () => {
+                if (!state.selectedUserId) {
+                    setMessage(updateUserMessage, '请先选择用户', 'error');
+                    return;
+                }
+                const newPassword = editPasswordInput ? editPasswordInput.value : '';
+                if (!newPassword) {
+                    setMessage(updateUserMessage, '请先填写新密码', 'error');
+                    return;
+                }
+                const confirmed = await showConfirm('确定重置该用户的密码？', '重置密码');
+                if (!confirmed) return;
+
+                const originalText = resetPasswordButton.textContent;
+                resetPasswordButton.disabled = true;
+                resetPasswordButton.textContent = '重置中...';
+
+                try {
+                    await fetchJSON(`${API_BASE}/users.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: state.selectedUserId,
+                            password: newPassword,
+                            _method: 'PATCH'
+                        })
+                    });
+                    if (editPasswordInput) editPasswordInput.value = '';
+                    setMessage(updateUserMessage, '密码已重置', 'success');
+                } catch (error) {
+                    setMessage(updateUserMessage, error.message || '重置失败', 'error');
+                } finally {
+                    resetPasswordButton.disabled = false;
+                    resetPasswordButton.textContent = originalText;
+                }
+            });
+        }
+
         if (createUserForm) {
             createUserForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
