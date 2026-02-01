@@ -645,12 +645,12 @@
                             <div class="col-lg-6">
                                 <div class="login-panel reveal" data-reveal>
                                     <h4 class="fw-bold mb-3" data-i18n="loginTitle">课堂登录</h4>
-                                    <p class="small text-secondary mb-4" data-i18n="loginDesc">请输入管理员分配的账号登录。</p>
+                                    <p class="small text-secondary mb-4" data-i18n="loginDesc">请输入管理员分配的账号或学号登录。</p>
                                     <form id="loginForm" autocomplete="on">
                                         <div>
-                                            <label for="username" data-i18n="loginUsername">用户名</label>
-                                            <input id="username" name="username" type="text" placeholder="student01"
-                                                required>
+                                            <label for="username" data-i18n="loginUsername">用户名 / 学号</label>
+                                            <input id="username" name="username" type="text" placeholder="学号或用户名"
+                                                required data-i18n-placeholder="loginUsernamePlaceholder">
                                         </div>
                                         <div>
                                             <label for="password" data-i18n="loginPasswordLabel">密码</label>
@@ -793,8 +793,10 @@
                 classroomTitle: '网课入口',
                 classroomDesc: '患儿与家长可在此登录进入课堂；已分配课程的用户将直接跳转至学习页面。',
                 loginTitle: '课堂登录',
-                loginDesc: '请输入管理员分配的账号登录。如果您尚未拥有账户，请联系我们的协调员。',
-                loginUsername: '用户名',
+                loginDesc: '请输入管理员分配的账号或学号登录。如果您尚未拥有账户，请联系我们的协调员。',
+                loginUsername: '用户名 / 学号',
+                loginUsernamePlaceholder: '学号或用户名',
+                loginMissing: '请输入账号/学号和密码',
                 loginPasswordLabel: '密码',
                 loginPasswordPlaceholder: '请输入密码',
                 loginButton: '登录并进入课堂',
@@ -868,8 +870,10 @@
                 classroomTitle: 'Classroom Access',
                 classroomDesc: 'Children and parents log in here; assigned users jump directly to learning.',
                 loginTitle: 'Classroom Login',
-                loginDesc: 'Use the account assigned by administrators. If you need access, contact our coordinator.',
-                loginUsername: 'Username',
+                loginDesc: 'Use the account or student ID assigned by administrators. If you need access, contact our coordinator.',
+                loginUsername: 'Username / Student ID',
+                loginUsernamePlaceholder: 'Username or Student ID',
+                loginMissing: 'Please enter your account or student ID and password',
                 loginPasswordLabel: 'Password',
                 loginPasswordPlaceholder: 'Enter password',
                 loginButton: 'Log in & Enter Classroom',
@@ -1090,7 +1094,7 @@
                 password: formData.get('password')
             };
             if (!payload.username || !payload.password) {
-                showMessage('请输入用户名和密码', 'error');
+                showMessage('', 'error', 'loginMissing');
                 return;
             }
             loginButton.disabled = true;
