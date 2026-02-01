@@ -148,6 +148,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$configExists) {
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/rarelight/favicon.svg">
+    <link rel="shortcut icon" href="/rarelight/favicon.svg">
     <title>安装 - 简易录播课系统</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f5f6f8; padding: 40px; }

@@ -645,6 +645,12 @@ if (file_exists($configFile)) {
                     <i class="bi bi-box-arrow-right"></i>
                 </button>
             </div>
+
+            <div class="nav-actions d-flex d-md-none align-items-center gap-2">
+                <a class="nav-btn nav-btn-primary" href="/rarelight/dashboard">
+                    <i class="bi bi-collection-play-fill me-1"></i> 返回课堂
+                </a>
+            </div>
         </div>
     </nav>
 
