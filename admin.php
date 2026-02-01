@@ -3553,6 +3553,43 @@ if (file_exists($configFile)) {
             document.body.style.paddingRight = '';
         }
 
+        // Cloud Picker Button listeners
+        document.querySelectorAll('.cloud-picker-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.dataset.targetInput;
+                const mode = btn.dataset.cloudMode || 'default';
+                if (targetId) {
+                    openCloudPicker(targetId, mode);
+                }
+            });
+        });
+
+        // Back to Dashboard button
+        const backButton = document.getElementById('backButton');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                window.location.href = '/rarelight/dashboard';
+            });
+        }
+
+        // Logout button
+        const logoutButton = document.getElementById('logoutButton');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    await fetch(`${API_BASE}/logout.php`, { method: 'POST', credentials: 'include' });
+                } catch (e) { /* ignore */ }
+                window.location.href = '/rarelight/login';
+            });
+        }
+
+        // Cloud Upload button
+        if (cloudUploadButton && cloudUploadInput) {
+            cloudUploadButton.addEventListener('click', () => {
+                uploadToCloud(cloudUploadInput.files);
+            });
+        }
+
         loadInitialData();
 
         // Clear up dangling backdrops occasionally
