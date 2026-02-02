@@ -467,7 +467,7 @@ if (file_exists($configFile)) {
                 </div>
 
                 <a class="nav-btn nav-btn-ghost d-none d-sm-inline-flex" href="/rarelight/" data-i18n="navHome">返回首页</a>
-                <a class="nav-btn nav-btn-primary ms-2" href="/rarelight/dashboard">
+                <a class="nav-btn nav-btn-primary ms-2" href="/rarelight/dashboard" data-classroom-link>
                     <i class="bi bi-grid-fill me-2"></i><span data-i18n="navLogin">进入课堂</span>
                 </a>
             </div>
@@ -548,11 +548,16 @@ if (file_exists($configFile)) {
     <div class="mobile-bottom-nav">
         <button class="nav-btn nav-btn-ghost" id="mobileLangToggle"><i class="bi bi-translate"></i></button>
         <a class="nav-btn nav-btn-ghost" href="/rarelight/" data-i18n="navHome">返回首页</a>
-        <a class="nav-btn nav-btn-primary flex-grow-1" href="/rarelight/dashboard" data-i18n="navLogin">进入课堂</a>
+        <a class="nav-btn nav-btn-primary flex-grow-1" href="/rarelight/dashboard" data-classroom-link
+            data-i18n="navLogin">进入课堂</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        const BASE_PATH = '/rarelight';
+        const API_BASE = `${BASE_PATH}/api`;
+        const ROUTE_DASHBOARD = `${BASE_PATH}/dashboard`;
+        const ROUTE_CLASSROOM = `${BASE_PATH}/#classroom`;
         const FONT_KEY = 'rl_font_scale';
         const LANG_KEY = 'rl_lang';
         const htmlEl = document.documentElement;
@@ -561,6 +566,7 @@ if (file_exists($configFile)) {
         const fontLargerBtn = document.getElementById('fontLarger');
         const langToggle = document.getElementById('langToggle');
         const mobileLangToggle = document.getElementById('mobileLangToggle');
+        const classroomLinks = document.querySelectorAll('[data-classroom-link]');
         let currentFontScale = 1;
         let currentLang = localStorage.getItem(LANG_KEY) || 'zh';
 
@@ -641,6 +647,31 @@ if (file_exists($configFile)) {
             if (mobileLangToggle) mobileLangToggle.addEventListener('click', toggleHandler);
         }
 
+        function updateClassroomLinks(target) {
+            classroomLinks.forEach((link) => {
+                link.href = target;
+            });
+        }
+
+        async function checkSession() {
+            if (!classroomLinks.length) return;
+            try {
+                const response = await fetch(`${API_BASE}/session.php`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await response.json().catch(() => null);
+                if (response.ok && data && data.user) {
+                    updateClassroomLinks(ROUTE_DASHBOARD);
+                } else {
+                    updateClassroomLinks(ROUTE_CLASSROOM);
+                }
+            } catch (error) {
+                updateClassroomLinks(ROUTE_CLASSROOM);
+            }
+        }
+
         // Typewriter effect
         function typeWriter(element, text, speed = 50) {
             let i = 0;
@@ -672,6 +703,7 @@ if (file_exists($configFile)) {
 
         initFontControls();
         initLangToggle();
+        checkSession();
         initTypewriter();
     </script>
 </body>

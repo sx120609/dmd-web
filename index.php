@@ -723,7 +723,8 @@
             style="display: flex; gap: 10px; align-items: center; justify-content: space-around;">
             <button class="nav-btn nav-btn-ghost" id="mobileLangToggle"><i class="bi bi-translate"></i></button>
             <a class="nav-btn nav-btn-ghost" href="/rarelight/blog" data-i18n="navProjectLog">日志</a>
-            <a class="nav-btn nav-btn-primary flex-grow-1" href="#classroom" data-i18n="navLogin">进入网课</a>
+            <a class="nav-btn nav-btn-primary flex-grow-1" href="#classroom" data-classroom-link
+                data-i18n="navLogin">进入网课</a>
         </div>
     </div>
 
