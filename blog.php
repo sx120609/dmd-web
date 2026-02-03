@@ -524,8 +524,10 @@ if (file_exists($configFile)) {
                                 <span class="meta-tag"><?php echo htmlspecialchars($author, ENT_QUOTES, 'UTF-8'); ?></span>
                             </div>
 
-                            <h3 class="card-title">
-                                <?php echo htmlspecialchars($post['title'] ?? '无标题日志', ENT_QUOTES, 'UTF-8'); ?>
+                            <?php $titleText = $post['title'] ?? '无标题日志'; ?>
+                            <h3 class="card-title" data-title-zh="<?php echo htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8'); ?>"
+                                data-post-id="<?php echo (int) $post['id']; ?>">
+                                <?php echo htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8'); ?>
                             </h3>
 
                             <p class="card-summary"<?php if ($hasDefaultSummary): ?> data-i18n="defaultSummary"<?php endif; ?>>
@@ -560,6 +562,10 @@ if (file_exists($configFile)) {
         const ROUTE_CLASSROOM = `${BASE_PATH}/#classroom`;
         const FONT_KEY = 'rl_font_scale';
         const LANG_KEY = 'rl_lang';
+        const TITLE_CACHE_KEY = 'rl_blog_title_en_cache';
+        const TITLE_TRANSLATE_ENDPOINT = 'https://api.mymemory.translated.net/get';
+        const TITLE_TRANSLATE_SOURCE_LANG = 'zh-CN';
+        const TITLE_TRANSLATE_TARGET_LANG = 'en';
         const htmlEl = document.documentElement;
         const fontSmallerBtn = document.getElementById('fontSmaller');
         const fontResetBtn = document.getElementById('fontReset');
@@ -569,6 +575,7 @@ if (file_exists($configFile)) {
         const classroomLinks = document.querySelectorAll('[data-classroom-link]');
         let currentFontScale = 1;
         let currentLang = localStorage.getItem(LANG_KEY) || 'zh';
+        let titleCache = loadTitleCache();
 
         const i18n = {
             zh: {
@@ -635,6 +642,7 @@ if (file_exists($configFile)) {
 
             const langText = lang === 'zh' ? '<i class="bi bi-translate me-1"></i> 中文 / EN' : '<i class="bi bi-translate me-1"></i> EN / 中文';
             if (langToggle) langToggle.innerHTML = langText;
+            applyTitleTranslations(lang);
         }
 
         function initLangToggle() {
@@ -645,6 +653,78 @@ if (file_exists($configFile)) {
             };
             if (langToggle) langToggle.addEventListener('click', toggleHandler);
             if (mobileLangToggle) mobileLangToggle.addEventListener('click', toggleHandler);
+        }
+
+        function loadTitleCache() {
+            try {
+                const raw = localStorage.getItem(TITLE_CACHE_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function saveTitleCache(cache) {
+            try {
+                localStorage.setItem(TITLE_CACHE_KEY, JSON.stringify(cache));
+            } catch (error) {
+                // Ignore quota or serialization errors
+            }
+        }
+
+        function shouldTranslateTitle(text) {
+            return /[\u4e00-\u9fff]/.test(text);
+        }
+
+        async function translateTitle(text) {
+            const params = new URLSearchParams({
+                q: text,
+                langpair: `${TITLE_TRANSLATE_SOURCE_LANG}|${TITLE_TRANSLATE_TARGET_LANG}`
+            });
+            const url = `${TITLE_TRANSLATE_ENDPOINT}?${params.toString()}`;
+            const response = await fetch(url, { method: 'GET' });
+            const data = await response.json().catch(() => null);
+            if (!response.ok || !data || !data.responseData || typeof data.responseData.translatedText !== 'string') {
+                return null;
+            }
+            return data.responseData.translatedText.trim();
+        }
+
+        async function applyTitleTranslations(lang) {
+            const titleEls = document.querySelectorAll('[data-title-zh]');
+            if (!titleEls.length) return;
+
+            if (lang !== 'en') {
+                titleEls.forEach((el) => {
+                    const original = el.dataset.titleZh || el.textContent;
+                    if (original) {
+                        el.textContent = original;
+                    }
+                });
+                return;
+            }
+
+            const tasks = Array.from(titleEls).map(async (el) => {
+                const original = el.dataset.titleZh || el.textContent || '';
+                if (!original || !shouldTranslateTitle(original)) {
+                    el.textContent = original;
+                    return;
+                }
+                const postId = el.dataset.postId || '0';
+                const cacheKey = `${postId}::${original}`;
+                if (titleCache[cacheKey]) {
+                    el.textContent = titleCache[cacheKey];
+                    return;
+                }
+                const translated = await translateTitle(original);
+                if (translated) {
+                    el.textContent = translated;
+                    titleCache[cacheKey] = translated;
+                    saveTitleCache(titleCache);
+                }
+            });
+
+            await Promise.all(tasks);
         }
 
         function updateClassroomLinks(target) {
