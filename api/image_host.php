@@ -181,12 +181,20 @@ if ($imageInfo === false) {
     error_response('仅支持图片文件');
 }
 
-$finfo = finfo_open(FILEINFO_MIME_TYPE);
-$detectedMime = $finfo ? (string) finfo_file($finfo, $tmpName) : '';
-if ($finfo) {
-    finfo_close($finfo);
+$detectedMime = '';
+if (function_exists('finfo_open')) {
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    if ($finfo) {
+        $detectedMime = (string) finfo_file($finfo, $tmpName);
+        finfo_close($finfo);
+    }
 }
-
+if (($detectedMime === '' || strpos($detectedMime, 'image/') !== 0) && function_exists('mime_content_type')) {
+    $detectedMime = (string) mime_content_type($tmpName);
+}
+if (($detectedMime === '' || strpos($detectedMime, 'image/') !== 0) && is_array($imageInfo) && !empty($imageInfo['mime'])) {
+    $detectedMime = (string) $imageInfo['mime'];
+}
 if (strpos($detectedMime, 'image/') !== 0) {
     error_response('仅支持图片文件');
 }
