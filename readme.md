@@ -63,6 +63,10 @@ uploads/files         # 云盘目录（需可写）
 uploads/images        # 图床目录（需可写）
 ```
 
+## API 文档
+
+- 详见：`api-docs.md`
+
 ## Nginx 重写示例
 
 ```nginx
