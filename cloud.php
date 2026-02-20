@@ -509,6 +509,8 @@
                 ...options
             });
             const rawText = await response.text();
+            const contentType = (response.headers.get('content-type') || '').toLowerCase();
+            const preview = (rawText || '').trim().slice(0, 200);
             let data = null;
             if (rawText) {
                 try {
@@ -518,11 +520,12 @@
                 }
             }
             if (!response.ok) {
-                const message = (data && (data.message || data.error)) || rawText || '请求失败';
+                const message = (data && (data.message || data.error)) || rawText || `请求失败（HTTP ${response.status}）`;
                 throw new Error(message);
             }
             if (!data || typeof data !== 'object') {
-                throw new Error('接口未返回有效 JSON，请检查服务端配置或错误日志');
+                const suffix = preview ? `，响应片段：${preview}` : '';
+                throw new Error(`接口未返回有效 JSON（HTTP ${response.status}, Content-Type: ${contentType || 'unknown'}）${suffix}`);
             }
             return data;
         }
