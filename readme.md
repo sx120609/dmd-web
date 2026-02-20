@@ -24,7 +24,7 @@
 3. 首次访问 `/rarelight/install`（或 `/rarelight/install.php`），填写数据库与管理员信息，脚本会创建表结构并生成 `config.php`。
    - 如需手动配置，可复制 `config.example.php` 为 `config.php`，填好数据库信息后执行 `database.sql`，并手动创建可写的 `uploads/files`。
    - 云盘可在 `config.php` 的 `storage` 下设置 `cloud_dir`（存储目录）、`public_prefix`/`public_base_path`（静态前缀）、`nginx_internal_prefix`（内部跳转）。
-   - 图床可设置 `storage.image_dir`/`storage.image_public_prefix`，以及 `image_bed.api_token`（请求头 `X-Image-Token`）用于免登录 API 上传。
+   - 图床可设置 `storage.image_dir`/`storage.image_public_prefix`/`storage.public_base_url`，以及 `image_bed.api_token`（请求头 `X-Image-Token`）用于免登录 API 上传。
 4. 安装完成后删除 `install.php`，使用管理员账号登录后台；学生访问 `/rarelight/dashboard` 开始学习。
 
 常用路由：

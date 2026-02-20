@@ -304,9 +304,11 @@ const data = await res.json();
   'cloud_dir' => '/path/to/uploads/files',
   'public_prefix' => '/uploads/files',
   'public_base_path' => '/rarelight',
+  'public_base_url' => 'https://organic.cpu.edu.cn',
   'nginx_internal_prefix' => '/protected/files',
   'image_dir' => '/path/to/uploads/images',
   'image_public_prefix' => '/uploads/images',
 ]
 ```
 
+其中 `storage.public_base_url` 用于图床接口返回绝对 URL 的域名（反向代理场景强烈建议配置）。

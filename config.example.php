@@ -18,6 +18,7 @@ return [
     // 'storage' => [
     //     'cloud_dir' => '/path/to/writable/uploads/files',
     //     'image_dir' => '/path/to/writable/uploads/images',
+    //     'public_base_url' => 'https://organic.cpu.edu.cn',
     //     'image_public_prefix' => '/uploads/images',
     // ],
 ];

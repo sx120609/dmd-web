@@ -69,6 +69,22 @@ function app_base_path(array $storageConfig): string
     return $appBasePath;
 }
 
+function normalize_public_base_url($value): string
+{
+    if (!is_string($value)) {
+        return '';
+    }
+    $value = trim($value);
+    if ($value === '') {
+        return '';
+    }
+    $value = rtrim($value, '/');
+    if (preg_match('~^https?://~i', $value)) {
+        return $value;
+    }
+    return 'https://' . ltrim($value, '/');
+}
+
 function build_public_urls(array $storageConfig, string $storedName): array
 {
     $appBasePath = app_base_path($storageConfig);
@@ -76,6 +92,22 @@ function build_public_urls(array $storageConfig, string $storedName): array
     $relativeUrl = ($appBasePath ? $appBasePath : '') . '/' . ltrim($publicPrefix, '/');
     $relativeUrl = preg_replace('~/{2,}~', '/', rtrim($relativeUrl, '/'));
     $relativeUrl .= '/' . rawurlencode($storedName);
+
+    $configuredBaseUrl = normalize_public_base_url($storageConfig['public_base_url'] ?? '');
+    if ($configuredBaseUrl !== '') {
+        return [
+            'relative' => $relativeUrl,
+            'absolute' => $configuredBaseUrl . $relativeUrl
+        ];
+    }
+
+    $origin = trim((string) ($_SERVER['HTTP_ORIGIN'] ?? ''));
+    if ($origin !== '' && preg_match('~^https?://[^/]+$~i', $origin)) {
+        return [
+            'relative' => $relativeUrl,
+            'absolute' => rtrim($origin, '/') . $relativeUrl
+        ];
+    }
 
     $forwardedProto = trim((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
     $scheme = $forwardedProto !== '' ? strtolower(trim(explode(',', $forwardedProto)[0])) : '';
