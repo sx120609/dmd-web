@@ -247,9 +247,20 @@
             overflow: hidden;
         }
 
+        .image-upload-button {
+            min-width: 220px;
+        }
+
         @media (max-width: 992px) {
             .nav-actions {
                 display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .image-upload-button {
+                width: 100%;
+                min-width: 0;
             }
         }
     </style>
@@ -376,20 +387,17 @@
                         </div>
                         <div class="panel-body">
                             <form id="imageUploadForm" class="d-flex flex-column gap-3">
-                                <div class="row g-3 align-items-end">
-                                    <div class="col-12 col-lg-8">
-                                        <label for="imageInput" class="form-label small fw-bold text-muted">选择图片</label>
-                                        <input class="form-control" type="file" id="imageInput" name="image"
-                                            accept="image/*" required>
-                                        <div class="form-text">仅上传图片，上传后返回直链 URL。</div>
-                                    </div>
-                                    <div class="col-12 col-lg-4">
-                                        <button type="submit"
-                                            class="nav-btn nav-btn-primary w-100 justify-content-center py-2"
-                                            id="imageUploadButton">
-                                            <i class="bi bi-image me-1"></i> 上传并生成链接
-                                        </button>
-                                    </div>
+                                <div>
+                                    <label for="imageInput" class="form-label small fw-bold text-muted">选择图片</label>
+                                    <input class="form-control" type="file" id="imageInput" name="image" accept="image/*"
+                                        required>
+                                    <div class="form-text">仅上传图片，上传后返回直链 URL。</div>
+                                </div>
+                                <div class="d-flex">
+                                    <button type="submit" class="nav-btn nav-btn-primary justify-content-center py-2 px-4 image-upload-button"
+                                        id="imageUploadButton">
+                                        <i class="bi bi-image me-1"></i> 上传并生成链接
+                                    </button>
                                 </div>
                                 <div class="small text-secondary">
                                     API：<code>POST /rarelight/api/image_host</code>，上传字段支持 <code>image</code> 或
