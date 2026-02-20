@@ -904,13 +904,16 @@
                         method: 'POST',
                         body: formData
                     });
-                    const url = (data && data.url) || buildAbsoluteUrl((data && data.relative_url) || '');
+                    const rawUrl = (data && data.url) || buildAbsoluteUrl((data && data.relative_url) || '');
+                    const url = typeof rawUrl === 'string' ? rawUrl.trim() : '';
                     if (!url) {
                         throw new Error('接口未返回图片链接');
                     }
                     setImageResult(url);
                     setMessage(imageUploadMessage, '上传成功，已生成图片 URL', 'success');
-                    imageUploadForm.reset();
+                    if (imageInput) {
+                        imageInput.value = '';
+                    }
                 } catch (error) {
                     setMessage(imageUploadMessage, error.message || '图片上传失败', 'error');
                     setImageResult('');
