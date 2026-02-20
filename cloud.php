@@ -366,6 +366,50 @@
                     <div class="message mt-2" id="listMessage" hidden></div>
                 </div>
             </div>
+
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="panel-glass">
+                        <div class="panel-header">
+                            <h3 class="panel-title"><i class="bi bi-images text-primary"></i> 图床上传</h3>
+                            <span class="rl-badge">独立 API</span>
+                        </div>
+                        <div class="panel-body">
+                            <form id="imageUploadForm" class="d-flex flex-column gap-3">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-12 col-lg-8">
+                                        <label for="imageInput" class="form-label small fw-bold text-muted">选择图片</label>
+                                        <input class="form-control" type="file" id="imageInput" name="image"
+                                            accept="image/*" required>
+                                        <div class="form-text">仅上传图片，上传后返回直链 URL。</div>
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <button type="submit"
+                                            class="nav-btn nav-btn-primary w-100 justify-content-center py-2"
+                                            id="imageUploadButton">
+                                            <i class="bi bi-image me-1"></i> 上传并生成链接
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="small text-secondary">
+                                    API：<code>POST /rarelight/api/image_host</code>，上传字段支持 <code>image</code> 或
+                                    <code>file</code>。
+                                </div>
+                                <div class="message small" id="imageUploadMessage" hidden></div>
+                                <div class="border rounded p-3 bg-white" id="imageResultWrap" hidden>
+                                    <div class="small text-secondary mb-2">图片 URL</div>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="imageUrlOutput" readonly>
+                                        <button type="button" class="btn btn-outline-secondary" id="copyImageUrlButton">
+                                            复制
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -376,6 +420,7 @@
         const sessionEndpoint = `${API_BASE}/session.php`;
         const filesEndpoint = `${API_BASE}/files.php`;
         const filesMultipartEndpoint = `${API_BASE}/files_multipart.php`;
+        const imageHostEndpoint = `${API_BASE}/image_host.php`;
         const ROUTE_LOGIN = `${BASE_PATH}/login`;
         const ROUTE_DASHBOARD = `${BASE_PATH}/dashboard`;
 
@@ -410,6 +455,13 @@
         const prevPageButton = document.getElementById('prevPage');
         const nextPageButton = document.getElementById('nextPage');
         const pageSummary = document.getElementById('pageSummary');
+        const imageUploadForm = document.getElementById('imageUploadForm');
+        const imageInput = document.getElementById('imageInput');
+        const imageUploadButton = document.getElementById('imageUploadButton');
+        const imageUploadMessage = document.getElementById('imageUploadMessage');
+        const imageResultWrap = document.getElementById('imageResultWrap');
+        const imageUrlOutput = document.getElementById('imageUrlOutput');
+        const copyImageUrlButton = document.getElementById('copyImageUrlButton');
 
         const PAGE_SIZE = 6;
         let paginationState = {
@@ -486,6 +538,13 @@
             if (uploadProgressText) {
                 uploadProgressText.textContent = '';
             }
+        }
+
+        function setImageResult(url = '') {
+            if (!imageResultWrap || !imageUrlOutput) return;
+            const hasUrl = Boolean(url);
+            imageResultWrap.hidden = !hasUrl;
+            imageUrlOutput.value = hasUrl ? url : '';
         }
 
         async function hashString(input) {
@@ -810,6 +869,60 @@
                 uploadButton.disabled = false;
             }
         });
+
+        if (imageUploadForm) {
+            imageUploadForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const file = imageInput && imageInput.files ? imageInput.files[0] : null;
+                if (!file) {
+                    setMessage(imageUploadMessage, '请选择图片', 'error');
+                    return;
+                }
+                if (imageUploadButton) {
+                    imageUploadButton.disabled = true;
+                }
+                setImageResult('');
+                setMessage(imageUploadMessage, '正在上传图片...');
+                try {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    const data = await fetchJSON(imageHostEndpoint, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const url = data.url || buildAbsoluteUrl(data.relative_url || '');
+                    if (!url) {
+                        throw new Error('接口未返回图片链接');
+                    }
+                    setImageResult(url);
+                    setMessage(imageUploadMessage, '上传成功，已生成图片 URL', 'success');
+                    imageUploadForm.reset();
+                } catch (error) {
+                    setMessage(imageUploadMessage, error.message || '图片上传失败', 'error');
+                    setImageResult('');
+                } finally {
+                    if (imageUploadButton) {
+                        imageUploadButton.disabled = false;
+                    }
+                }
+            });
+        }
+
+        if (copyImageUrlButton) {
+            copyImageUrlButton.addEventListener('click', async () => {
+                const url = imageUrlOutput ? imageUrlOutput.value.trim() : '';
+                if (!url) {
+                    setMessage(imageUploadMessage, '暂无可复制的链接', 'error');
+                    return;
+                }
+                try {
+                    await navigator.clipboard.writeText(url);
+                    setMessage(imageUploadMessage, '图片链接已复制', 'success');
+                } catch (error) {
+                    setMessage(imageUploadMessage, '复制失败，请手动复制', 'error');
+                }
+            });
+        }
 
         logoutButton.addEventListener('click', async () => {
             try {

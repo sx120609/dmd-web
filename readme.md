@@ -11,6 +11,7 @@
 - **后台运营**：后台切换用户/课程/课节/课程分配四个视图；课节与课程更新实时保存，删除级联清理课节与分配记录；教师被分配或拥有的课程才能编辑。
 - **批量导入与分配**：CSV 模板字段 `username,display_name,password,role,entry_year,entry_term`（学员可生成学号），支持 student/admin/teacher，逐行错误提示；管理员可为任意用户分配/移除课程。
 - **云盘与外链**：管理员/老师可批量上传，支持分片断点续传（150MB 分片、按文件 hash 断点续传）；文件分页列表、删除、外链开关；随机令牌外链、强制附件下载、上传类型白名单。
+- **图床（独立功能）**：云盘页内置独立图床模块，支持 `POST /api/image_host` 上传单张图片并返回可访问 URL；可选 API Token 免登录调用。
 - **项目日志（公众号文章）**：后台维护公众号文章链接（标题/链接/日期/摘要/作者/标签），对外展示页以卡片形式呈现。
 - **安全与体验**：Session Cookie HttpOnly + SameSite=Lax（HTTPS 自动 Secure），课堂/后台/云盘均适配移动端；支持自定义存储目录、反代前缀、Nginx 内部转发以保护真实路径。
 
@@ -23,6 +24,7 @@
 3. 首次访问 `/rarelight/install`（或 `/rarelight/install.php`），填写数据库与管理员信息，脚本会创建表结构并生成 `config.php`。
    - 如需手动配置，可复制 `config.example.php` 为 `config.php`，填好数据库信息后执行 `database.sql`，并手动创建可写的 `uploads/files`。
    - 云盘可在 `config.php` 的 `storage` 下设置 `cloud_dir`（存储目录）、`public_prefix`/`public_base_path`（静态前缀）、`nginx_internal_prefix`（内部跳转）。
+   - 图床可设置 `storage.image_dir`/`storage.image_public_prefix`，以及 `image_bed.api_token`（请求头 `X-Image-Token`）用于免登录 API 上传。
 4. 安装完成后删除 `install.php`，使用管理员账号登录后台；学生访问 `/rarelight/dashboard` 开始学习。
 
 常用路由：
@@ -31,7 +33,7 @@
 - `/rarelight/admin` → 管理后台
 - `/rarelight/cloud` → 云盘
 - `/rarelight/blog` → 项目日志
-- `/rarelight/api/<name>` → 对应接口（login、logout、session、users、users_import、courses、lessons、course_assignments、course_assignments_import、files、files_multipart、blog_posts）
+- `/rarelight/api/<name>` → 对应接口（login、logout、session、users、users_import、courses、lessons、course_assignments、course_assignments_import、files、files_multipart、image_host、blog_posts）
 
 ## 目录结构
 
@@ -53,10 +55,12 @@ api/
 ├─ course_assignments.php  # 课程分配
 ├─ blog_posts.php          # 公众号文章管理
 ├─ files.php               # 云盘上传/列表/删除/外链
+├─ image_host.php          # 图床上传（返回图片 URL）
 └─ files_multipart.php     # 分片断点续传
 database.sql          # 建表 SQL
 config.example.php    # 配置示例
 uploads/files         # 云盘目录（需可写）
+uploads/images        # 图床目录（需可写）
 ```
 
 ## Nginx 重写示例
@@ -67,6 +71,11 @@ location ^~ /rarelight/uploads/files/ {
     alias /www/wwwroot/rarelight.cpu.edu.cn/dmd-web/uploads/files/;
     add_header Accept-Ranges bytes;
     add_header Cache-Control "private, max-age=3600";
+}
+
+location ^~ /rarelight/uploads/images/ {
+    alias /www/wwwroot/rarelight.cpu.edu.cn/dmd-web/uploads/images/;
+    add_header Cache-Control "public, max-age=31536000, immutable";
 }
 
 location ^~ /rarelight/ {
