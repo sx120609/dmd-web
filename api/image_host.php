@@ -2,6 +2,9 @@
 require __DIR__ . '/bootstrap.php';
 ensure_teacher_role_enum($mysqli);
 
+$storageConfig = (isset($config['storage']) && is_array($config['storage'])) ? $config['storage'] : [];
+$imageBedConfig = (isset($config['image_bed']) && is_array($config['image_bed'])) ? $config['image_bed'] : [];
+
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($method !== 'POST') {
     error_response('仅支持 POST 上传', 405);
@@ -47,9 +50,9 @@ function upload_error_text(int $errorCode): string
     }
 }
 
-function app_base_path(array $config): string
+function app_base_path(array $storageConfig): string
 {
-    $basePathOverride = $config['storage']['public_base_path'] ?? '';
+    $basePathOverride = $storageConfig['public_base_path'] ?? '';
     $forwardedPrefix = $_SERVER['HTTP_X_FORWARDED_PREFIX'] ?? '';
     if (is_string($basePathOverride) && trim($basePathOverride) !== '') {
         return '/' . trim($basePathOverride, '/');
@@ -66,10 +69,10 @@ function app_base_path(array $config): string
     return $appBasePath;
 }
 
-function build_public_urls(array $config, string $storedName): array
+function build_public_urls(array $storageConfig, string $storedName): array
 {
-    $appBasePath = app_base_path($config);
-    $publicPrefix = $config['storage']['image_public_prefix'] ?? '/uploads/images';
+    $appBasePath = app_base_path($storageConfig);
+    $publicPrefix = $storageConfig['image_public_prefix'] ?? '/uploads/images';
     $relativeUrl = ($appBasePath ? $appBasePath : '') . '/' . ltrim($publicPrefix, '/');
     $relativeUrl = preg_replace('~/{2,}~', '/', rtrim($relativeUrl, '/'));
     $relativeUrl .= '/' . rawurlencode($storedName);
@@ -111,12 +114,12 @@ function has_valid_image_token(string $expectedToken): bool
     return hash_equals($expectedToken, $provided);
 }
 
-$imageToken = trim((string) ($config['image_bed']['api_token'] ?? ''));
+$imageToken = trim((string) ($imageBedConfig['api_token'] ?? ''));
 if (!has_valid_image_token($imageToken)) {
     require_admin_or_teacher($mysqli);
 }
 
-$configuredStorage = $config['storage']['image_dir'] ?? null;
+$configuredStorage = $storageConfig['image_dir'] ?? null;
 if (is_string($configuredStorage) && trim($configuredStorage) !== '') {
     $storageDir = $configuredStorage;
     $isAbsolute = ($storageDir[0] ?? '') === '/' || preg_match('~^[A-Za-z]:[\\\\/]~', $storageDir);
@@ -159,7 +162,7 @@ if ($error !== UPLOAD_ERR_OK) {
     error_response(upload_error_text($error));
 }
 
-$maxSize = (int) ($config['image_bed']['max_size_bytes'] ?? (20 * 1024 * 1024));
+$maxSize = (int) ($imageBedConfig['max_size_bytes'] ?? (20 * 1024 * 1024));
 $size = (int) ($file['size'] ?? 0);
 if ($size <= 0) {
     error_response('无效图片大小');
@@ -209,7 +212,7 @@ if (!move_uploaded_file($tmpName, $targetPath)) {
     error_response('保存图片失败');
 }
 
-$urls = build_public_urls($config, $storedName);
+$urls = build_public_urls($storageConfig, $storedName);
 json_response([
     'url' => $urls['absolute'],
     'relative_url' => $urls['relative'],

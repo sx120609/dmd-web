@@ -508,10 +508,21 @@
                 },
                 ...options
             });
-            const data = await response.json().catch(() => null);
+            const rawText = await response.text();
+            let data = null;
+            if (rawText) {
+                try {
+                    data = JSON.parse(rawText);
+                } catch (e) {
+                    data = null;
+                }
+            }
             if (!response.ok) {
-                const message = (data && (data.message || data.error)) || '请求失败';
+                const message = (data && (data.message || data.error)) || rawText || '请求失败';
                 throw new Error(message);
+            }
+            if (!data || typeof data !== 'object') {
+                throw new Error('接口未返回有效 JSON，请检查服务端配置或错误日志');
             }
             return data;
         }
@@ -890,7 +901,7 @@
                         method: 'POST',
                         body: formData
                     });
-                    const url = data.url || buildAbsoluteUrl(data.relative_url || '');
+                    const url = (data && data.url) || buildAbsoluteUrl((data && data.relative_url) || '');
                     if (!url) {
                         throw new Error('接口未返回图片链接');
                     }
