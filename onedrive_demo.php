@@ -147,6 +147,9 @@
                     <div class="border rounded p-3 bg-light">
                         <div class="small-label mb-2">配置状态</div>
                         <div id="configSummary" class="small text-secondary">尚未加载</div>
+                        <div class="small mt-2">
+                            <a id="setupFallbackLink" href="/rarelight/api/onedrive_demo.php?action=setup_form">打开原生配置表单</a>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -219,6 +222,7 @@
         const appConfigForm = document.getElementById('appConfigForm');
         const configCloudInput = document.getElementById('configCloudInput');
         const configRedirectInput = document.getElementById('configRedirectInput');
+        const setupFallbackLink = document.getElementById('setupFallbackLink');
 
         let config = null;
 
@@ -231,6 +235,7 @@
             configCloudInput.value = cloudSelect.value;
             configRedirectInput.value = browserCallbackUrl();
             appConfigForm.action = `${BASE_PATH}/api/onedrive_demo.php?action=save_app_config&cloud=${encodeURIComponent(cloudSelect.value)}&redirect_uri=${encodeURIComponent(browserCallbackUrl())}`;
+            setupFallbackLink.href = `${BASE_PATH}/api/onedrive_demo.php?action=setup_form&cloud=${encodeURIComponent(cloudSelect.value)}&redirect_uri=${encodeURIComponent(browserCallbackUrl())}`;
         }
 
         function print(data) {

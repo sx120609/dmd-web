@@ -288,6 +288,37 @@ if ($action === 'callback') {
 
 $cloud = trim((string) ($_POST['cloud'] ?? $_GET['cloud'] ?? $jsonInput['cloud'] ?? 'global'));
 
+if ($action === 'setup_form') {
+    $currentUser = require_admin_or_teacher($mysqli);
+    $cloudConfig = od_demo_config_for_cloud($config, $clouds, $cloud);
+    $callback = htmlspecialchars(od_demo_callback_url(), ENT_QUOTES, 'UTF-8');
+    $clientId = htmlspecialchars($cloudConfig['client_id'], ENT_QUOTES, 'UTF-8');
+    $tenant = htmlspecialchars($cloudConfig['tenant'] ?: 'common', ENT_QUOTES, 'UTF-8');
+    $scope = htmlspecialchars($cloudConfig['scope'], ENT_QUOTES, 'UTF-8');
+    $checkedGlobal = $cloud === 'global' ? 'selected' : '';
+    $checkedChina = $cloud === 'china' ? 'selected' : '';
+    header('Content-Type: text/html; charset=utf-8');
+    echo <<<HTML
+<!doctype html>
+<meta charset="utf-8">
+<title>OneDrive Demo 配置</title>
+<body style="font-family:system-ui,sans-serif;max-width:820px;margin:32px auto;padding:0 16px">
+<h1>OneDrive / SharePoint Demo 配置</h1>
+<form method="post" action="/rarelight/api/onedrive_demo.php?action=save_app_config">
+  <p><label>云环境<br><select name="cloud"><option value="global" {$checkedGlobal}>国际版</option><option value="china" {$checkedChina}>世纪互联</option></select></label></p>
+  <p><label>Redirect URI<br><input name="redirect_uri" value="{$callback}" style="width:100%;box-sizing:border-box"></label></p>
+  <p><label>Application (client) ID<br><input name="client_id" value="{$clientId}" required style="width:100%;box-sizing:border-box"></label></p>
+  <p><label>Client secret Value<br><input name="client_secret" type="password" autocomplete="new-password" style="width:100%;box-sizing:border-box"></label></p>
+  <p><label>Tenant<br><input name="tenant" value="{$tenant}" style="width:100%;box-sizing:border-box"></label></p>
+  <p><label>Scope<br><textarea name="scope" rows="4" style="width:100%;box-sizing:border-box">{$scope}</textarea></label></p>
+  <button type="submit" style="padding:10px 16px">保存配置</button>
+</form>
+<p><a href="/rarelight/onedrive-demo">返回 demo 页面</a></p>
+</body>
+HTML;
+    exit;
+}
+
 if ($action === 'config') {
     $user = current_user($mysqli);
     $cloudPayload = [];
@@ -360,6 +391,11 @@ if ($action === 'save_app_config') {
     ];
     od_demo_save_config_file($configFile, $config);
     unset($_SESSION[od_demo_token_key($cloud)]);
+    if (stripos((string) ($_SERVER['HTTP_ACCEPT'] ?? ''), 'text/html') !== false && empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!doctype html><meta charset="utf-8"><title>保存完成</title><body style="font-family:system-ui,sans-serif;padding:32px"><h2>配置已保存</h2><p><a href="/rarelight/onedrive-demo">返回 OneDrive / SharePoint Demo</a></p></body>';
+        exit;
+    }
     json_response([
         'ok' => true,
         'cloud' => $cloud,
