@@ -95,6 +95,26 @@ function od_demo_config_for_cloud(array $config, array $clouds, string $cloud): 
     ]);
 }
 
+function od_demo_mask_secret(string $secret): string
+{
+    if ($secret === '') {
+        return '';
+    }
+    if (strlen($secret) <= 8) {
+        return str_repeat('*', strlen($secret));
+    }
+    return substr($secret, 0, 3) . str_repeat('*', max(4, strlen($secret) - 7)) . substr($secret, -4);
+}
+
+function od_demo_save_config_file(string $configFile, array $config): void
+{
+    $export = var_export($config, true);
+    $content = "<?php\nreturn " . $export . ";\n";
+    if (@file_put_contents($configFile, $content, LOCK_EX) === false) {
+        error_response('无法写入 config.php，请检查文件权限', 500);
+    }
+}
+
 function od_demo_token_key(string $cloud): string
 {
     return 'onedrive_demo_token_' . $cloud;
@@ -279,6 +299,9 @@ if ($action === 'config') {
             'graph' => $cloudConfig['graph'],
             'authority' => $cloudConfig['authority'],
             'configured' => $cloudConfig['client_id'] !== '' && $cloudConfig['client_secret'] !== '',
+            'client_id' => $cloudConfig['client_id'],
+            'client_secret_masked' => od_demo_mask_secret($cloudConfig['client_secret']),
+            'tenant' => $cloudConfig['tenant'],
             'authorized' => is_array($token) && !empty($token['access_token']),
             'expires_at' => is_array($token) ? (int) ($token['expires_at'] ?? 0) : null,
             'scope' => $cloudConfig['scope'],
@@ -294,6 +317,55 @@ if ($action === 'config') {
 
 $currentUser = require_admin_or_teacher($mysqli);
 $cloudConfig = od_demo_config_for_cloud($config, $clouds, $cloud);
+
+if ($action === 'save_app_config') {
+    if ($method !== 'POST') {
+        error_response('保存配置仅支持 POST', 405);
+    }
+    $clientId = trim((string) ($jsonInput['client_id'] ?? ''));
+    $clientSecret = trim((string) ($jsonInput['client_secret'] ?? ''));
+    $existingSecret = (string) ($config['onedrive_demo']['apps'][$cloud]['client_secret'] ?? '');
+    $tenant = trim((string) ($jsonInput['tenant'] ?? 'common'));
+    $scope = trim((string) ($jsonInput['scope'] ?? $clouds[$cloud]['scope']));
+    if ($clientId === '') {
+        error_response('缺少 client_id', 400);
+    }
+    if ($clientSecret === '') {
+        $clientSecret = $existingSecret;
+    }
+    if ($clientSecret === '') {
+        error_response('缺少 client_secret', 400);
+    }
+    if ($tenant === '') {
+        $tenant = 'common';
+    }
+    if ($scope === '') {
+        $scope = $clouds[$cloud]['scope'];
+    }
+    if (!isset($config['onedrive_demo']) || !is_array($config['onedrive_demo'])) {
+        $config['onedrive_demo'] = [];
+    }
+    if (!isset($config['onedrive_demo']['apps']) || !is_array($config['onedrive_demo']['apps'])) {
+        $config['onedrive_demo']['apps'] = [];
+    }
+    $config['onedrive_demo']['apps'][$cloud] = [
+        'client_id' => $clientId,
+        'client_secret' => $clientSecret,
+        'tenant' => $tenant,
+        'scope' => $scope,
+    ];
+    od_demo_save_config_file($configFile, $config);
+    unset($_SESSION[od_demo_token_key($cloud)]);
+    json_response([
+        'ok' => true,
+        'cloud' => $cloud,
+        'configured' => true,
+        'client_id' => $clientId,
+        'client_secret_masked' => od_demo_mask_secret($clientSecret),
+        'tenant' => $tenant,
+        'scope' => $scope,
+    ]);
+}
 
 if ($action === 'auth_url') {
     if ($cloudConfig['client_id'] === '' || $cloudConfig['client_secret'] === '') {

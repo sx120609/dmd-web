@@ -105,10 +105,36 @@
                         </div>
                     </div>
 
+                    <div class="border rounded p-3 mb-4">
+                        <div class="small-label mb-3">1. 填写 Azure 应用</div>
+                        <div class="mb-3">
+                            <label class="form-label" for="clientIdInput">Application (client) ID</label>
+                            <input class="form-control" id="clientIdInput" placeholder="00000000-0000-0000-0000-000000000000">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="clientSecretInput">Client secret</label>
+                            <input class="form-control" id="clientSecretInput" type="password" autocomplete="new-password" placeholder="粘贴 Value，不是 Secret ID">
+                            <div class="form-text" id="secretHint">保存后会写入 config.php；重新保存会清除当前 demo token。</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="tenantInput">Tenant</label>
+                            <input class="form-control" id="tenantInput" placeholder="common">
+                            <div class="form-text">单租户可填 Tenant ID；多租户/个人测试可先用 common。</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="scopeInput">Scope</label>
+                            <textarea class="form-control" id="scopeInput" rows="3"></textarea>
+                        </div>
+                        <button class="btn btn-dark w-100" id="saveConfigButton">
+                            <i class="bi bi-save"></i>
+                            保存应用配置
+                        </button>
+                    </div>
+
                     <div class="d-flex gap-2 flex-wrap mb-4">
                         <button class="btn btn-primary" id="authButton">
                             <i class="bi bi-microsoft"></i>
-                            获取授权链接
+                            2. 获取授权链接
                         </button>
                         <button class="btn btn-outline-danger" id="disconnectButton">
                             <i class="bi bi-x-circle"></i>
@@ -183,6 +209,11 @@
         const callbackUrl = document.getElementById('callbackUrl');
         const configSummary = document.getElementById('configSummary');
         const siteIdInput = document.getElementById('siteIdInput');
+        const clientIdInput = document.getElementById('clientIdInput');
+        const clientSecretInput = document.getElementById('clientSecretInput');
+        const tenantInput = document.getElementById('tenantInput');
+        const scopeInput = document.getElementById('scopeInput');
+        const secretHint = document.getElementById('secretHint');
 
         let config = null;
 
@@ -265,6 +296,14 @@
                 configSummary.textContent = '未识别的云环境';
                 return;
             }
+            clientIdInput.value = current.client_id || '';
+            clientSecretInput.value = '';
+            clientSecretInput.placeholder = current.client_secret_masked ? `已保存：${current.client_secret_masked}` : '粘贴 Value，不是 Secret ID';
+            tenantInput.value = current.tenant || 'common';
+            scopeInput.value = current.scope || '';
+            secretHint.textContent = current.client_secret_masked
+                ? '已保存 client secret；如不想更换，请不要重复保存配置。'
+                : '保存后会写入 config.php；重新保存会清除当前 demo token。';
             configSummary.innerHTML = [
                 `Graph：<code>${current.graph}</code>`,
                 `登录端点：<code>${current.authority}</code>`,
@@ -291,6 +330,24 @@
             const data = await api('auth_url');
             print(data);
             window.open(data.auth_url, '_blank', 'noopener,noreferrer');
+        });
+
+        document.getElementById('saveConfigButton').addEventListener('click', async () => {
+            try {
+                const data = await api('save_app_config', {
+                    method: 'POST',
+                    body: {
+                        client_id: clientIdInput.value.trim(),
+                        client_secret: clientSecretInput.value.trim(),
+                        tenant: tenantInput.value.trim() || 'common',
+                        scope: scopeInput.value.trim(),
+                    }
+                });
+                print(data);
+                await loadConfig();
+            } catch (error) {
+                print(error);
+            }
         });
 
         document.getElementById('disconnectButton').addEventListener('click', async () => {
