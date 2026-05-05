@@ -125,18 +125,18 @@
                             <label class="form-label" for="scopeInput">Scope</label>
                             <textarea class="form-control" id="scopeInput" rows="3"></textarea>
                         </div>
-                        <button class="btn btn-dark w-100" id="saveConfigButton">
+                        <button class="btn btn-dark w-100" id="saveConfigButton" type="button">
                             <i class="bi bi-save"></i>
                             保存应用配置
                         </button>
                     </div>
 
                     <div class="d-flex gap-2 flex-wrap mb-4">
-                        <button class="btn btn-primary" id="authButton">
+                        <button class="btn btn-primary" id="authButton" type="button">
                             <i class="bi bi-microsoft"></i>
                             2. 获取授权链接
                         </button>
-                        <button class="btn btn-outline-danger" id="disconnectButton">
+                        <button class="btn btn-outline-danger" id="disconnectButton" type="button">
                             <i class="bi bi-x-circle"></i>
                             清除 demo token
                         </button>
@@ -177,12 +177,12 @@
                     </div>
 
                     <div class="d-flex gap-2 flex-wrap mt-4">
-                        <button class="btn btn-outline-primary" data-test="me_drive">读取默认 Drive</button>
-                        <button class="btn btn-outline-primary" data-test="list">列出 OneDrive 目录</button>
-                        <button class="btn btn-outline-primary" data-test="site">查询 SharePoint Site</button>
-                        <button class="btn btn-outline-primary" data-test="list_site">列出 SharePoint 根目录</button>
-                        <button class="btn btn-outline-primary" data-test="upload_session">创建上传会话</button>
-                        <button class="btn btn-outline-primary" data-test="simple_upload">简单上传</button>
+                        <button class="btn btn-outline-primary" type="button" data-test="me_drive">读取默认 Drive</button>
+                        <button class="btn btn-outline-primary" type="button" data-test="list">列出 OneDrive 目录</button>
+                        <button class="btn btn-outline-primary" type="button" data-test="site">查询 SharePoint Site</button>
+                        <button class="btn btn-outline-primary" type="button" data-test="list_site">列出 SharePoint 根目录</button>
+                        <button class="btn btn-outline-primary" type="button" data-test="upload_session">创建上传会话</button>
+                        <button class="btn btn-outline-primary" type="button" data-test="simple_upload">简单上传</button>
                     </div>
                 </div>
             </section>
@@ -228,7 +228,7 @@
 
         async function api(action, options = {}) {
             const cloud = cloudSelect.value;
-            const method = options.method || 'GET';
+            const method = (options.method || 'GET').toUpperCase();
             const url = new URL(API, window.location.origin);
             url.searchParams.set('action', action);
             url.searchParams.set('cloud', cloud);

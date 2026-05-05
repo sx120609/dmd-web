@@ -319,14 +319,11 @@ $currentUser = require_admin_or_teacher($mysqli);
 $cloudConfig = od_demo_config_for_cloud($config, $clouds, $cloud);
 
 if ($action === 'save_app_config') {
-    if ($method !== 'POST') {
-        error_response('保存配置仅支持 POST', 405);
-    }
-    $clientId = trim((string) ($jsonInput['client_id'] ?? ''));
-    $clientSecret = trim((string) ($jsonInput['client_secret'] ?? ''));
+    $clientId = trim((string) ($jsonInput['client_id'] ?? $_POST['client_id'] ?? $_GET['client_id'] ?? ''));
+    $clientSecret = trim((string) ($jsonInput['client_secret'] ?? $_POST['client_secret'] ?? $_GET['client_secret'] ?? ''));
     $existingSecret = (string) ($config['onedrive_demo']['apps'][$cloud]['client_secret'] ?? '');
-    $tenant = trim((string) ($jsonInput['tenant'] ?? 'common'));
-    $scope = trim((string) ($jsonInput['scope'] ?? $clouds[$cloud]['scope']));
+    $tenant = trim((string) ($jsonInput['tenant'] ?? $_POST['tenant'] ?? $_GET['tenant'] ?? 'common'));
+    $scope = trim((string) ($jsonInput['scope'] ?? $_POST['scope'] ?? $_GET['scope'] ?? $clouds[$cloud]['scope']));
     if ($clientId === '') {
         error_response('缺少 client_id', 400);
     }
