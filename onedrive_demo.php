@@ -248,7 +248,12 @@
 
         function renderConfig(data) {
             config = data;
-            callbackUrl.value = data.callback_url || '';
+            const currentBase = window.location.pathname.replace(/\/onedrive-demo\/?$/, '');
+            const browserCallback = `${window.location.origin}${currentBase}/api/onedrive_demo.php?action=callback`;
+            callbackUrl.value = data.callback_url || browserCallback;
+            if (!callbackUrl.value.includes(`${currentBase}/api/`)) {
+                callbackUrl.value = browserCallback;
+            }
             loginState.textContent = data.logged_in ? `已登录：${data.user.display_name || data.user.username}` : '未登录';
             loginState.className = data.logged_in ? 'badge text-bg-success' : 'badge text-bg-warning';
 

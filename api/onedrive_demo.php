@@ -38,8 +38,33 @@ function od_demo_absolute_url(string $path): string
 
 function od_demo_callback_url(): string
 {
-    $script = $_SERVER['SCRIPT_NAME'] ?? '/api/onedrive_demo.php';
-    return od_demo_absolute_url($script . '?action=callback');
+    $candidates = [
+        $_SERVER['HTTP_X_ORIGINAL_URI'] ?? '',
+        $_SERVER['REQUEST_URI'] ?? '',
+        $_SERVER['SCRIPT_NAME'] ?? '',
+    ];
+
+    foreach ($candidates as $candidate) {
+        $path = parse_url((string) $candidate, PHP_URL_PATH);
+        if (!is_string($path) || $path === '') {
+            continue;
+        }
+        if (preg_match('~^(.*?/api/onedrive_demo)(?:\.php)?/?$~', $path, $m)) {
+            return od_demo_absolute_url($m[1] . '.php?action=callback');
+        }
+    }
+
+    $referer = $_SERVER['HTTP_REFERER'] ?? '';
+    $refererPath = is_string($referer) ? parse_url($referer, PHP_URL_PATH) : '';
+    if (is_string($refererPath) && $refererPath !== '') {
+        $basePath = rtrim(dirname($refererPath), '/');
+        if ($basePath === '' || $basePath === '.') {
+            $basePath = '';
+        }
+        return od_demo_absolute_url($basePath . '/api/onedrive_demo.php?action=callback');
+    }
+
+    return od_demo_absolute_url('/api/onedrive_demo.php?action=callback');
 }
 
 function od_demo_config_for_cloud(array $config, array $clouds, string $cloud): array
