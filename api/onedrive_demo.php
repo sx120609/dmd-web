@@ -38,6 +38,19 @@ function od_demo_absolute_url(string $path): string
 
 function od_demo_callback_url(): string
 {
+    $requested = trim((string) ($_GET['redirect_uri'] ?? $_POST['redirect_uri'] ?? ''));
+    if ($requested !== '') {
+        $parts = parse_url($requested);
+        if (is_array($parts) && in_array(strtolower((string) ($parts['scheme'] ?? '')), ['http', 'https'], true) && !empty($parts['host'])) {
+            return $requested;
+        }
+    }
+
+    $sessionRedirect = $_SESSION['onedrive_demo_redirect_uri'] ?? '';
+    if (is_string($sessionRedirect) && $sessionRedirect !== '') {
+        return $sessionRedirect;
+    }
+
     $candidates = [
         $_SERVER['HTTP_X_ORIGINAL_URI'] ?? '',
         $_SERVER['REQUEST_URI'] ?? '',
@@ -242,6 +255,9 @@ if ($action === 'callback') {
     }
     $cloud = $stored['cloud'];
     $cloudConfig = od_demo_config_for_cloud($config, $clouds, $cloud);
+    if (!empty($stored['redirect_uri']) && is_string($stored['redirect_uri'])) {
+        $_SESSION['onedrive_demo_redirect_uri'] = $stored['redirect_uri'];
+    }
     $token = od_demo_exchange_code($cloudConfig, $code);
     od_demo_store_token($cloud, $token);
     unset($_SESSION['onedrive_demo_oauth_state']);
@@ -288,6 +304,7 @@ if ($action === 'auth_url') {
         'state' => $state,
         'cloud' => $cloud,
         'user_id' => (int) $currentUser['id'],
+        'redirect_uri' => od_demo_callback_url(),
     ];
     $authUrl = od_demo_authorize_endpoint($cloudConfig) . '?' . http_build_query([
         'client_id' => $cloudConfig['client_id'],

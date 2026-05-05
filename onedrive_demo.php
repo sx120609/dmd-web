@@ -186,6 +186,11 @@
 
         let config = null;
 
+        function browserCallbackUrl() {
+            const currentBase = window.location.pathname.replace(/\/onedrive-demo\/?$/, '');
+            return `${window.location.origin}${currentBase}/api/onedrive_demo.php?action=callback`;
+        }
+
         function print(data) {
             output.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
         }
@@ -196,6 +201,9 @@
             const url = new URL(API, window.location.origin);
             url.searchParams.set('action', action);
             url.searchParams.set('cloud', cloud);
+            if (['config', 'auth_url'].includes(action)) {
+                url.searchParams.set('redirect_uri', browserCallbackUrl());
+            }
             Object.entries(options.query || {}).forEach(([key, value]) => {
                 if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, value);
             });
@@ -248,12 +256,7 @@
 
         function renderConfig(data) {
             config = data;
-            const currentBase = window.location.pathname.replace(/\/onedrive-demo\/?$/, '');
-            const browserCallback = `${window.location.origin}${currentBase}/api/onedrive_demo.php?action=callback`;
-            callbackUrl.value = data.callback_url || browserCallback;
-            if (!callbackUrl.value.includes(`${currentBase}/api/`)) {
-                callbackUrl.value = browserCallback;
-            }
+            callbackUrl.value = browserCallbackUrl();
             loginState.textContent = data.logged_in ? `已登录：${data.user.display_name || data.user.username}` : '未登录';
             loginState.className = data.logged_in ? 'badge text-bg-success' : 'badge text-bg-warning';
 
