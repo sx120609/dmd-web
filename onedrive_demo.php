@@ -285,6 +285,36 @@
             return data;
         }
 
+        async function saveAppConfig() {
+            const cloud = cloudSelect.value;
+            const url = new URL(API, window.location.origin);
+            url.searchParams.set('action', 'save_app_config');
+            url.searchParams.set('cloud', cloud);
+            url.searchParams.set('redirect_uri', browserCallbackUrl());
+
+            const body = new URLSearchParams();
+            body.set('client_id', clientIdInput.value.trim());
+            body.set('client_secret', clientSecretInput.value.trim());
+            body.set('tenant', tenantInput.value.trim() || 'common');
+            body.set('scope', scopeInput.value.trim());
+
+            const response = await fetch(url.toString(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body,
+                credentials: 'same-origin',
+            });
+            const text = await response.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch {
+                data = text;
+            }
+            if (!response.ok) throw data;
+            return data;
+        }
+
         function renderConfig(data) {
             config = data;
             callbackUrl.value = browserCallbackUrl();
@@ -334,15 +364,7 @@
 
         document.getElementById('saveConfigButton').addEventListener('click', async () => {
             try {
-                const data = await api('save_app_config', {
-                    method: 'POST',
-                    body: {
-                        client_id: clientIdInput.value.trim(),
-                        client_secret: clientSecretInput.value.trim(),
-                        tenant: tenantInput.value.trim() || 'common',
-                        scope: scopeInput.value.trim(),
-                    }
-                });
+                const data = await saveAppConfig();
                 print(data);
                 await loadConfig();
             } catch (error) {

@@ -325,7 +325,14 @@ if ($action === 'save_app_config') {
     $tenant = trim((string) ($jsonInput['tenant'] ?? $_POST['tenant'] ?? $_GET['tenant'] ?? 'common'));
     $scope = trim((string) ($jsonInput['scope'] ?? $_POST['scope'] ?? $_GET['scope'] ?? $clouds[$cloud]['scope']));
     if ($clientId === '') {
-        error_response('缺少 client_id', 400);
+        json_response([
+            'error' => '缺少 client_id',
+            'received_post_keys' => array_keys($_POST),
+            'received_json_keys' => array_keys($jsonInput),
+            'received_get_keys' => array_keys($_GET),
+            'content_type' => $_SERVER['CONTENT_TYPE'] ?? '',
+            'method' => $_SERVER['REQUEST_METHOD'] ?? '',
+        ], 400);
     }
     if ($clientSecret === '') {
         $clientSecret = $existingSecret;
