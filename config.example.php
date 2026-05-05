@@ -21,4 +21,23 @@ return [
     //     'public_base_url' => 'https://organic.cpu.edu.cn',
     //     'image_public_prefix' => '/uploads/images',
     // ],
+    // 可选：OneDrive / SharePoint Graph API 接入 demo 配置。
+    // Azure Portal / Azure 中国门户中创建“Web”应用后，把 /api/onedrive_demo.php?action=callback
+    // 接口返回的 callback_url 填入 Redirect URI。
+    // 'onedrive_demo' => [
+    //     'apps' => [
+    //         'global' => [
+    //             'client_id' => '00000000-0000-0000-0000-000000000000',
+    //             'client_secret' => 'replace-with-client-secret',
+    //             'tenant' => 'common',
+    //             'scope' => 'offline_access https://graph.microsoft.com/User.Read https://graph.microsoft.com/Files.ReadWrite.All https://graph.microsoft.com/Sites.ReadWrite.All',
+    //         ],
+    //         'china' => [
+    //             'client_id' => '00000000-0000-0000-0000-000000000000',
+    //             'client_secret' => 'replace-with-client-secret',
+    //             'tenant' => 'common',
+    //             'scope' => 'offline_access https://microsoftgraph.chinacloudapi.cn/User.Read https://microsoftgraph.chinacloudapi.cn/Files.ReadWrite.All https://microsoftgraph.chinacloudapi.cn/Sites.ReadWrite.All',
+    //         ],
+    //     ],
+    // ],
 ];
