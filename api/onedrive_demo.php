@@ -286,7 +286,7 @@ if ($action === 'callback') {
     exit;
 }
 
-$cloud = trim((string) ($_GET['cloud'] ?? $_POST['cloud'] ?? $jsonInput['cloud'] ?? 'global'));
+$cloud = trim((string) ($_POST['cloud'] ?? $_GET['cloud'] ?? $jsonInput['cloud'] ?? 'global'));
 
 if ($action === 'config') {
     $user = current_user($mysqli);

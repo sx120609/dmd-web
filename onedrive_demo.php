@@ -105,31 +105,33 @@
                         </div>
                     </div>
 
-                    <div class="border rounded p-3 mb-4">
+                    <form class="border rounded p-3 mb-4" id="appConfigForm" method="post" action="/rarelight/api/onedrive_demo.php?action=save_app_config">
+                        <input type="hidden" name="cloud" id="configCloudInput" value="global">
+                        <input type="hidden" name="redirect_uri" id="configRedirectInput">
                         <div class="small-label mb-3">1. 填写 Azure 应用</div>
                         <div class="mb-3">
                             <label class="form-label" for="clientIdInput">Application (client) ID</label>
-                            <input class="form-control" id="clientIdInput" placeholder="00000000-0000-0000-0000-000000000000">
+                            <input class="form-control" id="clientIdInput" name="client_id" placeholder="00000000-0000-0000-0000-000000000000">
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="clientSecretInput">Client secret</label>
-                            <input class="form-control" id="clientSecretInput" type="password" autocomplete="new-password" placeholder="粘贴 Value，不是 Secret ID">
+                            <input class="form-control" id="clientSecretInput" name="client_secret" type="password" autocomplete="new-password" placeholder="粘贴 Value，不是 Secret ID">
                             <div class="form-text" id="secretHint">保存后会写入 config.php；重新保存会清除当前 demo token。</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="tenantInput">Tenant</label>
-                            <input class="form-control" id="tenantInput" placeholder="common">
+                            <input class="form-control" id="tenantInput" name="tenant" placeholder="common">
                             <div class="form-text">单租户可填 Tenant ID；多租户/个人测试可先用 common。</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="scopeInput">Scope</label>
-                            <textarea class="form-control" id="scopeInput" rows="3"></textarea>
+                            <textarea class="form-control" id="scopeInput" name="scope" rows="3"></textarea>
                         </div>
-                        <button class="btn btn-dark w-100" id="saveConfigButton" type="button">
+                        <button class="btn btn-dark w-100" id="saveConfigButton" type="submit">
                             <i class="bi bi-save"></i>
                             保存应用配置
                         </button>
-                    </div>
+                    </form>
 
                     <div class="d-flex gap-2 flex-wrap mb-4">
                         <button class="btn btn-primary" id="authButton" type="button">
@@ -214,12 +216,21 @@
         const tenantInput = document.getElementById('tenantInput');
         const scopeInput = document.getElementById('scopeInput');
         const secretHint = document.getElementById('secretHint');
+        const appConfigForm = document.getElementById('appConfigForm');
+        const configCloudInput = document.getElementById('configCloudInput');
+        const configRedirectInput = document.getElementById('configRedirectInput');
 
         let config = null;
 
         function browserCallbackUrl() {
             const currentBase = window.location.pathname.replace(/\/onedrive-demo\/?$/, '');
             return `${window.location.origin}${currentBase}/api/onedrive_demo.php?action=callback`;
+        }
+
+        function syncConfigFormMeta() {
+            configCloudInput.value = cloudSelect.value;
+            configRedirectInput.value = browserCallbackUrl();
+            appConfigForm.action = `${BASE_PATH}/api/onedrive_demo.php?action=save_app_config&cloud=${encodeURIComponent(cloudSelect.value)}&redirect_uri=${encodeURIComponent(browserCallbackUrl())}`;
         }
 
         function print(data) {
@@ -317,6 +328,7 @@
 
         function renderConfig(data) {
             config = data;
+            syncConfigFormMeta();
             callbackUrl.value = browserCallbackUrl();
             loginState.textContent = data.logged_in ? `已登录：${data.user.display_name || data.user.username}` : '未登录';
             loginState.className = data.logged_in ? 'badge text-bg-success' : 'badge text-bg-warning';
@@ -350,7 +362,10 @@
         }
 
         document.getElementById('refreshConfigButton').addEventListener('click', loadConfig);
-        cloudSelect.addEventListener('change', () => config && renderConfig(config));
+        cloudSelect.addEventListener('change', () => {
+            syncConfigFormMeta();
+            config && renderConfig(config);
+        });
         document.getElementById('copyCallbackButton').addEventListener('click', async () => {
             await navigator.clipboard.writeText(callbackUrl.value);
         });
@@ -362,7 +377,9 @@
             window.open(data.auth_url, '_blank', 'noopener,noreferrer');
         });
 
-        document.getElementById('saveConfigButton').addEventListener('click', async () => {
+        appConfigForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            syncConfigFormMeta();
             try {
                 const data = await saveAppConfig();
                 print(data);
