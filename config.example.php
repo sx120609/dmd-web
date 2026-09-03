@@ -18,7 +18,7 @@ return [
     // 'storage' => [
     //     'cloud_dir' => '/path/to/writable/uploads/files',
     //     'image_dir' => '/path/to/writable/uploads/images',
-    //     'public_base_url' => 'https://organic.cpu.edu.cn',
+    //     'public_base_url' => 'https://rarelight.cn',
     //     'image_public_prefix' => '/uploads/images',
     // ],
     // 可选：OneDrive / SharePoint Graph API 接入 demo 配置。
